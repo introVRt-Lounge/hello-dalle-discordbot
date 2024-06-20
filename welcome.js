@@ -1,4 +1,4 @@
-const { WELCOME_CHANNEL_NAME, WELCOME_PROMPT, OPENAI_API_KEY } = require('./config');
+const { WELCOME_CHANNEL_NAME, WELCOME_PROMPT, OPENAI_API_KEY, WILDCARD } = require('./config');
 const { logMessage } = require('./log');
 const { readWelcomeCount, writeWelcomeCount } = require('./utils');
 const axios = require('axios');
@@ -82,56 +82,64 @@ async function welcomeUser(client, member) {
 
     await logMessage(client, guild, `Triggering welcome process for: ${username}, Avatar URL: ${avatarUrl}`);
 
-    // Check if the user has a default avatar
-    if (member.user.avatar === null) {
-        await logMessage(client, guild, `User ${username} does not have a custom avatar. Skipping image generation.`);
-        return;
-    }
-
-    try {
-        // Download the user's avatar
-        await logMessage(client, guild, `Downloading avatar for user ${username}`);
-        const avatarResponse = await axios.get(avatarUrl, { responseType: 'arraybuffer' });
-        const avatarPath = path.join(__dirname, 'avatar.png');
-        fs.writeFileSync(avatarPath, avatarResponse.data);
-        await logMessage(client, guild, `Avatar downloaded for user ${username} at ${avatarPath}`);
-
-        // Describe the avatar image using GPT-4 Vision
-        const description = await describeImage(client, guild, avatarPath);
-        await logMessage(client, guild, `Image description for ${username}: ${description}`);
-
-        // Generate the DALL-E image using the welcome prompt and the description
-        let fullPrompt = WELCOME_PROMPT.replace('{username}', username);
-        fullPrompt = fullPrompt.replace('{avatar}', description); // Replace {avatar} with the description
-        await logMessage(client, guild, `Full prompt for DALL-E: ${fullPrompt}`); // Debug log for full prompt
-        const imageUrl = await generateImage(client, guild, fullPrompt);
-        await logMessage(client, guild, `Generated image URL for ${username}: ${imageUrl}`);
-
-        // Download the DALL-E image and re-upload to Discord
-        const dalleImagePath = path.join(__dirname, 'dalle_image.png');
-        await downloadImage(imageUrl, dalleImagePath);
-        await logMessage(client, guild, `DALL-E image downloaded to ${dalleImagePath}`);
-
-        // Send the welcome message with the downloaded and re-uploaded image
-        const welcomeChannel = guild.channels.cache.find(channel => channel.name === WELCOME_CHANNEL_NAME);
-        if (welcomeChannel) {
-            await logMessage(client, guild, `Sending welcome message to ${WELCOME_CHANNEL_NAME} channel`);
-            await welcomeChannel.send({
-                content: `Welcome, <@${userId}>!`,
-                files: [dalleImagePath]
-            });
-        } else {
-            await logMessage(client, guild, 'Welcome channel not found.');
+    // Determine the prompt to use
+    let fullPrompt;
+    if (Math.random() * 100 < WILDCARD) {
+        fullPrompt = `Generate a welcome image for the user "${username}", be inspired by that username to create an image that represents that username to the best of your abilities. Add the text "Welcome ${username}" to the image.`;
+        await logMessage(client, guild, `Using wildcard prompt for user: ${username}`);
+    } else {
+        // Check if the user has a default avatar
+        if (member.user.avatar === null) {
+            await logMessage(client, guild, `User ${username} does not have a custom avatar. Skipping image generation.`);
+            return;
         }
 
-        // Increment the welcome count and save it
-        welcomeCount++;
-        writeWelcomeCount(welcomeCount);
-        await logMessage(client, guild, `Total users welcomed: ${welcomeCount}`);
+        try {
+            // Download the user's avatar
+            await logMessage(client, guild, `Downloading avatar for user ${username}`);
+            const avatarResponse = await axios.get(avatarUrl, { responseType: 'arraybuffer' });
+            const avatarPath = path.join(__dirname, 'avatar.png');
+            fs.writeFileSync(avatarPath, avatarResponse.data);
+            await logMessage(client, guild, `Avatar downloaded for user ${username} at ${avatarPath}`);
 
-    } catch (error) {
-        await logMessage(client, guild, `Error generating image for ${username}: ${error.message}`);
+            // Describe the avatar image using GPT-4 Vision
+            const description = await describeImage(client, guild, avatarPath);
+            await logMessage(client, guild, `Image description for ${username}: ${description}`);
+
+            // Generate the DALL-E image using the welcome prompt and the description
+            fullPrompt = WELCOME_PROMPT.replace('{username}', username);
+            fullPrompt = fullPrompt.replace('{avatar}', description); // Replace {avatar} with the description
+        } catch (error) {
+            await logMessage(client, guild, `Error generating image for ${username}: ${error.message}`);
+            return;
+        }
     }
+    
+    await logMessage(client, guild, `Full prompt for DALL-E: ${fullPrompt}`); // Debug log for full prompt
+    const imageUrl = await generateImage(client, guild, fullPrompt);
+    await logMessage(client, guild, `Generated image URL for ${username}: ${imageUrl}`);
+
+    // Download the DALL-E image and re-upload to Discord
+    const dalleImagePath = path.join(__dirname, 'dalle_image.png');
+    await downloadImage(imageUrl, dalleImagePath);
+    await logMessage(client, guild, `DALL-E image downloaded to ${dalleImagePath}`);
+
+    // Send the welcome message with the downloaded and re-uploaded image
+    const welcomeChannel = guild.channels.cache.find(channel => channel.name === WELCOME_CHANNEL_NAME);
+    if (welcomeChannel) {
+        await logMessage(client, guild, `Sending welcome message to ${WELCOME_CHANNEL_NAME} channel`);
+        await welcomeChannel.send({
+            content: `Welcome, <@${userId}>!`,
+            files: [dalleImagePath]
+        });
+    } else {
+        await logMessage(client, guild, 'Welcome channel not found.');
+    }
+
+    // Increment the welcome count and save it
+    welcomeCount++;
+    writeWelcomeCount(welcomeCount);
+    await logMessage(client, guild, `Total users welcomed: ${welcomeCount}`);
 }
 
 module.exports = {

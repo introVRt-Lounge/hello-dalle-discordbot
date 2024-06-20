@@ -1,5 +1,5 @@
 const { Client, GatewayIntentBits } = require('discord.js');
-const { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID } = require('./config'); // Include BOTSPAM_CHANNEL_ID
+const { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID, WILDCARD } = require('./config');
 const { logMessage } = require('./log');
 const { welcomeUser, welcomeCount } = require('./welcome');
 
@@ -15,7 +15,7 @@ const client = new Client({
 client.once('ready', async () => {
     try {
         const guild = client.guilds.cache.first();
-        await logMessage(client, guild, `Bot is online! Version: ${VERSION}. Total users welcomed so far: ${welcomeCount}`);
+        await logMessage(client, guild, `Bot is online! Version: ${VERSION}. Total users welcomed so far: ${welcomeCount}. Wildcard chance: ${WILDCARD}%`);
     } catch (error) {
         console.error('Error during ready event:', error);
     }
