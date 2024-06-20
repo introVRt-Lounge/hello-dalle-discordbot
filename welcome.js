@@ -8,8 +8,8 @@ const path = require('path');
 let welcomeCount = readWelcomeCount();
 
 // Function to describe the image using GPT-4 Vision API
-async function describeImage(imagePath) {
-    logMessage(null, `Describing image: ${imagePath}`);
+async function describeImage(client, guild, imagePath) {
+    await logMessage(client, guild, `Describing image: ${imagePath}`);
     const image = fs.readFileSync(imagePath, { encoding: 'base64' });
 
     const response = await axios.post('https://api.openai.com/v1/chat/completions', {
@@ -36,13 +36,13 @@ async function describeImage(imagePath) {
         }
     });
 
-    logMessage(null, `Image described: ${response.data.choices[0].message.content}`);
+    await logMessage(client, guild, `Image described: ${response.data.choices[0].message.content}`);
     return response.data.choices[0].message.content;
 }
 
 // Function to generate an image using DALL-E 3
-async function generateImage(prompt) {
-    logMessage(null, `Generating image with prompt: ${prompt}`);
+async function generateImage(client, guild, prompt) {
+    await logMessage(client, guild, `Generating image with prompt: ${prompt}`);
     const response = await axios.post('https://api.openai.com/v1/images/generations', {
         model: 'dall-e-3',
         prompt: prompt,
@@ -55,7 +55,7 @@ async function generateImage(prompt) {
         }
     });
 
-    logMessage(null, `Image generated: ${response.data.data[0].url}`);
+    await logMessage(client, guild, `Image generated: ${response.data.data[0].url}`);
     return response.data.data[0].url;
 }
 
@@ -80,7 +80,7 @@ async function welcomeUser(client, member) {
     const userId = member.user.id;
     const avatarUrl = member.user.displayAvatarURL({ format: 'png', dynamic: true });
 
-    logMessage(client, guild, `Triggering welcome process for: ${username}, Avatar URL: ${avatarUrl}`);
+    await logMessage(client, guild, `Triggering welcome process for: ${username}, Avatar URL: ${avatarUrl}`);
 
     // Check if the user has a default avatar
     if (member.user.avatar === null) {
@@ -90,32 +90,32 @@ async function welcomeUser(client, member) {
 
     try {
         // Download the user's avatar
-        logMessage(client, guild, `Downloading avatar for user ${username}`);
+        await logMessage(client, guild, `Downloading avatar for user ${username}`);
         const avatarResponse = await axios.get(avatarUrl, { responseType: 'arraybuffer' });
         const avatarPath = path.join(__dirname, 'avatar.png');
         fs.writeFileSync(avatarPath, avatarResponse.data);
-        logMessage(client, guild, `Avatar downloaded for user ${username} at ${avatarPath}`);
+        await logMessage(client, guild, `Avatar downloaded for user ${username} at ${avatarPath}`);
 
         // Describe the avatar image using GPT-4 Vision
-        const description = await describeImage(avatarPath);
+        const description = await describeImage(client, guild, avatarPath);
         await logMessage(client, guild, `Image description for ${username}: ${description}`);
 
         // Generate the DALL-E image using the welcome prompt and the description
         let fullPrompt = WELCOME_PROMPT.replace('{username}', username);
         fullPrompt = fullPrompt.replace('{avatar}', description); // Replace {avatar} with the description
         await logMessage(client, guild, `Full prompt for DALL-E: ${fullPrompt}`); // Debug log for full prompt
-        const imageUrl = await generateImage(fullPrompt);
+        const imageUrl = await generateImage(client, guild, fullPrompt);
         await logMessage(client, guild, `Generated image URL for ${username}: ${imageUrl}`);
 
         // Download the DALL-E image and re-upload to Discord
         const dalleImagePath = path.join(__dirname, 'dalle_image.png');
         await downloadImage(imageUrl, dalleImagePath);
-        logMessage(client, guild, `DALL-E image downloaded to ${dalleImagePath}`);
+        await logMessage(client, guild, `DALL-E image downloaded to ${dalleImagePath}`);
 
         // Send the welcome message with the downloaded and re-uploaded image
         const welcomeChannel = guild.channels.cache.find(channel => channel.name === WELCOME_CHANNEL_NAME);
         if (welcomeChannel) {
-            logMessage(client, guild, `Sending welcome message to ${WELCOME_CHANNEL_NAME} channel`);
+            await logMessage(client, guild, `Sending welcome message to ${WELCOME_CHANNEL_NAME} channel`);
             await welcomeChannel.send({
                 content: `Welcome, <@${userId}>!`,
                 files: [dalleImagePath]

@@ -1,5 +1,5 @@
 const { Client, GatewayIntentBits } = require('discord.js');
-const { DISCORD_BOT_TOKEN, VERSION } = require('./config');
+const { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID } = require('./config'); // Include BOTSPAM_CHANNEL_ID
 const { logMessage } = require('./log');
 const { welcomeUser, welcomeCount } = require('./welcome');
 
