@@ -81,8 +81,8 @@ async function welcomeUser(client, member) {
     const avatarUrl = member.user.displayAvatarURL({ format: 'png', dynamic: true });
 
     // Simplified message for botspam
-    await logMessage(client, guild, `Triggering welcome for "${username}"`, 'welcome');
-    await logMessage(client, guild, { files: [avatarUrl] }, 'welcome');
+    await logMessage(client, guild, `Triggering welcome for "${username}"`);
+    await logMessage(client, guild, { files: [avatarUrl] });
 
     // Determine the prompt to use
     let fullPrompt;
@@ -118,7 +118,7 @@ async function welcomeUser(client, member) {
     }
     
     // Simplified message for botspam
-    await logMessage(client, guild, `Prompt: ${fullPrompt}`, 'welcome');
+    await logMessage(client, guild, `Prompt: ${fullPrompt}`);
     const imageUrl = await generateImage(client, guild, fullPrompt);
     console.log(`Generated image URL for ${username}: ${imageUrl}`);
 
@@ -128,8 +128,8 @@ async function welcomeUser(client, member) {
     console.log(`DALL-E image downloaded to ${dalleImagePath}`);
 
     // Simplified message for botspam
-    await logMessage(client, guild, { files: [dalleImagePath] }, 'welcome');
-    await logMessage(client, guild, `Sending to #${WELCOME_CHANNEL_NAME}`, 'welcome');
+    await logMessage(client, guild, { files: [dalleImagePath] });
+    await logMessage(client, guild, `Sending to #${WELCOME_CHANNEL_NAME}`);
 
     // Send the welcome message with the downloaded and re-uploaded image
     const welcomeChannel = guild.channels.cache.find(channel => channel.name === WELCOME_CHANNEL_NAME);
@@ -145,7 +145,7 @@ async function welcomeUser(client, member) {
     // Increment the welcome count and save it
     welcomeCount++;
     writeWelcomeCount(welcomeCount);
-    await logMessage(client, guild, `Total users welcomed: ${welcomeCount}`, 'welcome');
+    await logMessage(client, guild, `Total users welcomed: ${welcomeCount}`);
 }
 
 module.exports = {
