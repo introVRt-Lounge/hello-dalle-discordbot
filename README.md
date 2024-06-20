@@ -43,6 +43,10 @@ For details on running this project with Docker, visit the [Docker Hub page](htt
 ### Example WILDCARD debug report in \`#botspam\`
 ![Example wildcard debug report in #botspam](https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/wildcard-botspam-output.png)
 
+## Cost
+
+Using the bot incurs costs based on the usage of OpenAI's DALL-E API. Each welcome image generated costs approximately $0.03. Ensure you monitor your usage to manage costs effectively.
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](https://github.com/heavygee/hello-dalle-discordbot/blob/main/LICENSE) file for details.

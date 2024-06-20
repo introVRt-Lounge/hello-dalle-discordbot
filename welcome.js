@@ -55,7 +55,6 @@ async function generateImage(client, guild, prompt) {
         }
     });
 
-    await logMessage(client, guild, `Image generated: ${response.data.data[0].url}`);
     return response.data.data[0].url;
 }
 
@@ -117,7 +116,7 @@ async function welcomeUser(client, member) {
     
     await logMessage(client, guild, `Full prompt for DALL-E: ${fullPrompt}`); // Debug log for full prompt
     const imageUrl = await generateImage(client, guild, fullPrompt);
-    await logMessage(client, guild, `Generated image URL for ${username}: ${imageUrl}`);
+    await logMessage(client, guild, `Generated image URL for ${username}`);
 
     // Download the DALL-E image and re-upload to Discord
     const dalleImagePath = path.join(__dirname, 'dalle_image.png');
