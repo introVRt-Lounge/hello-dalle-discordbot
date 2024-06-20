@@ -32,16 +32,16 @@ For details on running this project with Docker, visit the [Docker Hub page](htt
 ## Examples of Output
 
 ### Example welcome image in \`#new-users\`
-![Example welcome image in #new-users](https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/new-users-output.png)
+<img src="https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/new-users-output.png" alt="Example welcome image in #new-users" width="300">
 
 ### Example debug report in \`#botspam\`
-![Example debug report in #botspam](https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/botspam-output.png)
+<img src="https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/botspam-output.png" alt="Example debug report in #botspam" width="300">
 
 ### Example WILDCARD welcome image in \`#new-users\`
-![Example wildcard welcome image in #new-users](https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/wildcard-output.png)
+<img src="https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/wildcard-output.png" alt="Example wildcard welcome image in #new-users" width="300">
 
 ### Example WILDCARD debug report in \`#botspam\`
-![Example wildcard debug report in #botspam](https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/wildcard-botspam-output.png)
+<img src="https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/wildcard-botspam-output.png" alt="Example wildcard debug report in #botspam" width="300">
 
 ## Cost
 
