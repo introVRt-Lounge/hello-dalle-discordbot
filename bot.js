@@ -25,6 +25,15 @@ client.on('guildMemberAdd', async member => {
     await welcomeUser(client, member);
 });
 
+async function fetchMemberByUsername(guild, username) {
+    try {
+        await guild.members.fetch(); // Ensure the member list is up-to-date
+        return guild.members.cache.find(member => member.user.username.toLowerCase() === username);
+    } catch (error) {
+        throw new Error(`Error fetching members: ${error.message}`);
+    }
+}
+
 client.on('messageCreate', async message => {
     if (message.channel.id === config.BOTSPAM_CHANNEL_ID) {
         if (message.content.startsWith('!welcome')) {
@@ -33,15 +42,14 @@ client.on('messageCreate', async message => {
                 const username = args[1].toLowerCase();
                 const guild = message.guild;
                 try {
-                    await guild.members.fetch(); // Ensure the member list is up-to-date
-                    const member = guild.members.cache.find(member => member.user.username.toLowerCase() === username);
+                    const member = await fetchMemberByUsername(guild, username);
                     if (member) {
                         await welcomeUser(client, member);
                     } else {
                         await logMessage(client, message.guild, `User ${username} not found.`);
                     }
                 } catch (error) {
-                    await logMessage(client, message.guild, `Error fetching members: ${error.message}`);
+                    await logMessage(client, message.guild, error.message);
                 }
             } else {
                 await logMessage(client, message.guild, 'Usage: !welcome <username>');
@@ -55,9 +63,9 @@ client.on('messageCreate', async message => {
                 } else {
                     try {
                         config.WILDCARD = newWildcardValue;
-                        await logMessage(client, message.guild, `Wildcard chance updated to ${config.WILDCARD}%.`);
+                        await logMessage(client, message.guild, `Wildcard chance updated to ${newWildcardValue}%.`);
                     } catch (error) {
-                        await logMessage(client, message.guild, `Error: ${error.message}`);
+                        await logMessage(client, message.guild, `Error updating wildcard value: ${error.message}`);
                     }
                 }
             } else {
