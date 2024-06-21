@@ -6,6 +6,7 @@ This bot uses OpenAI's DALL-E to generate welcome images for new Discord members
 - Automatically welcome new members with a custom image.
 - Generate images using DALL-E and re-upload to Discord to avoid expiration.
 - **Wildcard Feature**: Introduces variability in the prompts with a configurable chance of using an alternate prompt (default is 0% / disabled. 99 is max for 99% likely)
+- **Image Storage**: Saves generated welcome images to a `welcome_images` subfolder with filenames based on the username and timestamp.
 
 ## Installation
 
@@ -16,14 +17,14 @@ This bot uses OpenAI's DALL-E to generate welcome images for new Discord members
 ### Environment Variables
 Create a `.env` file in the root of your project with the following variables:
 
-```plaintext
+\`\`\`plaintext
 DISCORD_BOT_TOKEN=your_discord_bot_token
 OPENAI_API_KEY=your_openai_api_key
 BOTSPAM_CHANNEL_ID=your_botspam_channel_id
 WELCOME_CHANNEL_NAME=new-users
 WELCOME_PROMPT=Create a welcome image for a new Discord user with the username '{username}'. Incorporate the users avatar into the image, its described as: {avatar}
 WILDCARD=0
-```
+\`\`\`
 
 ### Running with Docker
 
@@ -51,7 +52,7 @@ Using the bot incurs costs based on the usage of OpenAI's DALL-E API. Each welco
 
 ### Botspam Channel
 
-The "botspam" channel is a designated channel in your Discord server where your bots can post detailed logs, debug information, and other outputs. When we reference `#botspam`, it refers to this designated channel where your bots will "spam" you with updates and logs. You will need to specify the ID of your botspam channel in the `.env` file.
+The "botspam" channel is a designated channel in your Discord server where your bots can post detailed logs, debug information, and other outputs. When we reference \`#botspam\`, it refers to this designated channel where your bots will "spam" you with updates and logs. You will need to specify the ID of your botspam channel in the `.env` file.
 
 ### Commands
 
@@ -61,13 +62,13 @@ The "botspam" channel is a designated channel in your Discord server where your 
 
 ### Example Usage
 
-```
+\`\`\`
 !welcome JohnDoe
-```
+\`\`\`
 
-```
+\`\`\`
 !wildcard 25
-```
+\`\`\`
 
 ## License
 

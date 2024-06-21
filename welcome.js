@@ -9,6 +9,12 @@ let welcomeCount = readWelcomeCount();
 
 const WILDCARD_PROMPT = (username) => `Generate a welcome image for the user "${username}", be inspired by that username to create an image that represents that username to the best of your abilities. Add the text "Welcome ${username}" to the image.`;
 
+// Ensure the welcome_images directory exists
+const welcomeImagesDir = path.join(__dirname, 'welcome_images');
+if (!fs.existsSync(welcomeImagesDir)) {
+    fs.mkdirSync(welcomeImagesDir);
+}
+
 // Function to describe the image using GPT-4 Vision API
 async function describeImage(client, guild, imagePath) {
     if (DEBUG) console.log(`Describing image: ${imagePath}`);
@@ -84,8 +90,8 @@ async function generateImage(client, guild, prompt, retries = 3, delay = 2000) {
     }
 }
 
-// Function to download an image from a URL
-async function downloadImage(url, filepath) {
+// Function to download an image from a URL and save it with a specific filename
+async function downloadAndSaveImage(url, filepath) {
     const response = await axios({
         url,
         responseType: 'stream'
@@ -93,7 +99,7 @@ async function downloadImage(url, filepath) {
 
     return new Promise((resolve, reject) => {
         response.data.pipe(fs.createWriteStream(filepath))
-            .on('finish', () => resolve())
+            .on('finish', () => resolve(filepath))
             .on('error', e => reject(e));
     });
 }
@@ -157,8 +163,9 @@ async function welcomeUser(client, member) {
         if (DEBUG) console.log(`Generated image URL for ${username}: ${imageUrl}`);
 
         // Download the DALL-E image and re-upload to Discord
-        const dalleImagePath = path.join(__dirname, 'dalle_image.png');
-        await downloadImage(imageUrl, dalleImagePath);
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const dalleImagePath = path.join(welcomeImagesDir, `${username}-${timestamp}.png`);
+        await downloadAndSaveImage(imageUrl, dalleImagePath);
         if (DEBUG) console.log(`DALL-E image downloaded to ${dalleImagePath}`);
 
         // Simplified message for botspam
