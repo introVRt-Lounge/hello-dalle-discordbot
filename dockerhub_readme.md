@@ -50,12 +50,12 @@ services:
   hello-dalle-discordbot:
     image: heavygee/hello-dalle-discordbot
     environment:
-      - DISCORD_BOT_TOKEN=\${DISCORD_BOT_TOKEN}
-      - OPENAI_API_KEY=\${OPENAI_API_KEY}
-      - BOTSPAM_CHANNEL_ID=\${BOTSPAM_CHANNEL_ID}
-      - WELCOME_CHANNEL_NAME=\${WELCOME_CHANNEL_NAME}
-      - WELCOME_PROMPT=\${WELCOME_PROMPT}
-      - WILDCARD=\${WILDCARD}
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - BOTSPAM_CHANNEL_ID=${BOTSPAM_CHANNEL_ID}
+      - WELCOME_CHANNEL_NAME=${WELCOME_CHANNEL_NAME}
+      - WELCOME_PROMPT=${WELCOME_PROMPT}
+      - WILDCARD=${WILDCARD}
     env_file:
       - .env
     volumes:
