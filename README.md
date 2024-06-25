@@ -17,14 +17,14 @@ This bot uses OpenAI's DALL-E to generate welcome images for new Discord members
 ### Environment Variables
 Create a `.env` file in the root of your project with the following variables:
 
-\`\`\`plaintext
+```plaintext
 DISCORD_BOT_TOKEN=your_discord_bot_token
 OPENAI_API_KEY=your_openai_api_key
 BOTSPAM_CHANNEL_ID=your_botspam_channel_id
 WELCOME_CHANNEL_NAME=new-users
 WELCOME_PROMPT=Create a welcome image for a new Discord user with the username '{username}'. Incorporate the users avatar into the image, its described as: {avatar}
 WILDCARD=0
-\`\`\`
+```
 
 ### Running with Docker
 
@@ -32,16 +32,16 @@ For details on running this project with Docker, visit the [Docker Hub page](htt
 
 ## Examples of Output
 
-### Example welcome image in \`#new-users\`
+### Example welcome image in `#new-users`
 <img src="https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/new-users-output.png" alt="Example welcome image in #new-users" width="300">
 
-### Example debug report in \`#botspam\`
+### Example debug report in `#botspam`
 <img src="https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/botspam-output.png" alt="Example debug report in #botspam" width="300">
 
-### Example WILDCARD welcome image in \`#new-users\`
+### Example WILDCARD welcome image in `#new-users`
 <img src="https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/wildcard-output.png" alt="Example wildcard welcome image in #new-users" width="300">
 
-### Example WILDCARD debug report in \`#botspam\`
+### Example WILDCARD debug report in `#botspam`
 <img src="https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/wildcard-botspam-output.png" alt="Example wildcard debug report in #botspam" width="300">
 
 ## Cost
@@ -56,19 +56,19 @@ The "botspam" channel is a designated channel in your Discord server where your 
 
 ### Commands
 
-- \`!welcome <username>\`: Manually trigger a welcome message for a specific user. This command should be used in the \`#botspam\` channel.
+- `!welcome <username>`: Manually trigger a welcome message for a specific user. This command should be used in the \`#botspam\` channel.
 
-- \`!wildcard <value>\`: Set the wildcard chance to a specific value between 0 and 99. This command allows you to control the variability in the welcome prompts. This command should be used in the \`#botspam\` channel.
+- `!wildcard <value>`: Set the wildcard chance to a specific value between 0 and 99. This command allows you to control the variability in the welcome prompts. This command should be used in the \`#botspam\` channel.
 
 ### Example Usage
 
-\`\`\`
+```
 !welcome JohnDoe
-\`\`\`
+```
 
-\`\`\`
+```
 !wildcard 25
-\`\`\`
+```
 
 ## License
 
