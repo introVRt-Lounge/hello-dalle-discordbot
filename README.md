@@ -52,13 +52,13 @@ Using the bot incurs costs based on the usage of OpenAI's DALL-E API. Each welco
 
 ### Botspam Channel
 
-The "botspam" channel is a designated channel in your Discord server where your bots can post detailed logs, debug information, and other outputs. When we reference \`#botspam\`, it refers to this designated channel where your bots will "spam" you with updates and logs. You will need to specify the ID of your botspam channel in the `.env` file.
+The "botspam" channel is a designated channel in your Discord server where your bots can post detailed logs, debug information, and other outputs. When we reference `#botspam`, it refers to this designated channel where your bots will "spam" you with updates and logs. You will need to specify the ID of your botspam channel in the `.env` file.
 
 ### Commands
 
-- `!welcome <username>`: Manually trigger a welcome message for a specific user. This command should be used in the \`#botspam\` channel.
+- `!welcome <username>`: Manually trigger a welcome message for a specific user. This command should be used in the `#botspam` channel.
 
-- `!wildcard <value>`: Set the wildcard chance to a specific value between 0 and 99. This command allows you to control the variability in the welcome prompts. This command should be used in the \`#botspam\` channel.
+- `!wildcard <value>`: Set the wildcard chance to a specific value between 0 and 99. This command allows you to control the variability in the welcome prompts. This command should be used in the `#botspam` channel.
 
 ### Example Usage
 
