@@ -107,8 +107,7 @@ async function downloadAndSaveImage(url, filepath) {
 // Function to get the full prompt for DALL-E
 async function getFullPrompt(client, guild, member, username, avatarUrl) {
     if (member.user.avatar === null) {
-        await logMessage(client, guild, "No profile pic, going wildcard.");
-        if (DEBUG) console.log(`Using wildcard prompt for user: ${username}`);
+        await logMessage(client, guild, "No profile pic, using simplified prompt.");
         return WILDCARD_PROMPT(username);
     }
 
