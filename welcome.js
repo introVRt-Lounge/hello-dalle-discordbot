@@ -37,7 +37,7 @@ async function describeImage(client, guild, imagePath) {
                     ]
                 }
             ],
-            max_tokens: 50 // Limit the response length
+            max_tokens: 30 // Limit the response length
         }, {
             headers: {
                 'Authorization': `Bearer ${OPENAI_API_KEY}`,
@@ -119,9 +119,10 @@ async function getFullPrompt(client, guild, member, username, avatarUrl) {
         if (DEBUG) console.log(`Using wildcard prompt for user: ${username}`);
         return WILDCARD_PROMPT(username);
     } else {
-        // Download the user's avatar
+        // Download the user's avatar with higher resolution
+        const highResAvatarUrl = `${avatarUrl}?size=4096`;
         if (DEBUG) console.log(`Downloading avatar for user ${username}`);
-        const avatarResponse = await axios.get(avatarUrl, { responseType: 'arraybuffer' });
+        const avatarResponse = await axios.get(highResAvatarUrl, { responseType: 'arraybuffer' });
         const avatarPath = path.join(__dirname, 'avatar.png');
         fs.writeFileSync(avatarPath, avatarResponse.data);
         if (DEBUG) console.log(`Avatar downloaded for user ${username} at ${avatarPath}`);
