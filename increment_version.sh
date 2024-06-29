@@ -42,4 +42,7 @@ new_version="$major.$minor.$subminor"
 # Update the version in package.json
 sed -i "s/\"version\": \"$current_version\"/\"version\": \"$new_version\"/" package.json
 
+# Regenerate the package-lock.json file to reflect the new version
+npm install
+
 echo "Version updated to $new_version"
