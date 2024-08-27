@@ -1,0 +1,15 @@
+{
+    "1.1.1": {
+      "description": "Adds the ability to dynamically adjust wildcard chance via command.",
+      "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.1.1"
+    },
+    "1.1.0": {
+      "description": "Initial release with basic welcome image generation.",
+      "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.1.0"
+    },
+    "1.0.0": {
+      "description": "Initial setup with environment configuration and Docker support.",
+      "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.0.0"
+    }
+  }
+    

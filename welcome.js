@@ -138,10 +138,9 @@ async function getFullPrompt(client, guild, member, username, avatarUrl) {
     }
 }
 
-// Function to handle the welcome process
 async function welcomeUser(client, member) {
     const guild = member.guild;
-    const username = member.user.username;
+    const displayName = member.displayName; // Use display name
     const userId = member.user.id;
     const avatarUrl = member.user.displayAvatarURL({ format: 'png', dynamic: true });
 
@@ -150,50 +149,50 @@ async function welcomeUser(client, member) {
     const accountAgeInYears = ((Date.now() - accountCreationDate) / (1000 * 60 * 60 * 24 * 365)).toFixed(1);
 
     // Simplified message for botspam
-    await logMessage(client, guild, `Triggering welcome for "${username}" - user account is ${accountAgeInYears} years old.`);
+    await logMessage(client, guild, `Triggering welcome for "${displayName}" - user account is ${accountAgeInYears} years old.`);
     await logMessage(client, guild, { files: [avatarUrl] });
 
-    if (DEBUG) console.log(`Welcome process started for ${username} with avatar URL: ${avatarUrl}`);
+    if (DEBUG) console.log(`Welcome process started for ${displayName} with avatar URL: ${avatarUrl}`);
 
     try {
         let fullPrompt;
         if (member.user.avatar === null) {
             await logMessage(client, guild, "No profile pic, using simplified prompt.");
-            fullPrompt = WILDCARD_PROMPT(username);
+            fullPrompt = WILDCARD_PROMPT(displayName); // Use the display name in the wildcard prompt
         } else {
             const randomNumber = Math.random() * 100;
             if (DEBUG) console.log(`Random number: ${randomNumber}, WILDCARD: ${WILDCARD}`);
             await logMessage(client, guild, `Random number: ${randomNumber}, WILDCARD: ${WILDCARD}`);
             
             if (randomNumber < WILDCARD) {
-                if (DEBUG) console.log(`Using wildcard prompt for user: ${username}`);
-                fullPrompt = WILDCARD_PROMPT(username);
+                if (DEBUG) console.log(`Using wildcard prompt for user: ${displayName}`);
+                fullPrompt = WILDCARD_PROMPT(displayName); // Use the display name in the wildcard prompt
             } else {
                 // Download the user's avatar with higher resolution
                 const highResAvatarUrl = `${avatarUrl}?size=4096`;
-                if (DEBUG) console.log(`Downloading avatar for user ${username}`);
+                if (DEBUG) console.log(`Downloading avatar for user ${displayName}`);
                 const avatarResponse = await axios.get(highResAvatarUrl, { responseType: 'arraybuffer' });
                 const avatarPath = path.join(__dirname, 'avatar.png');
                 fs.writeFileSync(avatarPath, avatarResponse.data);
-                if (DEBUG) console.log(`Avatar downloaded for user ${username} at ${avatarPath}`);
+                if (DEBUG) console.log(`Avatar downloaded for user ${displayName} at ${avatarPath}`);
 
                 // Describe the avatar image using GPT-4 Vision
                 const description = await describeImage(client, guild, avatarPath);
-                if (DEBUG) console.log(`Image description for ${username}: ${description}`);
+                if (DEBUG) console.log(`Image description for ${displayName}: ${description}`);
 
                 // Generate the DALL-E image using the welcome prompt and the description
-                fullPrompt = WELCOME_PROMPT.replace('{username}', username);
+                fullPrompt = WELCOME_PROMPT.replace('{username}', displayName);
                 fullPrompt = fullPrompt.replace('{avatar}', description); // Replace {avatar} with the description
             }
         }
 
         await logMessage(client, guild, `Prompt: ${fullPrompt}`);
         const imageUrl = await generateImage(client, guild, fullPrompt);
-        if (DEBUG) console.log(`Generated image URL for ${username}: ${imageUrl}`);
+        if (DEBUG) console.log(`Generated image URL for ${displayName}: ${imageUrl}`);
 
         // Download the DALL-E image and re-upload to Discord
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const dalleImagePath = path.join(welcomeImagesDir, `${username}-${timestamp}.png`);
+        const dalleImagePath = path.join(welcomeImagesDir, `${displayName}-${timestamp}.png`);
         await downloadAndSaveImage(imageUrl, dalleImagePath);
         if (DEBUG) console.log(`DALL-E image downloaded to ${dalleImagePath}`);
 
