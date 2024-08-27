@@ -152,7 +152,7 @@ git push origin "v$new_version"
 echo "Version updated to $new_version and tagged as v$new_version"
 
 # Update version_info.json
-jq --arg version "$new_version" --arg desc "$description" '.[$version] = {description: $desc, changelog_url: "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v" + $version}' version_info.json > temp.json && mv temp.json version_info.json
+jq --arg version "$new_version" --arg desc "$description" '.[$version] = {description: $desc, changelog_url: ("https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v" + $version)}' version_info.json > temp.json && mv temp.json version_info.json
 git add version_info.json
 git commit -m "Update version_info.json for $new_version"
 git push origin main
