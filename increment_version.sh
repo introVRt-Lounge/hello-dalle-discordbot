@@ -1,7 +1,5 @@
 #!/bin/bash
 
-dryrun=false
-
 # Function to print the current version and usage instructions
 print_usage() {
   current_version=$(grep -oP '"version":\s*"\K[0-9]+\.[0-9]+\.[0-9]+' package.json)
@@ -17,41 +15,50 @@ print_usage() {
   echo "  -h                 Show this help message and exit"
 }
 
-# Parse arguments
-while [[ "$#" -gt 0 ]]; do
-    case $1 in
-        --dryrun) dryrun=true ;;
-        -m) description="$2"; shift ;;
-        -s) new_version="$2"; shift ;;
-        *) mode="$1" ;;
-    esac
-    shift
-done
-
-if [ "$dryrun" = true ]; then
-    echo "Dry run mode enabled. The following actions would be taken:"
-    # List out all actions that would be performed
-    if [ -n "$new_version" ]; then
-        echo "Would set version to $new_version"
-    else
-        echo "Would increment the version based on mode: $mode"
-    fi
-    echo "Would commit changes with message: Bump version to $new_version"
-    echo "Would create Git tag v$new_version"
-    echo "Would update version_info.json with description: $description"
-    echo "Would build and push Docker images to Docker Hub"
-    echo "Would create GitHub release (if enabled)"
-    exit 0
-fi
-
 # Check for help flag
-if [[ "$mode" == "-h" ]]; then
+if [[ "$1" == "-h" ]]; then
   print_usage
   exit 0
 fi
 
+# Initialize variables
+dryrun=false
+description=""
+mode=""
+new_version=""
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    key="$1"
+
+    case $key in
+        subminor|minor|major)
+            mode="$1"
+            shift
+            ;;
+        -m)
+            description="$2"
+            shift
+            shift
+            ;;
+        -s)
+            new_version="$2"
+            shift
+            ;;
+        --dryrun)
+            dryrun=true
+            shift
+            ;;
+        *)
+            echo "Unknown option: $1"
+            print_usage
+            exit 1
+            ;;
+    esac
+done
+
 # Ensure that a description is provided
-if [[ "$#" -lt 3 || -z "$description" ]]; then
+if [[ -z "$description" ]]; then
   echo "Error: A description must be provided using the -m flag."
   print_usage
   exit 1
@@ -61,31 +68,36 @@ fi
 current_version=$(grep -oP '"version":\s*"\K[0-9]+\.[0-9]+\.[0-9]+' package.json)
 
 # Handle the override flag (-s) to set the version directly
-if [ -n "$new_version" ]; then
-  sed -i "s/\"version\": \"$current_version\"/\"version\": \"$new_version\"/" package.json
-  npm install
-  git add package.json package-lock.json
-  git commit -m "Bump version to $new_version"
-  git tag "v$new_version"
-  git push origin main
-  git push origin "v$new_version"
-  
-  # Update version_info.json
-  jq --arg version "$new_version" --arg desc "$description" '.[$version] = {description: $desc, changelog_url: ("https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v" + $version)}' version_info.json > temp.json && mv temp.json version_info.json
-  
-  git add version_info.json
-  git commit -m "Update version_info.json for $new_version"
-  git push origin main
-  
-  # Docker Hub push
-  echo "Building Docker image and pushing to Docker Hub..."
-  docker build -t heavygee/hello-dalle-discordbot:latest .
-  docker tag heavygee/hello-dalle-discordbot:latest heavygee/hello-dalle-discordbot:$new_version
-  docker push heavygee/hello-dalle-discordbot:latest
-  docker push heavygee/hello-dalle-discordbot:$new_version
-  echo "Docker image pushed to Docker Hub with tags latest and $new_version"
-  
-  exit 0
+if [[ -n "$new_version" ]]; then
+  if $dryrun; then
+    echo "Dry run: Version would be set to $new_version and tagged as v$new_version"
+    exit 0
+  else
+    sed -i "s/\"version\": \"$current_version\"/\"version\": \"$new_version\"/" package.json
+    npm install
+    git add package.json package-lock.json
+    git commit -m "Bump version to $new_version"
+    git tag "v$new_version"
+    git push origin main
+    git push origin "v$new_version"
+    echo "Version set to $new_version and tagged as v$new_version"
+    
+    # Update version_info.json
+    jq --arg version "$new_version" --arg desc "$description" '.[$version] = {description: $desc, changelog_url: "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v" + $version}' version_info.json > temp.json && mv temp.json version_info.json
+    
+    # Docker Hub push
+    echo "Building Docker image and pushing to Docker Hub..."
+    docker build -t heavygee/hello-dalle-discordbot:latest .
+    docker tag heavygee/hello-dalle-discordbot:latest heavygee/hello-dalle-discordbot:$new_version
+    docker push heavygee/hello-dalle-discordbot:latest
+    docker push heavygee/hello-dalle-discordbot:$new_version
+    echo "Docker image pushed to Docker Hub with tags latest and $new_version"
+    
+    # Create GitHub release with the provided description
+    gh release create "v$new_version" --title "v$new_version" --notes "$description"
+    echo "Release v$new_version created on GitHub with description: $description"
+    exit 0
+  fi
 fi
 
 # Split the version into major, minor, and subminor parts
@@ -118,6 +130,12 @@ esac
 # Construct the new version string
 new_version="$major.$minor.$subminor"
 
+# Check for dry run
+if $dryrun; then
+  echo "Dry run: Version would be updated to $new_version and tagged as v$new_version"
+  exit 0
+fi
+
 # Update the version in package.json
 sed -i "s/\"version\": \"$current_version\"/\"version\": \"$new_version\"/" package.json
 
@@ -134,7 +152,7 @@ git push origin "v$new_version"
 echo "Version updated to $new_version and tagged as v$new_version"
 
 # Update version_info.json
-jq --arg version "$new_version" --arg desc "$description" '.[$version] = {description: $desc, changelog_url: ("https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v" + $version)}' version_info.json > temp.json && mv temp.json version_info.json
+jq --arg version "$new_version" --arg desc "$description" '.[$version] = {description: $desc, changelog_url: "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v" + $version}' version_info.json > temp.json && mv temp.json version_info.json
 git add version_info.json
 git commit -m "Update version_info.json for $new_version"
 git push origin main
@@ -147,7 +165,7 @@ docker push heavygee/hello-dalle-discordbot:latest
 docker push heavygee/hello-dalle-discordbot:$new_version
 echo "Docker image pushed to Docker Hub with tags latest and $new_version"
 
-# Create GitHub release with the provided description (if enabled)
-# gh release create "v$new_version" --title "v$new_version" --notes "$description"
+# Create GitHub release with the provided description
+gh release create "v$new_version" --title "v$new_version" --notes "$description"
 
 echo "Release v$new_version created on GitHub with description: $description"

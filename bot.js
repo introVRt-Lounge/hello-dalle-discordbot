@@ -1,7 +1,8 @@
 const { Client, GatewayIntentBits } = require('discord.js');
-const { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID, WILDCARD, setWILDCARD, DEBUG } = require('./config');
+const { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID, WILDCARD, DEBUG } = require('./config');
 const { logMessage } = require('./log');
 const { welcomeUser, welcomeCount } = require('./welcome');
+const versionInfo = require('./version_info.json');
 
 const client = new Client({
     intents: [
@@ -15,7 +16,16 @@ const client = new Client({
 client.once('ready', async () => {
     try {
         const guild = client.guilds.cache.first();
-        await logMessage(client, guild, `Bot is online! Version: ${VERSION}. Total users welcomed so far: ${welcomeCount}. Wildcard chance: ${WILDCARD}%`);
+
+        // Fetch version description and changelog link from version_info.json
+        const versionDetails = versionInfo[VERSION];
+        const changelogUrl = versionDetails ? versionDetails.changelog_url : "";
+        const versionDescription = versionDetails ? versionDetails.description : "No description available.";
+
+        // Construct the startup message
+        const startupMessage = `Bot is online! Version: [${VERSION}](${changelogUrl}). Total users welcomed so far: ${welcomeCount}. Wildcard chance: ${WILDCARD}% - ${versionDescription}`;
+
+        await logMessage(client, guild, startupMessage);
     } catch (error) {
         console.error('Error during ready event:', error);
     }
@@ -28,22 +38,12 @@ client.on('guildMemberAdd', async member => {
 client.on('messageCreate', async message => {
     if (message.channel.id === BOTSPAM_CHANNEL_ID) {
         if (DEBUG) console.log(`Received message: ${message.content}`); // Debug logging
-
         if (message.content.startsWith('!welcome')) {
             const args = message.content.split(' ');
             if (args.length === 2) {
                 const username = args[1];
                 const guild = message.guild;
-
-                // Ensure the latest member list is fetched
-                await guild.members.fetch();
-
-                // Search for the user by both username and display name
-                const member = guild.members.cache.find(member =>
-                    member.user.username.toLowerCase() === username.toLowerCase() ||
-                    member.displayName.toLowerCase() === username.toLowerCase()
-                );
-
+                const member = guild.members.cache.find(member => member.user.username.toLowerCase() === username.toLowerCase());
                 if (member) {
                     await welcomeUser(client, member);
                 } else {
@@ -63,7 +63,7 @@ client.on('messageCreate', async message => {
                     await logMessage(client, message.guild, 'Wildcard value must be between 0 and 99.');
                 }
             } else {
-                await logMessage(client, message.guild, 'Usage: !wildcard <value>');
+                await logMessage(client, guild, 'Usage: !wildcard <value>');
             }
         }
     }
