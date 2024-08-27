@@ -28,12 +28,22 @@ client.on('guildMemberAdd', async member => {
 client.on('messageCreate', async message => {
     if (message.channel.id === BOTSPAM_CHANNEL_ID) {
         if (DEBUG) console.log(`Received message: ${message.content}`); // Debug logging
+
         if (message.content.startsWith('!welcome')) {
             const args = message.content.split(' ');
             if (args.length === 2) {
                 const username = args[1];
                 const guild = message.guild;
-                const member = guild.members.cache.find(member => member.user.username.toLowerCase() === username.toLowerCase());
+
+                // Ensure the latest member list is fetched
+                await guild.members.fetch();
+
+                // Search for the user by both username and display name
+                const member = guild.members.cache.find(member =>
+                    member.user.username.toLowerCase() === username.toLowerCase() ||
+                    member.displayName.toLowerCase() === username.toLowerCase()
+                );
+
                 if (member) {
                     await welcomeUser(client, member);
                 } else {
