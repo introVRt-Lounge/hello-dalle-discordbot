@@ -14,5 +14,9 @@
   "1.3.2": {
     "description": "Now uses Display name vs username for image generation as appropriate.",
     "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.3.2"
+  },
+  "1.4.0": {
+    "description": "Now uses Display name vs username for image generation as appropriate.",
+    "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.4.0"
   }
 }
