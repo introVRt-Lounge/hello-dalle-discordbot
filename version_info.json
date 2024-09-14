@@ -18,5 +18,9 @@
   "1.4.0": {
     "description": "Now uses Display name vs username for image generation as appropriate.",
     "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.4.0"
+  },
+  "1.5.0": {
+    "description": "Creates suggested profile pictures for new users without a profile pic",
+    "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.5.0"
   }
 }
