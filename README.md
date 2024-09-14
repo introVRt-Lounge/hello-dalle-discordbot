@@ -1,6 +1,6 @@
 # <img src="https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/logo.png" alt="Logo" width="150" height="150"> Hello Dall-E Discord Bot
 
-This bot uses OpenAI's DALL-E to generate welcome images for new Discord members. It describes the user's avatar and generates an image based on a prompt.
+This bot uses OpenAI's DALL-E to generate welcome images for new Discord members. It describes the user's avatar and generates an image based on a prompt. Additionally, for users without a profile pic, it will generate a profile pic based on their username and suggest the user adopt it.
 
 ## Features
 - Automatically welcome new members with a custom image.
@@ -22,10 +22,11 @@ DISCORD_BOT_TOKEN=your_discord_bot_token
 OPENAI_API_KEY=your_openai_api_key
 BOTSPAM_CHANNEL_ID=your_botspam_channel_id
 WELCOME_CHANNEL_NAME=new-users
+GENERAL_CHANNEL_ID=your_general_channel_id
 WELCOME_PROMPT=Create a welcome image for a new Discord user with the username '{username}'. Incorporate the users avatar into the image, its described as: {avatar}
 WILDCARD=0
 ```
-
+GENERAL_CHANNEL_ID: The ID of the general channel where the bot will suggest profile pictures to users without profile pictures.
 ### Running with Docker
 
 For details on running this project with Docker, visit the [Docker Hub page](https://hub.docker.com/r/heavygee/hello-dalle-discordbot).

@@ -1,7 +1,7 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID, WILDCARD, DEBUG } = require('./config');
 const { logMessage } = require('./log');
-const { welcomeUser, welcomeCount } = require('./welcome');
+const { welcomeUser, welcomeCount, generateProfilePicture } = require('./welcome');
 const versionInfo = require('./version_info.json');
 
 const client = new Client({
@@ -38,6 +38,7 @@ client.on('guildMemberAdd', async member => {
 client.on('messageCreate', async message => {
     if (message.channel.id === BOTSPAM_CHANNEL_ID) {
         if (DEBUG) console.log(`Received message: ${message.content}`); // Debug logging
+
         if (message.content.startsWith('!welcome')) {
             const args = message.content.split(' ');
             if (args.length === 2) {
@@ -51,6 +52,20 @@ client.on('messageCreate', async message => {
                 }
             } else {
                 await logMessage(client, guild, 'Usage: !welcome <username>');
+            }
+        } else if (message.content.startsWith('!pfp')) {
+            const args = message.content.split(' ');
+            if (args.length === 2) {
+                const username = args[1];
+                const guild = message.guild;
+                const member = guild.members.cache.find(member => member.user.username.toLowerCase() === username.toLowerCase());
+                if (member) {
+                    await generateProfilePicture(client, member);  // New function to create profile picture
+                } else {
+                    await logMessage(client, guild, `User ${username} not found.`);
+                }
+            } else {
+                await logMessage(client, guild, 'Usage: !pfp <username>');
             }
         } else if (message.content.startsWith('!wildcard')) {
             const args = message.content.split(' ');

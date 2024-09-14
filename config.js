@@ -8,10 +8,11 @@ module.exports = {
     BOTSPAM_CHANNEL_ID: process.env.BOTSPAM_CHANNEL_ID,
     WELCOME_CHANNEL_NAME: process.env.WELCOME_CHANNEL_NAME,
     WELCOME_PROMPT: process.env.WELCOME_PROMPT,
+    GENERAL_CHANNEL_ID: process.env.GENERAL_CHANNEL_ID,  // Add this line
     get WILDCARD() {
         return wildcard;
     },
-    setWILDCARD(value) {
+    set WILDCARD(value) {
         if (value >= 0 && value <= 99) {
             wildcard = value;
         } else {

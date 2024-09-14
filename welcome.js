@@ -1,4 +1,4 @@
-const { WELCOME_CHANNEL_NAME, WELCOME_PROMPT, OPENAI_API_KEY, WILDCARD, DEBUG } = require('./config');
+const { WELCOME_CHANNEL_NAME, WELCOME_PROMPT, OPENAI_API_KEY, WILDCARD, DEBUG, GENERAL_CHANNEL_ID } = require('./config');
 const { logMessage } = require('./log');
 const { readWelcomeCount, writeWelcomeCount } = require('./utils');
 const axios = require('axios');
@@ -13,6 +13,26 @@ const WILDCARD_PROMPT = (username) => `Generate a welcome image for the user "${
 const welcomeImagesDir = path.join(__dirname, 'welcome_images');
 if (!fs.existsSync(welcomeImagesDir)) {
     fs.mkdirSync(welcomeImagesDir);
+}
+
+/**
+ * Posts a message to the general channel with a generated profile picture for a new member.
+ *
+ * @param {Client} client - The Discord client instance.
+ * @param {GuildMember} member - The member to post the message for.
+ * @param {string} profilePicPath - The path to the generated profile picture.
+ * @return {Promise<void>}
+ */
+async function postToGeneral(client, member, profilePicPath) {
+    const generalChannel = member.guild.channels.cache.get(GENERAL_CHANNEL_ID);
+    if (generalChannel) {
+        await generalChannel.send({
+            content: `Hey <@${member.user.id}>, you don't have a profile pic yet - do you want to use this one we made for you, based on your username?`,
+            files: [profilePicPath]
+        });
+    } else {
+        if (DEBUG) console.warn(`General channel with ID ${GENERAL_CHANNEL_ID} not found`);
+    }
 }
 
 // Function to describe the image using GPT-4 Vision API
@@ -138,7 +158,7 @@ async function getFullPrompt(client, guild, member, username, avatarUrl) {
     }
 }
 
-async function welcomeUser(client, member) {
+async function welcomeUser(client, member, forcePfp = false) {
     const guild = member.guild;
     const displayName = member.displayName; // Use display name
     const userId = member.user.id;
@@ -156,14 +176,16 @@ async function welcomeUser(client, member) {
 
     try {
         let fullPrompt;
-        if (member.user.avatar === null) {
-            await logMessage(client, guild, "No profile pic, using simplified prompt.");
-            fullPrompt = WILDCARD_PROMPT(displayName); // Use the display name in the wildcard prompt
+
+        // If the user has no profile pic or forcePfp is true, generate a profile picture
+        if (member.user.avatar === null || forcePfp) {
+            await logMessage(client, guild, forcePfp ? "Forcing profile pic generation." : "No profile pic, generating a profile picture based on username.");
+            fullPrompt = `To the best of your ability, create a discord profile picture for the user "${displayName}" inspired by their name. Image only, no text. Circular to ease cropping.`;
         } else {
             const randomNumber = Math.random() * 100;
             if (DEBUG) console.log(`Random number: ${randomNumber}, WILDCARD: ${WILDCARD}`);
             await logMessage(client, guild, `Random number: ${randomNumber}, WILDCARD: ${WILDCARD}`);
-            
+
             if (randomNumber < WILDCARD) {
                 if (DEBUG) console.log(`Using wildcard prompt for user: ${displayName}`);
                 fullPrompt = WILDCARD_PROMPT(displayName); // Use the display name in the wildcard prompt
@@ -196,19 +218,24 @@ async function welcomeUser(client, member) {
         await downloadAndSaveImage(imageUrl, dalleImagePath);
         if (DEBUG) console.log(`DALL-E image downloaded to ${dalleImagePath}`);
 
-        // Simplified message for botspam
-        await logMessage(client, guild, { files: [dalleImagePath] });
-        await logMessage(client, guild, `Sending to #${WELCOME_CHANNEL_NAME}`);
-
-        // Send the welcome message with the downloaded and re-uploaded image
-        const welcomeChannel = guild.channels.cache.find(channel => channel.name === WELCOME_CHANNEL_NAME);
-        if (welcomeChannel) {
-            await welcomeChannel.send({
-                content: `Welcome, <@${userId}>!`,
-                files: [dalleImagePath]
-            });
+        if (member.user.avatar === null || forcePfp) {
+            // Post to #general channel for users without a profile pic
+            await postToGeneral(client, member, dalleImagePath);
         } else {
-            console.log('Welcome channel not found.');
+            // Simplified message for botspam
+            await logMessage(client, guild, { files: [dalleImagePath] });
+            await logMessage(client, guild, `Sending to #${WELCOME_CHANNEL_NAME}`);
+
+            // Send the welcome message with the downloaded and re-uploaded image
+            const welcomeChannel = guild.channels.cache.find(channel => channel.name === WELCOME_CHANNEL_NAME);
+            if (welcomeChannel) {
+                await welcomeChannel.send({
+                    content: `Welcome, <@${userId}>!`,
+                    files: [dalleImagePath]
+                });
+            } else {
+                console.log('Welcome channel not found.');
+            }
         }
 
         // Increment the welcome count and save it
@@ -221,7 +248,42 @@ async function welcomeUser(client, member) {
     }
 }
 
+/**
+ * Generates a profile picture for users without a profile picture based on their username.
+ *
+ * @param {Client} client - The Discord client instance.
+ * @param {GuildMember} member - The member to generate the profile picture for.
+ * @return {Promise<void>}
+ */
+async function generateProfilePicture(client, member) {
+    const guild = member.guild;
+    const displayName = member.displayName; // Use display name
+    const userId = member.user.id;
+
+    try {
+        // Generate a profile picture based on the username
+        const fullPrompt = `To the best of your ability, create a discord profile picture for the user "${displayName}" inspired by their name. Image only, no text. Circular to ease cropping.`;
+        await logMessage(client, guild, `Generating profile picture for user "${displayName}" based on their username.`);
+
+        const imageUrl = await generateImage(client, guild, fullPrompt);
+        if (DEBUG) console.log(`Generated profile picture URL for ${displayName}: ${imageUrl}`);
+
+        // Download the DALL-E image and re-upload to Discord
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const dalleImagePath = path.join(welcomeImagesDir, `${displayName}-profile-${timestamp}.png`);
+        await downloadAndSaveImage(imageUrl, dalleImagePath);
+        if (DEBUG) console.log(`Profile picture downloaded to ${dalleImagePath}`);
+
+        // Post to #general channel suggesting the profile picture
+        await postToGeneral(client, member, dalleImagePath);
+    } catch (error) {
+        if (DEBUG) console.error('Error during profile picture generation:', error.message);
+        await logMessage(client, guild, `Error generating profile picture: ${error.message}`);
+    }
+}
+
 module.exports = {
     welcomeUser,
+    generateProfilePicture, // Export the new function
     welcomeCount
 };

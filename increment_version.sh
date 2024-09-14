@@ -73,6 +73,9 @@ if [[ -n "$new_version" ]]; then
     echo "Dry run: Version would be set to $new_version and tagged as v$new_version"
     exit 0
   else
+    # Add and commit any outstanding changes before version bump
+    git add .
+    git commit -m "Committing outstanding changes before version bump"
     sed -i "s/\"version\": \"$current_version\"/\"version\": \"$new_version\"/" package.json
     npm install
     git add package.json package-lock.json
