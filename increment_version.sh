@@ -16,7 +16,7 @@ print_usage() {
 }
 
 # Check for help flag
-if [[ "$1" == "-h" ]]; then
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
   print_usage
   exit 0
 fi
@@ -30,19 +30,31 @@ new_version=""
 # Parse arguments
 while [[ $# -gt 0 ]]; do
     key="$1"
-
     case $key in
         subminor|minor|major)
             mode="$1"
             shift
             ;;
         -m)
-            description="$2"
-            shift
+            if [[ -n "$2" ]]; then
+                description="$2"
+                shift
+            else
+                echo "Error: No description provided for the -m flag."
+                print_usage
+                exit 1
+            fi
             shift
             ;;
         -s)
-            new_version="$2"
+            if [[ -n "$2" ]]; then
+                new_version="$2"
+                shift
+            else
+                echo "Error: No version provided for the -s flag."
+                print_usage
+                exit 1
+            fi
             shift
             ;;
         --dryrun)
@@ -76,6 +88,8 @@ if [[ -n "$new_version" ]]; then
     # Add and commit any outstanding changes before version bump
     git add .
     git commit -m "Committing outstanding changes before version bump"
+
+    # Update the version in package.json
     sed -i "s/\"version\": \"$current_version\"/\"version\": \"$new_version\"/" package.json
     npm install
     git add package.json package-lock.json
@@ -84,10 +98,17 @@ if [[ -n "$new_version" ]]; then
     git push origin main
     git push origin "v$new_version"
     echo "Version set to $new_version and tagged as v$new_version"
-    
+
     # Update version_info.json
-    jq --arg version "$new_version" --arg desc "$description" '.[$version] = {description: $desc, changelog_url: "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v" + $version}' version_info.json > temp.json && mv temp.json version_info.json
-    
+    jq --arg version "$new_version" --arg desc "$description" \
+        '.[$version] = {description: $desc, changelog_url: ("https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v" + $version)}' \
+        version_info.json > temp.json && mv temp.json version_info.json
+
+    # Push the version info update
+    git add version_info.json
+    git commit -m "Update version_info.json for $new_version"
+    git push origin main
+
     # Docker Hub push
     echo "Building Docker image and pushing to Docker Hub..."
     docker build -t heavygee/hello-dalle-discordbot:latest .
@@ -95,7 +116,7 @@ if [[ -n "$new_version" ]]; then
     docker push heavygee/hello-dalle-discordbot:latest
     docker push heavygee/hello-dalle-discordbot:$new_version
     echo "Docker image pushed to Docker Hub with tags latest and $new_version"
-    
+
     # Create GitHub release with the provided description
     gh release create "v$new_version" --title "v$new_version" --notes "$description"
     echo "Release v$new_version created on GitHub with description: $description"
@@ -139,6 +160,10 @@ if $dryrun; then
   exit 0
 fi
 
+# Add and commit any outstanding changes before version bump
+git add .
+git commit -m "Committing outstanding changes before version bump"
+
 # Update the version in package.json
 sed -i "s/\"version\": \"$current_version\"/\"version\": \"$new_version\"/" package.json
 
@@ -155,7 +180,11 @@ git push origin "v$new_version"
 echo "Version updated to $new_version and tagged as v$new_version"
 
 # Update version_info.json
-jq --arg version "$new_version" --arg desc "$description" '.[$version] = {description: $desc, changelog_url: ("https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v" + $version)}' version_info.json > temp.json && mv temp.json version_info.json
+jq --arg version "$new_version" --arg desc "$description" \
+    '.[$version] = {description: $desc, changelog_url: ("https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v" + $version)}' \
+    version_info.json > temp.json && mv temp.json version_info.json
+
+# Push the version info update
 git add version_info.json
 git commit -m "Update version_info.json for $new_version"
 git push origin main

@@ -1,8 +1,10 @@
 const { Client, GatewayIntentBits } = require('discord.js');
-const { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID, WILDCARD, DEBUG } = require('./config');
+const { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID, WILDCARD, DEBUG, GENERAL_CHANNEL_ID } = require('./config');
 const { logMessage } = require('./log');
 const { welcomeUser, welcomeCount, generateProfilePicture } = require('./welcome');
 const versionInfo = require('./version_info.json');
+
+let pfpAnyoneEnabled = false; // Variable to track whether anyone can use !pfp
 
 const client = new Client({
     intents: [
@@ -36,49 +38,71 @@ client.on('guildMemberAdd', async member => {
 });
 
 client.on('messageCreate', async message => {
-    if (message.channel.id === BOTSPAM_CHANNEL_ID) {
-        if (DEBUG) console.log(`Received message: ${message.content}`); // Debug logging
+    const guild = message.guild;
+    const content = message.content;
 
-        if (message.content.startsWith('!welcome')) {
-            const args = message.content.split(' ');
-            if (args.length === 2) {
-                const username = args[1];
-                const guild = message.guild;
-                const member = guild.members.cache.find(member => member.user.username.toLowerCase() === username.toLowerCase());
-                if (member) {
-                    await welcomeUser(client, member);
-                } else {
-                    await logMessage(client, guild, `User ${username} not found.`);
-                }
-            } else {
-                await logMessage(client, guild, 'Usage: !welcome <username>');
+    // Only process commands in #botspam or #general
+    if (message.channel.id === BOTSPAM_CHANNEL_ID || message.channel.id === GENERAL_CHANNEL_ID) {
+
+        if (message.channel.id === BOTSPAM_CHANNEL_ID) {
+            if (DEBUG) console.log(`Received message in botspam: ${content}`);
+
+            // Toggle the pfp-anyone flag
+            if (content.startsWith('!pfp-anyone')) {
+                pfpAnyoneEnabled = !pfpAnyoneEnabled;
+                await logMessage(client, guild, `!pfp command for everyone is now ${pfpAnyoneEnabled ? 'enabled' : 'disabled'}.`);
             }
-        } else if (message.content.startsWith('!pfp')) {
-            const args = message.content.split(' ');
-            if (args.length === 2) {
-                const username = args[1];
-                const guild = message.guild;
-                const member = guild.members.cache.find(member => member.user.username.toLowerCase() === username.toLowerCase());
-                if (member) {
-                    await generateProfilePicture(client, member);  // New function to create profile picture
+
+            // Manual welcome trigger
+            else if (content.startsWith('!welcome')) {
+                const args = content.split(' ');
+                if (args.length === 2) {
+                    const username = args[1];
+                    const member = guild.members.cache.find(member => member.user.username.toLowerCase() === username.toLowerCase());
+                    if (member) {
+                        await welcomeUser(client, member);
+                    } else {
+                        await logMessage(client, guild, `User ${username} not found.`);
+                    }
                 } else {
-                    await logMessage(client, guild, `User ${username} not found.`);
+                    await logMessage(client, guild, 'Usage: !welcome <username>');
                 }
-            } else {
-                await logMessage(client, guild, 'Usage: !pfp <username>');
             }
-        } else if (message.content.startsWith('!wildcard')) {
-            const args = message.content.split(' ');
-            if (args.length === 2) {
-                const value = parseInt(args[1], 10);
-                if (!isNaN(value) && value >= 0 && value <= 99) {
-                    setWILDCARD(value);
-                    await logMessage(client, message.guild, `Wildcard chance set to ${value}%`);
+
+            // Wildcard command
+            else if (content.startsWith('!wildcard')) {
+                const args = content.split(' ');
+                if (args.length === 2) {
+                    const value = parseInt(args[1], 10);
+                    if (!isNaN(value) && value >= 0 && value <= 99) {
+                        setWILDCARD(value);
+                        await logMessage(client, guild, `Wildcard chance set to ${value}%`);
+                    } else {
+                        await logMessage(client, guild, 'Wildcard value must be between 0 and 99.');
+                    }
                 } else {
-                    await logMessage(client, message.guild, 'Wildcard value must be between 0 and 99.');
+                    await logMessage(client, guild, 'Usage: !wildcard <value>');
                 }
-            } else {
-                await logMessage(client, guild, 'Usage: !wildcard <value>');
+            }
+        }
+
+        // Process pfp command in #general if allowed
+        if (message.channel.id === GENERAL_CHANNEL_ID) {
+            if (content.startsWith('!pfp') && pfpAnyoneEnabled) {
+                const args = content.split(' ');
+                if (args.length === 2) {
+                    const username = args[1];
+                    const member = guild.members.cache.find(member => member.user.username.toLowerCase() === username.toLowerCase());
+                    if (member) {
+                        await generateProfilePicture(client, member);
+                    } else {
+                        await logMessage(client, guild, `User ${username} not found.`);
+                    }
+                } else {
+                    await logMessage(client, guild, 'Usage: !pfp <username>');
+                }
+            } else if (content.startsWith('!pfp') && !pfpAnyoneEnabled) {
+                await logMessage(client, guild, 'The !pfp command is currently disabled for general users.');
             }
         }
     }
