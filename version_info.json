@@ -22,5 +22,9 @@
   "1.5.0": {
     "description": "Creates suggested profile pictures for new users without a profile pic",
     "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.5.0"
+  },
+  "1.5.1": {
+    "description": "Creates suggested profile pictures for new users without a profile pic. actually commit the changes first. :/",
+    "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.5.1"
   }
 }
