@@ -1,0 +1,46 @@
+# .github/workflows/ci-cd.yml
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run npm audit fix
+      run: npm audit fix
+
+    - name: Compile TypeScript
+      run: npx tsc
+
+    - name: Run tests
+      run: npm test
+
+    - name: Docker Login
+      run: |
+        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+    - name: Build and Push Docker Image
+      run: |
+        docker build -t heavygee/hello-dalle-discordbot:latest .
+        docker tag heavygee/hello-dalle-discordbot:latest heavygee/hello-dalle-discordbot:$GITHUB_SHA
+        docker push heavygee/hello-dalle-discordbot:latest
+        docker push heavygee/hello-dalle-discordbot:$GITHUB_SHA
+
+    - name: Create GitHub Release
+      run: |
+        gh release create "$GITHUB_SHA" --title "Build $GITHUB_SHA" --notes "Automated build release"

@@ -1,11 +1,24 @@
-const { Client, GatewayIntentBits } = require('discord.js');
-const { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID, WILDCARD, DEBUG, GENERAL_CHANNEL_ID } = require('./config');
-const { logMessage } = require('./log');
-const { welcomeUser, welcomeCount, generateProfilePicture } = require('./welcome');
-const versionInfo = require('./version_info.json');
+import { Client, GatewayIntentBits, Guild, GuildMember, Message } from 'discord.js';
+import { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID, getWILDCARD, DEBUG, GENERAL_CHANNEL_ID, setWILDCARD } from './config';
+import { logMessage } from './log';
+import { welcomeUser, welcomeCount, generateProfilePicture } from './welcome';
+import versionInfoJson from '../version_info.json';
 
-let pfpAnyoneEnabled = false; // Variable to track whether anyone can use !pfp
+// Define the type for versionInfo
+type VersionInfo = {
+  [version: string]: {
+    description: string;
+    changelog_url: string;
+  };
+};
 
+// Cast versionInfoJson to the defined type
+const versionInfo: VersionInfo = versionInfoJson;
+
+// Flag to enable/disable !pfp command for everyone
+let pfpAnyoneEnabled = false;
+
+// Create a new Discord client instance
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -17,29 +30,39 @@ const client = new Client({
 
 client.once('ready', async () => {
     try {
-        const guild = client.guilds.cache.first();
+        // Get the first guild (server) the bot is in
+        const guild: Guild | undefined = client.guilds.cache.first();
+
+        if (!guild) {
+            console.error('No guild found during startup.');
+            return;
+        }
 
         // Fetch version description and changelog link from version_info.json
-        const versionDetails = versionInfo[VERSION];
-        const changelogUrl = versionDetails ? versionDetails.changelog_url : "";
-        const versionDescription = versionDetails ? versionDetails.description : "No description available.";
+        const versionDetails = versionInfo[VERSION as keyof typeof versionInfo];
+        const changelogUrl: string = versionDetails ? versionDetails.changelog_url : '';
+        const versionDescription: string = versionDetails ? versionDetails.description : 'No description available.';
 
         // Construct the startup message
-        const startupMessage = `Bot is online! Version: [${VERSION}](${changelogUrl}). Total users welcomed so far: ${welcomeCount}. Wildcard chance: ${WILDCARD}% - ${versionDescription}`;
+        const startupMessage = `Bot is online! Version: [${VERSION}](${changelogUrl}). Total users welcomed so far: ${welcomeCount}. Wildcard chance: ${getWILDCARD()}% - ${versionDescription}`;
 
+        // Log the startup message
         await logMessage(client, guild, startupMessage);
     } catch (error) {
-        console.error('Error during ready event:', error);
+        console.error('Error during ready event:', error instanceof Error ? error.message : String(error));
     }
 });
 
-client.on('guildMemberAdd', async member => {
+client.on('guildMemberAdd', async (member: GuildMember) => {
+    // Welcome new member
     await welcomeUser(client, member);
 });
 
-client.on('messageCreate', async message => {
+client.on('messageCreate', async (message: Message) => {
     const guild = message.guild;
     const content = message.content;
+
+    if (!guild) return;
 
     // Only process commands in #botspam or #general
     if (message.channel.id === BOTSPAM_CHANNEL_ID || message.channel.id === GENERAL_CHANNEL_ID) {
@@ -108,4 +131,5 @@ client.on('messageCreate', async message => {
     }
 });
 
+// Log in to Discord
 client.login(DISCORD_BOT_TOKEN);
