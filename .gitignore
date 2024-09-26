@@ -1,6 +1,6 @@
 welcome_images/
-testbuild.sh
-hubpush.sh
+helpers/testbuild.sh
+helpers/hubpush.sh
 avatar.png
 dalle_image.png
 welcomeCount.json
