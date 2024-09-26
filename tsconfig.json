@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src",          // Root directory for your source files
+    "outDir": "./dist",          // Output directory for compiled files
+    "strict": true,              // Enable all strict type-checking options
+    "moduleResolution": "node",  // Use Node module resolution strategy
+    "target": "ES6",             // Target JavaScript version
+    "module": "commonjs",        // Module system
+    "resolveJsonModule": true,   // Enable .json modules
+    "esModuleInterop": true,     // Enable compatibility for ES module imports
+    "skipLibCheck": true         // Skip type checking of declaration files
+  },
+  "include": [
+    "src/**/*.ts",               // Include all TypeScript files in the src directory
+    "src/tests/**/*.ts"          // Include all TypeScript test files in the src/tests directory
+  ],
+  "exclude": [
+    "node_modules"               // Exclude node_modules directory
+  ]
+}
