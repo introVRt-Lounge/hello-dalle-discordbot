@@ -1,4 +1,4 @@
-# .github/workflows/ci-cd.yml - comment make release?
+# .github/workflows/ci-cd.yml
 name: CI/CD
 
 on:
@@ -41,6 +41,14 @@ jobs:
         docker push heavygee/hello-dalle-discordbot:latest
         docker push heavygee/hello-dalle-discordbot:$GITHUB_SHA
 
+    - name: Install GitHub CLI
+      run: sudo apt-get update && sudo apt-get install -y gh
+
+    - name: Authenticate with GitHub CLI
+      run: echo "${{ secrets.GH_TOKEN }}" | gh auth login --with-token
+
     - name: Create GitHub Release
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
         gh release create "$GITHUB_SHA" --title "Build $GITHUB_SHA" --notes "Automated build release"
