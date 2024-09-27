@@ -15,12 +15,6 @@ print_usage() {
   echo "  -h                 Show this help message and exit"
 }
 
-# Check for help flag
-if [[ "$1" == "-h" || "$1" == "--help" ]]; then
-  print_usage
-  exit 0
-fi
-
 # Initialize variables
 dryrun=false
 description=""
@@ -85,63 +79,17 @@ handle_error() {
   exit 1
 }
 
-# Run npm tests
+# Run tests first, and exit if they fail
 echo "Running npm tests..."
-npm test || handle_error "Tests failed."
+npm test || { echo "Tests failed. Aborting version update."; exit 1; }
 
-# Compile TypeScript files
+# Compile TypeScript files (optional, adjust paths as needed)
 echo "Compiling TypeScript files..."
 npx tsc || handle_error "TypeScript compilation failed."
 
 # Run npm audit fix
 echo "Running npm audit fix..."
 npm audit fix || handle_error "npm audit fix failed."
-
-# Dry run mode
-if $dryrun; then
-    echo "Dry run: Version would be updated, code committed, and pushed with Docker and GitHub release created."
-    exit 0
-fi
-
-# Handle the override flag (-s) to set the version directly
-if [[ -n "$new_version" ]]; then
-    # Add and commit any outstanding changes before version bump
-    git add . || handle_error "Git add failed"
-    git commit -m "Committing outstanding changes before version bump" || handle_error "Git commit failed"
-
-    # Update the version in package.json
-    sed -i "s/\"version\": \"$current_version\"/\"version\": \"$new_version\"/" package.json || handle_error "Version update failed in package.json"
-    npm install || handle_error "npm install failed"
-    git add package.json package-lock.json || handle_error "Git add failed"
-    git commit -m "Bump version to $new_version" || handle_error "Git commit failed"
-    git tag "v$new_version" || handle_error "Git tag failed"
-    git push origin main || handle_error "Git push failed"
-    git push origin "v$new_version" || handle_error "Git push tag failed"
-    echo "Version set to $new_version and tagged as v$new_version"
-
-    # Update version_info.json
-    jq --arg version "$new_version" --arg desc "$description" \
-        '.[$version] = {description: $desc, changelog_url: ("https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v" + $version)}' \
-        version_info.json > temp.json && mv temp.json version_info.json || handle_error "Failed to update version_info.json"
-
-    # Push the version info update
-    git add version_info.json || handle_error "Git add failed"
-    git commit -m "Update version_info.json for $new_version" || handle_error "Git commit failed"
-    git push origin main || handle_error "Git push failed"
-
-    # Docker Hub push
-    echo "Building Docker image and pushing to Docker Hub..."
-    docker build -t heavygee/hello-dalle-discordbot:latest . || handle_error "Docker build failed"
-    docker tag heavygee/hello-dalle-discordbot:latest heavygee/hello-dalle-discordbot:$new_version || handle_error "Docker tag failed"
-    docker push heavygee/hello-dalle-discordbot:latest || handle_error "Docker push latest failed"
-    docker push heavygee/hello-dalle-discordbot:$new_version || handle_error "Docker push version failed"
-    echo "Docker image pushed to Docker Hub with tags latest and $new_version"
-
-    # Create GitHub release with the provided description
-    gh release create "v$new_version" --title "v$new_version" --notes "$description" || handle_error "GitHub release creation failed"
-    echo "Release v$new_version created on GitHub with description: $description"
-    exit 0
-fi
 
 # Split the version into major, minor, and subminor parts
 IFS='.' read -r -a version_parts <<< "$current_version"
@@ -173,9 +121,25 @@ esac
 # Construct the new version string
 new_version="$major.$minor.$subminor"
 
+# Check for dry run
+if $dryrun; then
+  echo "Dry run: Version would be updated to $new_version and tagged as v$new_version"
+  exit 0
+fi
+
+# Create a GitHub release tag and get the link
+release_url="https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v$new_version"
+echo "Creating GitHub release for version v$new_version..."
+gh release create "v$new_version" --title "v$new_version" --notes "$description" || handle_error "GitHub release creation failed"
+echo "GitHub release created at $release_url"
+
+# Replace the placeholder link in your codebase
+echo "Updating release link in the codebase..."
+sed -i "s|RELEASE_URL_PLACEHOLDER|$release_url|" src/config.ts || handle_error "Failed to update release link in the code"
+
 # Add and commit any outstanding changes before version bump
 git add . || handle_error "Git add failed"
-git commit -m "Committing outstanding changes before version bump" || handle_error "Git commit failed"
+git commit -m "Update release link to $release_url and bump version to $new_version" || handle_error "Git commit failed"
 
 # Update the version in package.json
 sed -i "s/\"version\": \"$current_version\"/\"version\": \"$new_version\"/" package.json || handle_error "Version update failed in package.json"
@@ -186,31 +150,6 @@ npm install || handle_error "npm install failed"
 # Commit the changes and create a Git tag
 git add package.json package-lock.json || handle_error "Git add failed"
 git commit -m "Bump version to $new_version" || handle_error "Git commit failed"
-git tag "v$new_version" || handle_error "Git tag failed"
-git push origin main || handle_error "Git push failed"
-git push origin "v$new_version" || handle_error "Git push tag failed"
-
-echo "Version updated to $new_version and tagged as v$new_version"
-
-# Update version_info.json
-jq --arg version "$new_version" --arg desc "$description" \
-    '.[$version] = {description: $desc, changelog_url: ("https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v" + $version)}' \
-    version_info.json > temp.json && mv temp.json version_info.json || handle_error "Failed to update version_info.json"
-
-# Push the version info update
-git add version_info.json || handle_error "Git add failed"
-git commit -m "Update version_info.json for $new_version" || handle_error "Git commit failed"
 git push origin main || handle_error "Git push failed"
 
-# Docker Hub push
-echo "Building Docker image and pushing to Docker Hub..."
-docker build -t heavygee/hello-dalle-discordbot:latest . || handle_error "Docker build failed"
-docker tag heavygee/hello-dalle-discordbot:latest heavygee/hello-dalle-discordbot:$new_version || handle_error "Docker tag failed"
-docker push heavygee/hello-dalle-discordbot:latest || handle_error "Docker push latest failed"
-docker push heavygee/hello-dalle-discordbot:$new_version || handle_error "Docker push version failed"
-echo "Docker image pushed to Docker Hub with tags latest and $new_version"
-
-# Create GitHub release with the provided description
-gh release create "v$new_version" --title "v$new_version" --notes "$description" || handle_error "GitHub release creation failed"
-
-echo "Release v$new_version created on GitHub with description: $description"
+echo "Version updated to $new_version and release link included in code."
