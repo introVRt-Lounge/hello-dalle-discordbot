@@ -46,5 +46,9 @@
   "1.5.6": {
     "description": "Creates suggested profile pictures for new users without pfp. allows admins to toggle wide useage via \\!pfp-anyone - switched to typescript, added tests,administrivia3",
     "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.5.6"
+  },
+  "1.5.7": {
+    "description": "Creates suggested profile pictures for new users without pfp. allows admins to toggle wide useage via \\!pfp-anyone - switched to typescript, added tests,administrivia4",
+    "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.5.7"
   }
 }
