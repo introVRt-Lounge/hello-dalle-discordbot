@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: build-and-deploy
 
 on:
   push:
@@ -6,70 +6,63 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '18'
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 18
 
-      - name: Install dependencies
-        run: npm install
+    - name: Install dependencies
+      run: npm install
 
-      - name: Run tests
-        run: npm test
+    - name: Run tests
+      run: npm test
 
-      - name: Get version from version_info.json
-        id: get_version
-        run: |
-          version=$(jq -r 'keys | .[0]' version_info.json)
-          echo "Version: $version"
-          echo "::set-output name=version::$version"
+    - name: Get latest version from version_info.json
+      id: version
+      run: |
+        version=$(jq -r 'keys | map(.) | sort_by(.) | last' version_info.json)
+        echo "Version: $version"
+        echo "VERSION=$version" >> $GITHUB_ENV
 
-      - name: Create GitHub tag
-        id: create_tag
-        run: |
-          version=${{ steps.get_version.outputs.version }}
-          git tag "v$version"
-          git push origin "v$version"
+    - name: Create Git tag
+      run: |
+        version=${{ env.VERSION }}
+        git tag "v$version"
+        git push origin "v$version"
 
-      - name: Create GitHub release
-        id: create_release
-        run: |
-          version=${{ steps.get_version.outputs.version }}
-          description=$(jq -r --arg version "$version" '.[$version].description' version_info.json)
-          gh release create "v$version" --title "v$version" --notes "$description"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true
+    - name: Create GitHub Release
+      run: |
+        version=${{ env.VERSION }}
+        description=$(jq -r --arg version "$version" '.[$version].description' version_info.json)
+        gh release create "v$version" --title "v$version" --notes "$description"
+      continue-on-error: true
 
-      - name: Delete tag if release creation fails
-        if: failure() && steps.create_release.outcome == 'failure'
-        run: |
-          version=${{ steps.get_version.outputs.version }}
-          git push origin :refs/tags/v$version
-          echo "GitHub release creation failed. Deleted tag v$version."
+    - name: Delete Git tag if release fails
+      if: failure()
+      run: |
+        version=${{ env.VERSION }}
+        echo "Deleting tag v$version due to release failure"
+        git tag -d "v$version"
+        git push origin --delete "v$version"
 
-      - name: Docker build and push
-        if: success() && steps.create_release.outcome == 'success'
-        run: |
-          version=${{ steps.get_version.outputs.version }}
-          docker build -t heavygee/hello-dalle-discordbot:latest .
-          docker tag heavygee/hello-dalle-discordbot:latest heavygee/hello-dalle-discordbot:$version
-          echo "Docker images tagged with $version and latest"
-          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker push heavygee/hello-dalle-discordbot:latest
-          docker push heavygee/hello-dalle-discordbot:$version
+    - name: Build and push Docker image
+      if: success()
+      run: |
+        version=${{ env.VERSION }}
+        docker build -t heavygee/hello-dalle-discordbot:latest .
+        docker tag heavygee/hello-dalle-discordbot:latest heavygee/hello-dalle-discordbot:$version
+        echo "Docker images tagged with $version and latest"
+        docker login -u heavygee -p ${{ secrets.DOCKER_PASSWORD }}
+        docker push heavygee/hello-dalle-discordbot:latest
+        docker push heavygee/hello-dalle-discordbot:$version
 
-
-      - name: Log docker push success
-        if: success() && steps.create_release.outcome == 'success'
-        run: echo "Docker push succeeded."
-
-      - name: Log docker push failure
-        if: failure() && steps.create_release.outcome == 'success'
-        run: echo "Docker push failed. Manual intervention may be needed."
+    - name: Log Docker push failure
+      if: failure()
+      run: echo "Docker push failed. Manual intervention may be needed."
