@@ -38,6 +38,8 @@ jobs:
         git push origin "v$version"
 
     - name: Create GitHub Release
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Set GH_TOKEN for GitHub CLI authentication
       run: |
         version=${{ env.VERSION }}
         description=$(jq -r --arg version "$version" '.[$version].description' version_info.json)
@@ -53,7 +55,7 @@ jobs:
         git push origin --delete "v$version"
 
     - name: Build and push Docker image
-      if: success()
+      if: success()  # This ensures Docker push only happens if the release creation succeeds
       run: |
         version=${{ env.VERSION }}
         docker build -t heavygee/hello-dalle-discordbot:latest .
