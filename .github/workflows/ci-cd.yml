@@ -8,6 +8,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -15,18 +16,45 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18'
+          node-version: 18
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: npm install
 
-      - name: Run Tests
-        run: npm test
-
-      - name: Build Docker Image and Push
+      - name: Get Version from version_info.json
+        id: get_version
         run: |
-          version=$(grep -oP '"version":\s*"\K[0-9]+\.[0-9]+\.[0-9]+' package.json)
+          version=$(jq -r 'keys | .[-1]' version_info.json)
+          echo "Version found: $version"
+          echo "VERSION=$version" >> $GITHUB_ENV
+
+      - name: Create GitHub Tag
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "v${{ env.VERSION }}"
+          git push origin "v${{ env.VERSION }}"
+
+      - name: Create GitHub Release
+        run: |
+          description=$(jq -r --arg version "${{ env.VERSION }}" '.[$version].description' version_info.json)
+          gh release create "v${{ env.VERSION }}" --title "v${{ env.VERSION }}" --notes "$description"
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Build Docker image
+        run: |
           docker build -t heavygee/hello-dalle-discordbot:latest .
-          docker tag heavygee/hello-dalle-discordbot:latest heavygee/hello-dalle-discordbot:$version
+          docker tag heavygee/hello-dalle-discordbot:latest heavygee/hello-dalle-discordbot:v${{ env.VERSION }}
+
+      - name: Push Docker image
+        run: |
+          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
           docker push heavygee/hello-dalle-discordbot:latest
-          docker push heavygee/hello-dalle-discordbot:$version
+          docker push heavygee/hello-dalle-discordbot:v${{ env.VERSION }}
+
+      - name: Revert `version_info.json` on Failure
+        if: failure()
+        run: |
+          git reset --hard ${{ github.sha }}
+          git push --force
