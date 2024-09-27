@@ -10,7 +10,6 @@ pids
 *.pid
 .env
 docker-compose.yml
-Dockerfile
 .DS_Store
 Thumbs.db
 .vscode/
