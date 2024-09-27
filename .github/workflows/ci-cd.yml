@@ -61,9 +61,10 @@ jobs:
           docker build -t heavygee/hello-dalle-discordbot:latest .
           docker tag heavygee/hello-dalle-discordbot:latest heavygee/hello-dalle-discordbot:$version
           echo "Docker images tagged with $version and latest"
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
           docker push heavygee/hello-dalle-discordbot:latest
           docker push heavygee/hello-dalle-discordbot:$version
+
 
       - name: Log docker push success
         if: success() && steps.create_release.outcome == 'success'
