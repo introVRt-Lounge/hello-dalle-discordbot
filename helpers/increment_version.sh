@@ -85,7 +85,11 @@ handle_error() {
   exit 1
 }
 
-# Compile TypeScript files (optional, adjust paths as needed)
+# Run npm tests
+echo "Running npm tests..."
+npm test || handle_error "Tests failed."
+
+# Compile TypeScript files
 echo "Compiling TypeScript files..."
 npx tsc || handle_error "TypeScript compilation failed."
 
@@ -93,12 +97,14 @@ npx tsc || handle_error "TypeScript compilation failed."
 echo "Running npm audit fix..."
 npm audit fix || handle_error "npm audit fix failed."
 
+# Dry run mode
+if $dryrun; then
+    echo "Dry run: Version would be updated, code committed, and pushed with Docker and GitHub release created."
+    exit 0
+fi
+
 # Handle the override flag (-s) to set the version directly
 if [[ -n "$new_version" ]]; then
-  if $dryrun; then
-    echo "Dry run: Version would be set to $new_version and tagged as v$new_version"
-    exit 0
-  else
     # Add and commit any outstanding changes before version bump
     git add . || handle_error "Git add failed"
     git commit -m "Committing outstanding changes before version bump" || handle_error "Git commit failed"
@@ -135,7 +141,6 @@ if [[ -n "$new_version" ]]; then
     gh release create "v$new_version" --title "v$new_version" --notes "$description" || handle_error "GitHub release creation failed"
     echo "Release v$new_version created on GitHub with description: $description"
     exit 0
-  fi
 fi
 
 # Split the version into major, minor, and subminor parts
@@ -167,12 +172,6 @@ esac
 
 # Construct the new version string
 new_version="$major.$minor.$subminor"
-
-# Check for dry run
-if $dryrun; then
-  echo "Dry run: Version would be updated to $new_version and tagged as v$new_version"
-  exit 0
-fi
 
 # Add and commit any outstanding changes before version bump
 git add . || handle_error "Git add failed"
