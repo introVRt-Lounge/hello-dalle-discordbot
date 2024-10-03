@@ -1,14 +1,16 @@
 import type { Config } from 'jest';
 
 const config: Config = {
-  preset: 'ts-jest',              // Use ts-jest preset for TypeScript support
-  testEnvironment: 'node',        // Set the test environment to Node.js
-  roots: ['<rootDir>/src'],       // Define the root directory for the tests
-  testMatch: ['**/tests/**/*.ts'],// Look for test files in the src/tests directory
-  moduleDirectories: ['node_modules', 'src'], // Resolve modules from node_modules and src
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  setupFiles: ['<rootDir>/setupTests.ts'],  // add env and others
+  roots: ['<rootDir>/src'], // If tests are only inside src, keep it this way
+  testMatch: ['**/?(*.)+(spec|test).[tj]s?(x)'], // Flexible pattern for test file names
+  moduleDirectories: ['node_modules', 'src'], 
   transform: {
-    '^.+\\.ts$': 'ts-jest'        // Transform TypeScript files using ts-jest
-  }
+    '^.+\\.ts$': 'ts-jest'
+  },
+  modulePathIgnorePatterns: ['<rootDir>/dist/'], // Ensure dist is ignored
 };
 
 export default config;
