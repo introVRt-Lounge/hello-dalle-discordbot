@@ -2,6 +2,10 @@
   "compilerOptions": {
     "rootDir": "./src",          // Root directory for your source files
     "outDir": "./dist",          // Output directory for compiled files
+    "baseUrl": ".",              // Base URL for module resolution (relative to project root)
+    "paths": {
+      "*": ["./src/*"]           // Ensure path resolution is from the 'src' directory
+    },
     "strict": true,              // Enable all strict type-checking options
     "moduleResolution": "node",  // Use Node module resolution strategy
     "target": "ES6",             // Target JavaScript version
@@ -11,8 +15,7 @@
     "skipLibCheck": true         // Skip type checking of declaration files
   },
   "include": [
-    "src/**/*.ts",               // Include all TypeScript files in the src directory
-    "src/tests/**/*.ts"          // Include all TypeScript test files in the src/tests directory
+    "src/**/*.ts"                // Include all TypeScript files in the src directory
   ],
   "exclude": [
     "node_modules"               // Exclude node_modules directory
