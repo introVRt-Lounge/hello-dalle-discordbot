@@ -4,7 +4,8 @@
   "description": "Hello Dall-E will produce welcome images for your new users. Now with a wildcard that will 'prompt different' as you specify",
   "main": "bot.js",
   "scripts": {
-    "build": "tsc",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && npx tsc",
     "test": "jest --config jest.config.ts",
     "start": "node dist/bot.js"
   },
@@ -13,14 +14,15 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^1.7.2",
-    "discord.js": "^14.15.3",
-    "dotenv": "^16.4.5"
+    "discord.js": "^14.15.3"
   },
   "devDependencies": {
     "@types/jest": "^29.5.13",
     "@types/node": "^22.7.1",
     "axios-mock-adapter": "^2.0.0",
+    "dotenv": "^16.4.5",
     "jest": "^29.7.0",
+    "jest-mock-axios": "^4.7.3",
     "jest-mock-extended": "^4.0.0-beta1",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",

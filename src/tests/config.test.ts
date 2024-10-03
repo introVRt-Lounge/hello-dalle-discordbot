@@ -9,6 +9,12 @@ describe('Config Tests', () => {
         expect(config.GENERAL_CHANNEL_ID).toBeDefined();
         expect(config.WILDCARD).toBeDefined();
         expect(config.VERSION).toBeDefined();
-        expect(config.DEBUG).toBeDefined();
     });
+
+    test('Config WILDCARD should be a valid number between 0 and 99', () => {
+        expect(typeof config.WILDCARD).toBe('number');
+        expect(config.WILDCARD).toBeGreaterThanOrEqual(0);
+        expect(config.WILDCARD).toBeLessThanOrEqual(99);
+    });
+
 });
