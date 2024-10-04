@@ -25,6 +25,10 @@ jobs:
       env:
         DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        GENERAL_CHANNEL_ID: ${{ secrets.GENERAL_CHANNEL_ID }}
+        WELCOME_CHANNEL_NAME: ${{ secrets.WELCOME_CHANNEL_NAME }}
+        WELCOME_PROMPT: ${{ secrets.WELCOME_PROMPT }}
+        BOTSPAM_CHANNEL_ID: ${{ secrets.BOTSPAM_CHANNEL_ID }}
       run: npm test
 
     - name: Get latest version from version_info.json
