@@ -38,5 +38,9 @@
   "1.6.0": {
     "description": "we did a refactor. same features as before tho.",
     "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.6.0"
+  },
+  "1.7.0": {
+    "description": "New feature: time delay of welcome image (2min)",
+    "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.7.0"
   }
 }
