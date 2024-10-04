@@ -22,6 +22,9 @@ jobs:
       run: npm install
 
     - name: Run tests
+      env:
+        DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: npm test
 
     - name: Get latest version from version_info.json
@@ -39,23 +42,23 @@ jobs:
 
     - name: Create GitHub Release
       env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Set GH_TOKEN for GitHub CLI authentication
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         version=${{ env.VERSION }}
         description=$(jq -r --arg version "$version" '.[$version].description' version_info.json)
         gh release create "v$version" --title "v$version" --notes "$description"
-      continue-on-error: true
+      continue-on-error: true  # You can set this to false if you want the job to fail on release issues
 
     - name: Delete Git tag if release fails
-      if: failure()
+      if: failure() && steps.version.outputs.VERSION != ''
       run: |
         version=${{ env.VERSION }}
         echo "Deleting tag v$version due to release failure"
-        git tag -d "v$version"
-        git push origin --delete "v$version"
+        git tag -d "v$version" || echo "Tag not found, nothing to delete"
+        git push origin --delete "v$version" || echo "Failed to delete remote tag"
 
     - name: Build and push Docker image
-      if: success()  # This ensures Docker push only happens if the release creation succeeds
+      if: success()  # Push Docker images only if release creation succeeds
       run: |
         version=${{ env.VERSION }}
         docker build -t heavygee/hello-dalle-discordbot:latest .
