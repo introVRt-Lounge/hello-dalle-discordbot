@@ -12,6 +12,7 @@ The Discord DALL-E Bot leverages OpenAI's DALL-E model to generate welcome image
 - **Secure Configuration**: Environment variables ensure sensitive information like API keys and tokens are not included in the Docker image.
 - **Wildcard Feature**: Introduces variability in the prompts with a configurable chance of using an alternate prompt (default is 0% / disabled. 99 is max for 99% likely).
 - **Image Storage**: Saves generated welcome images to a `welcome_images` subfolder with filenames based on the username and timestamp.
+- **Delay Feature**: Adds a configurable delay (default 2 minutes) before posting the welcome image to the `new-users` channel. The bot will inform users in `#botspam` about the delay.
 
 ### Getting Started
 
@@ -31,6 +32,7 @@ BOTSPAM_CHANNEL_ID=your_botspam_channel_id
 WELCOME_CHANNEL_NAME=new-users
 WELCOME_PROMPT=Create a welcome image for a new Discord user with the username '{username}'. Incorporate the user's avatar into the image, its described as: {avatar}
 WILDCARD=0
+POSTING_DELAY=120  # Delay in seconds before posting the image to new-users
 ```
 
 ### Usage
@@ -42,7 +44,7 @@ docker run -d --name hello-dalle-discordbot --env-file .env heavygee/hello-dalle
 ```
 
 #### Docker Compose
-Alternatively, use Docker Compose for a more robust setup. Create a docker-compose.yml file:
+Alternatively, use Docker Compose for a more robust setup. Create a `docker-compose.yml` file:
 
 ```plaintext
 version: '3.8'
@@ -57,13 +59,14 @@ services:
       - WELCOME_CHANNEL_NAME=${WELCOME_CHANNEL_NAME}
       - WELCOME_PROMPT=${WELCOME_PROMPT}
       - WILDCARD=${WILDCARD}
+      - POSTING_DELAY=${POSTING_DELAY}
     env_file:
       - .env
     volumes:
       - ./welcome_images:/usr/src/app/welcome_images
 ```
 
-This \`volumes\` directive ensures that the \`welcome_images\` directory on your host machine is bound to the corresponding directory inside the Docker container. This allows you to store generated images outside the container and access them easily.
+This `volumes` directive ensures that the `welcome_images` directory on your host machine is bound to the corresponding directory inside the Docker container. This allows you to store generated images outside the container and access them easily.
 
 Run the container using Docker Compose:
 ```
@@ -74,8 +77,8 @@ docker-compose up -d
 This project is licensed under the MIT License. See the LICENSE file for details.
 
 ### Authors
-- HeavyGee
-- ChatGPT (by OpenAI) - Chad wrote the whole damn thing.
+- **HeavyGee**
+- **ChatGPT** (by OpenAI) - Chad wrote the whole damn thing.
 
 ### Support
 For issues, please open an issue on the [GitHub repository](https://github.com/heavygee/hello-dalle-discordbot).
