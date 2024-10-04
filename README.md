@@ -1,4 +1,4 @@
-# <img src="https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/logo.png" alt="Logo" width="150" height="150"> Hello Dall-E Discord Bot
+# ![Logo](https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/logo.png) Hello Dall-E Discord Bot
 
 This bot uses OpenAI's DALL-E to generate welcome images for new Discord members. It describes the user's avatar and generates an image based on a prompt. Additionally, for users without a profile pic, it will generate a profile pic based on their username and suggest the user adopt it.
 
@@ -7,6 +7,7 @@ This bot uses OpenAI's DALL-E to generate welcome images for new Discord members
 - Generate images using DALL-E and re-upload to Discord to avoid expiration.
 - **Wildcard Feature**: Introduces variability in the prompts with a configurable chance of using an alternate prompt (default is 0% / disabled. 99 is max for 99% likely)
 - **Image Storage**: Saves generated welcome images to a `welcome_images` subfolder with filenames based on the username and timestamp.
+- **Delay Feature**: Configurable delay (default 2 minutes) before posting the welcome image to the `new-users` channel. The bot will inform admins in `#botspam` about the delay before the image is posted in `new-users`.
 
 ## Installation
 
@@ -25,8 +26,10 @@ WELCOME_CHANNEL_NAME=new-users
 GENERAL_CHANNEL_ID=your_general_channel_id
 WELCOME_PROMPT=Create a welcome image for a new Discord user with the username '{username}'. Incorporate the users avatar into the image, its described as: {avatar}
 WILDCARD=0
+POSTING_DELAY=120  # Delay in seconds before posting the image to new-users
 ```
 GENERAL_CHANNEL_ID: The ID of the general channel where the bot will suggest profile pictures to users without profile pictures.
+
 ### Running with Docker
 
 For details on running this project with Docker, visit the [Docker Hub page](https://hub.docker.com/r/heavygee/hello-dalle-discordbot).
@@ -34,16 +37,16 @@ For details on running this project with Docker, visit the [Docker Hub page](htt
 ## Examples of Output
 
 ### Example welcome image in `#new-users`
-<img src="https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/new-users-output.png" alt="Example welcome image in #new-users" width="300">
+![Example welcome image in #new-users](https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/new-users-output.png)
 
 ### Example debug report in `#botspam`
-<img src="https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/botspam-output.png" alt="Example debug report in #botspam" width="300">
+![Example debug report in #botspam](https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/botspam-output.png)
 
 ### Example WILDCARD welcome image in `#new-users`
-<img src="https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/wildcard-output.png" alt="Example wildcard welcome image in #new-users" width="300">
+![Example wildcard welcome image in #new-users](https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/wildcard-output.png)
 
 ### Example WILDCARD debug report in `#botspam`
-<img src="https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/wildcard-botspam-output.png" alt="Example wildcard debug report in #botspam" width="300">
+![Example wildcard debug report in #botspam](https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/wildcard-botspam-output.png)
 
 ## Cost
 
