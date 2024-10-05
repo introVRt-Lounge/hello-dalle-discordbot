@@ -1,12 +1,19 @@
-import { DEBUG, OPENAI_API_KEY } from '../config';
+import { DEBUG, OPENAI_API_KEY, WATERMARK_PATH } from '../config';
 import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
+import sharp from 'sharp';
 
 // Ensure the temp directory exists
 const tempDir = path.join(__dirname, '../../temp');  // Changed path to avoid using 'dist'
 if (!fs.existsSync(tempDir)) {
     fs.mkdirSync(tempDir, { recursive: true }); // Create the temp directory if it doesn't exist
+}
+
+// Ensure the welcome_images directory exists
+const welcomeImagesDir = path.join(__dirname, '../../welcome_images');
+if (!fs.existsSync(welcomeImagesDir)) {
+    fs.mkdirSync(welcomeImagesDir, { recursive: true }); // Create the welcome_images directory if it doesn't exist
 }
 
 // Function to generate image via API (DALL-E or other)
@@ -29,6 +36,32 @@ export async function generateImage(prompt: string): Promise<string> {
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         throw new Error(`Failed to generate image: ${errorMessage}`);
+    }
+}
+
+// Function to add watermark to the image (optional based on WATERMARK_PATH)
+export async function addWatermark(imagePath: string, watermarkPath: string | undefined): Promise<string> {
+    try {
+        const outputImagePath = path.join(welcomeImagesDir, `watermarked_${Date.now()}.png`);
+
+        // Resize the watermark to be smaller if necessary
+        if (!watermarkPath) {
+        return imagePath; // If watermarkPath is not set, return the original image path
+    }
+
+    const watermark = await sharp(watermarkPath).resize({ width: 200 }).toBuffer();
+
+        await sharp(imagePath)
+            .composite([{
+                input: watermark,
+                gravity: 'southeast'
+            }])
+            .toFile(outputImagePath);
+
+        return outputImagePath;
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        throw new Error(`Failed to add watermark: ${errorMessage}`);
     }
 }
 
@@ -101,4 +134,18 @@ export async function downloadAndSaveImage(url: string, filepath: string): Promi
                 reject(new Error(errorMessage));
             });
     });
+}
+
+// Function to handle welcome image generation with watermark
+export async function generateWelcomeImage(prompt: string): Promise<string> {
+    const imageUrl = await generateImage(prompt);
+    const imagePath = path.join(tempDir, `welcome_image_${Date.now()}.png`);
+
+    // Download the generated image
+    await downloadAndSaveImage(imageUrl, imagePath);
+
+    // Add watermark to the welcome image
+    const watermarkedImagePath = WATERMARK_PATH ? await addWatermark(imagePath, WATERMARK_PATH) : imagePath;
+
+    return watermarkedImagePath;
 }

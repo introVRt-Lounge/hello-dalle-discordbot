@@ -42,5 +42,9 @@
   "1.7.0": {
     "description": "New feature: time delay of welcome image (2min)",
     "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.7.0"
+  },
+  "1.8.0": {
+    "description": "adding watermark option for welcome images.",
+    "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.8.0"
   }
 }

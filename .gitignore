@@ -21,3 +21,5 @@ temp.json
 hello-dalle-discordbot.code-workspace
 dist/
 .env.test
+watermark_noback.png
+watermark.png
