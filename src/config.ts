@@ -25,6 +25,7 @@ export const WELCOME_PROMPT = checkEnvVar('WELCOME_PROMPT', process.env.WELCOME_
 export const WILDCARD = parseInt(process.env.WILDCARD ?? '0', 10);
 export const DEBUG = process.env.DEBUG === 'true' || false; // Default DEBUG to false
 export const VERSION = require(path.resolve(__dirname, '../package.json')).version;
+export const WATERMARK_PATH = process.env.WATERMARK_PATH || undefined; // Optional watermark path
 
 // Manage WILDCARD as a variable with getter/setter
 let wildcard = WILDCARD;
@@ -35,4 +36,5 @@ export const setWILDCARD = (value: number): void => {
         wildcard = value;
     } else {
         throw new Error("WILDCARD value must be between 0 and 99.");
-}};
+}
+};
