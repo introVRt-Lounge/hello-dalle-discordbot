@@ -27,6 +27,7 @@ GENERAL_CHANNEL_ID=your_general_channel_id
 WELCOME_PROMPT=Create a welcome image for a new Discord user with the username '{username}'. Incorporate the users avatar into the image, its described as: {avatar}
 WILDCARD=0
 POSTING_DELAY=120  # Delay in seconds before posting the image to new-users
+WATERMARK_PATH=/usr/src/app/watermark.png  # Optional: path for a watermark image that will be added to welcome images. If not set, no watermark will be added. Add as a docker bind path to store the watermark image on your host. 
 ```
 GENERAL_CHANNEL_ID: The ID of the general channel where the bot will suggest profile pictures to users without profile pictures.
 
