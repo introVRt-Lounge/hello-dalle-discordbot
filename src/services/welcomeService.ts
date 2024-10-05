@@ -1,5 +1,5 @@
 import { Client, GuildMember, TextChannel } from 'discord.js';
-import { generateImage, downloadAndSaveImage, describeImage } from '../utils/imageUtils';
+import { generateWelcomeImage, downloadAndSaveImage, describeImage } from '../utils/imageUtils';
 import { WELCOME_CHANNEL_NAME, WELCOME_PROMPT, POSTING_DELAY, BOTSPAM_CHANNEL_ID, getWILDCARD, DEBUG } from '../config';
 import path from 'path';
 import fs from 'fs';
@@ -36,13 +36,9 @@ export async function welcomeUser(client: Client, member: GuildMember): Promise<
 
         await logMessage(client, guild, `Generated prompt: ${prompt}`);
 
-        // Generate the welcome image
-        const welcomeImageUrl = await generateImage(prompt);
-        if (DEBUG) console.log(`DEBUG: Generated image URL: ${welcomeImageUrl}`);
-
-        // Download the welcome image
-        const welcomeImagePath = path.join(__dirname, '../../temp', `welcome_image_${Date.now()}.png`);
-        await downloadAndSaveImage(welcomeImageUrl, welcomeImagePath);
+        // Generate the welcome image with watermark
+        const welcomeImagePath = await generateWelcomeImage(prompt);
+        if (DEBUG) console.log(`DEBUG: Generated and watermarked image path: ${welcomeImagePath}`);
 
         // **Send both avatar and welcome images to the botspam channel using BOTSPAM_CHANNEL_ID**
         const botspamChannel = guild.channels.cache.get(BOTSPAM_CHANNEL_ID) as TextChannel;
@@ -76,7 +72,7 @@ export async function welcomeUser(client: Client, member: GuildMember): Promise<
 
             // Clean up temp files
             fs.unlinkSync(avatarPath);
-            fs.unlinkSync(welcomeImagePath);
+            //fs.unlinkSync(welcomeImagePath);
         }, postDelayInMs);
 
     } catch (error) {
@@ -85,4 +81,3 @@ export async function welcomeUser(client: Client, member: GuildMember): Promise<
         await logMessage(client, guild, `Error during welcome process: ${errorMessage}`);
     }
 }
-

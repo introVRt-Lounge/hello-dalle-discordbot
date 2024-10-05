@@ -1,6 +1,6 @@
 {
   "name": "hello-dalle-discordbot",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Hello Dall-E will produce welcome images for your new users. Now with a wildcard that will 'prompt different' as you specify",
   "main": "bot.js",
   "scripts": {
@@ -14,10 +14,12 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^1.7.2",
-    "discord.js": "^14.15.3"
+    "discord.js": "^14.15.3",
+    "sharp": "^0.33.5"
   },
   "devDependencies": {
     "@types/jest": "^29.5.13",
+    "@types/jimp": "^0.2.28",
     "@types/node": "^22.7.1",
     "axios-mock-adapter": "^2.0.0",
     "dotenv": "^16.4.5",

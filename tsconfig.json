@@ -12,7 +12,8 @@
     "module": "commonjs",        // Module system
     "resolveJsonModule": true,   // Enable .json modules
     "esModuleInterop": true,     // Enable compatibility for ES module imports
-    "skipLibCheck": true         // Skip type checking of declaration files
+    "skipLibCheck": true,         // Skip type checking of declaration files
+    "allowSyntheticDefaultImports": true
   },
   "include": [
     "src/**/*.ts"                // Include all TypeScript files in the src directory
