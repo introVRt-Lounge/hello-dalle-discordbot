@@ -5,8 +5,8 @@ describe('Config Tests', () => {
         expect(config.DISCORD_BOT_TOKEN).toBeDefined();
         expect(config.OPENAI_API_KEY).toBeDefined();
         expect(config.BOTSPAM_CHANNEL_ID).toBeDefined();
-        expect(config.WELCOME_CHANNEL_NAME).toBeDefined();
-        expect(config.GENERAL_CHANNEL_ID).toBeDefined();
+        expect(config.WELCOME_CHANNEL_ID).toBeDefined();
+        expect(config.PROFILE_CHANNEL_ID).toBeDefined();
         expect(config.WILDCARD).toBeDefined();
         expect(config.VERSION).toBeDefined();
     });
@@ -16,5 +16,4 @@ describe('Config Tests', () => {
         expect(config.WILDCARD).toBeGreaterThanOrEqual(0);
         expect(config.WILDCARD).toBeLessThanOrEqual(99);
     });
-
 });

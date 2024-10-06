@@ -17,8 +17,8 @@ export const POSTING_DELAY = parseInt(process.env.POSTING_DELAY || '120', 10); /
 export const DISCORD_BOT_TOKEN = checkEnvVar('DISCORD_BOT_TOKEN', process.env.DISCORD_BOT_TOKEN);
 export const OPENAI_API_KEY = checkEnvVar('OPENAI_API_KEY', process.env.OPENAI_API_KEY);
 export const BOTSPAM_CHANNEL_ID = checkEnvVar('BOTSPAM_CHANNEL_ID', process.env.BOTSPAM_CHANNEL_ID);
-export const GENERAL_CHANNEL_ID = checkEnvVar('GENERAL_CHANNEL_ID', process.env.GENERAL_CHANNEL_ID);
-export const WELCOME_CHANNEL_NAME = checkEnvVar('WELCOME_CHANNEL_NAME', process.env.WELCOME_CHANNEL_NAME);
+export const WELCOME_CHANNEL_ID = checkEnvVar('WELCOME_CHANNEL_ID', process.env.WELCOME_CHANNEL_ID);
+export const PROFILE_CHANNEL_ID = checkEnvVar('PROFILE_CHANNEL_ID', process.env.PROFILE_CHANNEL_ID);
 export const WELCOME_PROMPT = checkEnvVar('WELCOME_PROMPT', process.env.WELCOME_PROMPT);
 
 // Optional variables with default values
