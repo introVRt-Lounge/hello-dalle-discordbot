@@ -147,21 +147,19 @@ jq --arg version "$new_version" --arg desc "$description" \
         exit 1
     }
 
-# Add all modified files to staging area (including unstaged ones)
+# Commit and push changes
 git add -A || {
     echo "Git add failed. Reverting to previous state..."
     git checkout -- version_info.json package.json package-lock.json
     exit 1
 }
 
-# Use the provided description as the commit message
 git commit -m "$description" || {
     echo "Git commit failed. Reverting to previous state..."
     git checkout -- version_info.json package.json package-lock.json
     exit 1
 }
 
-# Push the changes to the main branch
 git push origin main || {
     echo "Git push failed. Reverting local version changes..."
     git reset --hard "$initial_state"
