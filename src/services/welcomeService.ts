@@ -1,6 +1,6 @@
 import { Client, GuildMember, TextChannel } from 'discord.js';
 import { generateWelcomeImage, downloadAndSaveImage, describeImage } from '../utils/imageUtils';
-import { WELCOME_CHANNEL_NAME, WELCOME_PROMPT, POSTING_DELAY, BOTSPAM_CHANNEL_ID, getWILDCARD, DEBUG } from '../config';
+import { WELCOME_CHANNEL_NAME, WELCOME_PROMPT, POSTING_DELAY, BOTSPAM_CHANNEL_ID, STEALTH_WELCOME, getWILDCARD, DEBUG } from '../config';
 import path from 'path';
 import fs from 'fs';
 import { logMessage } from '../utils/log';
@@ -51,28 +51,36 @@ export async function welcomeUser(client: Client, member: GuildMember): Promise<
                 files: [avatarPath, welcomeImagePath]
             });
 
+            // Always notify admins about the upcoming post in the welcome channel
             const delayTimestamp = Math.floor((Date.now() + postDelayInMs) / 1000);  // Convert to Unix timestamp in seconds
             await botspamChannel.send(`The welcome image will be posted in #${WELCOME_CHANNEL_NAME} <t:${delayTimestamp}:R>.`);
         }
 
         // Delay for POSTING_DELAY seconds before sending to new-users
         setTimeout(async () => {
-            const welcomeChannel = guild.channels.cache.find(channel => channel.name === WELCOME_CHANNEL_NAME) as TextChannel;
-            if (welcomeChannel?.isTextBased()) {
-                await welcomeChannel.send({
-                    content: `Welcome, <@${userId}>!`,
-                    files: [welcomeImagePath]
-                });
+            try {
+                const welcomeChannel = guild.channels.cache.find(channel => channel.name === WELCOME_CHANNEL_NAME) as TextChannel;
+                if (welcomeChannel?.isTextBased()) {
+                    await welcomeChannel.send({
+                        content: `Welcome, <@${userId}>!`,
+                        files: [welcomeImagePath],
+                        allowedMentions: { users: [userId] } // Silent mention for only the new user
+                    });
+                }
+
+                // Increment welcome count and log it
+                welcomeCount++;
+                writeWelcomeCount(welcomeCount);
+                await logMessage(client, guild, `Welcome count updated: ${welcomeCount}`);
+
+                // Clean up temp files
+                fs.unlinkSync(avatarPath);
+                //fs.unlinkSync(welcomeImagePath);
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                if (DEBUG) console.error('Error during delayed welcome process:', errorMessage);
+                await logMessage(client, guild, `Error during delayed welcome process: ${errorMessage}`);
             }
-
-            // Increment welcome count and log it
-            welcomeCount++;
-            writeWelcomeCount(welcomeCount);
-            await logMessage(client, guild, `Welcome count updated: ${welcomeCount}`);
-
-            // Clean up temp files
-            fs.unlinkSync(avatarPath);
-            //fs.unlinkSync(welcomeImagePath);
         }, postDelayInMs);
 
     } catch (error) {

@@ -13,6 +13,7 @@ The Discord DALL-E Bot leverages OpenAI's DALL-E model to generate welcome image
 - **Wildcard Feature**: Introduces variability in the prompts with a configurable chance of using an alternate prompt (default is 0% / disabled. 99 is max for 99% likely).
 - **Image Storage**: Saves generated welcome images to a `welcome_images` subfolder with filenames based on the username and timestamp.
 - **Delay Feature**: Adds a configurable delay (default 2 minutes) before posting the welcome image to the `new-users` channel. The bot will inform users in `#botspam` about the delay.
+- **Optional Watermark**: Optionally adds a watermark to the generated images. The watermark can be customized using an environment variable (`WATERMARK_PATH`). If not set, no watermark will be added.
 
 ### Getting Started
 
@@ -33,13 +34,16 @@ WELCOME_CHANNEL_NAME=new-users
 WELCOME_PROMPT=Create a welcome image for a new Discord user with the username '{username}'. Incorporate the user's avatar into the image, its described as: {avatar}
 WILDCARD=0
 POSTING_DELAY=120  # Delay in seconds before posting the image to new-users
+WATERMARK_PATH=/usr/src/app/watermark.png  # Optional: Path to the watermark image that will be added to welcome images. If not set, no watermark will be added.
 ```
+
+Note: Environment variables are never accessed directly in the code. Instead, they are assigned to constants using helper functions to ensure safe and consistent use throughout the codebase.
 
 ### Usage
 
 #### Docker Run
 To run the bot using Docker, use the following command:
-```
+```plaintext
 docker run -d --name hello-dalle-discordbot --env-file .env heavygee/hello-dalle-discordbot
 ```
 
@@ -60,6 +64,7 @@ services:
       - WELCOME_PROMPT=${WELCOME_PROMPT}
       - WILDCARD=${WILDCARD}
       - POSTING_DELAY=${POSTING_DELAY}
+      - WATERMARK_PATH=${WATERMARK_PATH}  # Optional: Path to watermark image
     env_file:
       - .env
     volumes:
@@ -69,7 +74,7 @@ services:
 This `volumes` directive ensures that the `welcome_images` directory on your host machine is bound to the corresponding directory inside the Docker container. This allows you to store generated images outside the container and access them easily.
 
 Run the container using Docker Compose:
-```
+```plaintext
 docker-compose up -d
 ```
 

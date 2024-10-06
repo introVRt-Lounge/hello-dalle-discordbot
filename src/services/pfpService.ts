@@ -1,5 +1,5 @@
 import { Client, GuildMember, TextChannel } from 'discord.js';
-import { DEBUG, GENERAL_CHANNEL_ID } from '../config';
+import { DEBUG, GENERAL_CHANNEL_ID, STEALTH_WELCOME } from '../config';
 import { logMessage } from '../utils/log';
 import { generateImage, downloadAndSaveImage } from '../utils/imageUtils'; // Utilities for generating and saving images
 import path from 'path';
@@ -61,7 +61,8 @@ async function postToGeneral(client: Client, member: GuildMember, profilePicPath
 
         await generalChannel.send({
             content: `Hey <@${member.user.id}>, you don't have a profile pic yet - do you want to use this one we made for you, based on your username?`,
-            files: [profilePicPath]
+            files: [profilePicPath],
+            allowedMentions: STEALTH_WELCOME ? { users: [member.user.id] } : undefined // Stealth notification for profile picture suggestion
         });
     } else {
         if (DEBUG) console.warn(`General channel with ID ${GENERAL_CHANNEL_ID} not found or is not a text channel.`);
