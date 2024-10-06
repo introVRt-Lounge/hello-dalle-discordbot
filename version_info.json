@@ -50,5 +50,9 @@
   "1.9.0": {
     "description": "stealth post non-default option, only ping the welcomed user, not your whole server.",
     "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.9.0"
+  },
+  "1.9.1": {
+    "description": "actually committing the changes. stealth post non-default option, only ping the welcomed user, not your whole server.",
+    "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.9.1"
   }
 }
