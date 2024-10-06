@@ -3,7 +3,7 @@ helpers/testbuild.sh
 helpers/hubpush.sh
 avatar.png
 dalle_image.png
-welcomeCount.json
+data/welcomeCount.json
 node_modules/
 *.log
 pids
