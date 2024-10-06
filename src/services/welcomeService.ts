@@ -1,6 +1,6 @@
 import { Client, GuildMember, TextChannel } from 'discord.js';
 import { generateWelcomeImage, downloadAndSaveImage, describeImage } from '../utils/imageUtils';
-import { WELCOME_CHANNEL_NAME, WELCOME_PROMPT, POSTING_DELAY, BOTSPAM_CHANNEL_ID, STEALTH_WELCOME, getWILDCARD, DEBUG } from '../config';
+import { WELCOME_CHANNEL_ID, WELCOME_PROMPT, POSTING_DELAY, BOTSPAM_CHANNEL_ID, STEALTH_WELCOME, getWILDCARD, DEBUG } from '../config';
 import path from 'path';
 import fs from 'fs';
 import { logMessage } from '../utils/log';
@@ -40,9 +40,8 @@ export async function welcomeUser(client: Client, member: GuildMember): Promise<
         const welcomeImagePath = await generateWelcomeImage(prompt);
         if (DEBUG) console.log(`DEBUG: Generated and watermarked image path: ${welcomeImagePath}`);
 
-        // **Send both avatar and welcome images to the botspam channel using BOTSPAM_CHANNEL_ID**
+        // Send both avatar and welcome images to the botspam channel using BOTSPAM_CHANNEL_ID
         const botspamChannel = guild.channels.cache.get(BOTSPAM_CHANNEL_ID) as TextChannel;
-        // Define POSTING_DELAY in milliseconds
         const postDelayInMs = POSTING_DELAY * 1000;
 
         if (botspamChannel?.isTextBased()) {
@@ -53,13 +52,13 @@ export async function welcomeUser(client: Client, member: GuildMember): Promise<
 
             // Always notify admins about the upcoming post in the welcome channel
             const delayTimestamp = Math.floor((Date.now() + postDelayInMs) / 1000);  // Convert to Unix timestamp in seconds
-            await botspamChannel.send(`The welcome image will be posted in #${WELCOME_CHANNEL_NAME} <t:${delayTimestamp}:R>.`);
+            await botspamChannel.send(`The welcome image will be posted in <#${WELCOME_CHANNEL_ID}> <t:${delayTimestamp}:R>.`);
         }
 
-        // Delay for POSTING_DELAY seconds before sending to new-users
+        // Delay for POSTING_DELAY seconds before sending to welcome channel
         setTimeout(async () => {
             try {
-                const welcomeChannel = guild.channels.cache.find(channel => channel.name === WELCOME_CHANNEL_NAME) as TextChannel;
+                const welcomeChannel = guild.channels.cache.get(WELCOME_CHANNEL_ID) as TextChannel;
                 if (welcomeChannel?.isTextBased()) {
                     await welcomeChannel.send({
                         content: `Welcome, <@${userId}>!`,

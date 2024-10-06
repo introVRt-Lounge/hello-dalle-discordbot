@@ -12,8 +12,9 @@ The Discord DALL-E Bot leverages OpenAI's DALL-E model to generate welcome image
 - **Secure Configuration**: Environment variables ensure sensitive information like API keys and tokens are not included in the Docker image.
 - **Wildcard Feature**: Introduces variability in the prompts with a configurable chance of using an alternate prompt (default is 0% / disabled. 99 is max for 99% likely).
 - **Image Storage**: Saves generated welcome images to a `welcome_images` subfolder with filenames based on the username and timestamp.
-- **Delay Feature**: Adds a configurable delay (default 2 minutes) before posting the welcome image to the `new-users` channel. The bot will inform users in `#botspam` about the delay.
+- **Delay Feature**: Adds a configurable delay (default 2 minutes) before posting the welcome image to the `welcome` channel. The bot will inform users in `#botspam` about the delay.
 - **Optional Watermark**: Optionally adds a watermark to the generated images. The watermark can be customized using an environment variable (`WATERMARK_PATH`). If not set, no watermark will be added.
+- **Configurable Welcome and Profile Picture Channels**: Allows users to explicitly set channels for welcome messages and profile picture suggestions, using environment variables (`WELCOME_CHANNEL_ID` and `PROFILE_CHANNEL_ID`). The channels can be the same if preferred.
 
 ### Getting Started
 
@@ -30,10 +31,11 @@ Create a `.env` file with the following variables:
 DISCORD_BOT_TOKEN=your_discord_bot_token
 OPENAI_API_KEY=your_openai_api_key
 BOTSPAM_CHANNEL_ID=your_botspam_channel_id
-WELCOME_CHANNEL_NAME=new-users
+WELCOME_CHANNEL_ID=your_welcome_channel_id  # Required: Channel ID where welcome images are posted.
+PROFILE_CHANNEL_ID=your_profile_channel_id  # Required: Channel ID where profile picture suggestions are posted.
 WELCOME_PROMPT=Create a welcome image for a new Discord user with the username '{username}'. Incorporate the user's avatar into the image, its described as: {avatar}
 WILDCARD=0
-POSTING_DELAY=120  # Delay in seconds before posting the image to new-users
+POSTING_DELAY=120  # Delay in seconds before posting the image to the welcome channel
 WATERMARK_PATH=/usr/src/app/watermark.png  # Optional: Path to the watermark image that will be added to welcome images. If not set, no watermark will be added.
 ```
 
@@ -59,8 +61,8 @@ services:
       - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - BOTSPAM_CHANNEL_ID=${BOTSPAM_CHANNEL_ID}
-      - GENERAL_CHANNEL_ID=${GENERAL_CHANNEL_ID}
-      - WELCOME_CHANNEL_NAME=${WELCOME_CHANNEL_NAME}
+      - WELCOME_CHANNEL_ID=${WELCOME_CHANNEL_ID}
+      - PROFILE_CHANNEL_ID=${PROFILE_CHANNEL_ID}
       - WELCOME_PROMPT=${WELCOME_PROMPT}
       - WILDCARD=${WILDCARD}
       - POSTING_DELAY=${POSTING_DELAY}
