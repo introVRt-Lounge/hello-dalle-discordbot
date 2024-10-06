@@ -16,7 +16,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: 18
+        node-version: 20
 
     - name: Install dependencies
       run: npm install
@@ -25,8 +25,8 @@ jobs:
       env:
         DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        GENERAL_CHANNEL_ID: ${{ secrets.GENERAL_CHANNEL_ID }}
-        WELCOME_CHANNEL_NAME: ${{ secrets.WELCOME_CHANNEL_NAME }}
+        WELCOME_CHANNEL_ID: ${{ secrets.WELCOME_CHANNEL_ID }}
+        PROFILE_CHANNEL_ID: ${{ secrets.PROFILE_CHANNEL_ID }}
         WELCOME_PROMPT: ${{ secrets.WELCOME_PROMPT }}
         BOTSPAM_CHANNEL_ID: ${{ secrets.BOTSPAM_CHANNEL_ID }}
       run: npm test
@@ -68,10 +68,23 @@ jobs:
         docker build -t heavygee/hello-dalle-discordbot:latest .
         docker tag heavygee/hello-dalle-discordbot:latest heavygee/hello-dalle-discordbot:$version
         echo "Docker images tagged with $version and latest"
-        docker login -u heavygee -p ${{ secrets.DOCKER_PASSWORD }}
+        echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
         docker push heavygee/hello-dalle-discordbot:latest
         docker push heavygee/hello-dalle-discordbot:$version
 
     - name: Log Docker push failure
       if: failure()
       run: echo "Docker push failed. Manual intervention may be needed."
+
+    - name: Update Docker Hub README
+      if: success()
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      run: |
+        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+        README_CONTENT=$(cat src/dockerhub_readme.md)
+        curl -X PATCH "https://hub.docker.com/v2/repositories/heavygee/hello-dalle-discordbot/" \
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer $DOCKER_PASSWORD" \
+          -d "{\"full_description\": \"$README_CONTENT\"}"

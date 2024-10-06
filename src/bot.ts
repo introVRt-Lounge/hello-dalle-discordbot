@@ -7,7 +7,7 @@ import {
     pfpAnyoneCommand,
     isPfpAnyoneEnabled
 } from './commands'; // Importing all commands from the barrel
-import { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID, getWILDCARD, DEBUG, GENERAL_CHANNEL_ID } from './config';
+import { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID, getWILDCARD, DEBUG, WELCOME_CHANNEL_ID, PROFILE_CHANNEL_ID } from './config';
 import { logMessage } from './utils/log';
 import versionInfoJson from '../version_info.json';
 
@@ -70,8 +70,8 @@ client.on('messageCreate', async (message: Message) => {
 
     if (!guild) return;
 
-    // Only process commands in #botspam or #general
-    if (message.channel.id === BOTSPAM_CHANNEL_ID || message.channel.id === GENERAL_CHANNEL_ID) {
+    // Only process commands in #botspam or the defined welcome and profile channels
+    if (message.channel.id === BOTSPAM_CHANNEL_ID || message.channel.id === WELCOME_CHANNEL_ID || message.channel.id === PROFILE_CHANNEL_ID) {
 
         // !pfp can be triggered from either location, process if allowed
         if (content.startsWith('!pfp')) {
