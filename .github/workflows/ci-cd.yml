@@ -34,7 +34,7 @@ jobs:
     - name: Get latest version from version_info.json
       id: version
       run: |
-        version=$(jq -r 'keys | map(.) | sort_by(.) | last' version_info.json)
+        version=$(jq -r 'keys | map(.) | sort -V | last' version_info.json)
         echo "Version: $version"
         echo "VERSION=$version" >> $GITHUB_ENV
 
