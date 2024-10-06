@@ -70,25 +70,20 @@ if [[ -z "$description" ]]; then
   exit 1
 fi
 
-# Read the current version from package.json
-current_version=$(grep -oP '"version":\s*"\K[0-9]+\.[0-9]+\.[0-9]+' package.json)
-previous_commit=$(git rev-parse HEAD)
-
-# Function to handle errors and revert changes
-handle_error() {
-  echo "Error: $1"
-  echo "Reverting version changes..."
-  git checkout -- version_info.json package.json package-lock.json
-  exit 1
-}
-
 # Compile TypeScript files
 echo "Compiling TypeScript files..."
-npx tsc || handle_error "TypeScript compilation failed."
+npx tsc || exit 1
 
 # Run npm audit fix
 echo "Running npm audit fix..."
-npm audit fix || handle_error "npm audit fix failed."
+npm audit fix || exit 1
+
+# Run tests locally
+echo "Running npm tests..."
+npm test || exit 1  # Exit immediately if tests fail
+
+# Read the current version from package.json
+current_version=$(grep -oP '"version":\s*"\K[0-9]+\.[0-9]+\.[0-9]+' package.json)
 
 # Increment version logic
 if [[ -z "$new_version" ]]; then
@@ -122,20 +117,16 @@ if [[ -z "$new_version" ]]; then
     new_version="$major.$minor.$subminor"
 fi
 
-# Run tests locally
-echo "Running npm tests..."
-npm test || handle_error "Tests failed. Aborting."
-
 # Update the version in package.json and version_info.json
-sed -i "s/\"version\": \"$current_version\"/\"version\": \"$new_version\"/" package.json || handle_error "Version update failed in package.json"
+sed -i "s/\"version\": \"$current_version\"/\"version\": \"$new_version\"/" package.json || exit 1
 
 jq --arg version "$new_version" --arg desc "$description" \
     '.[$version] = {description: $desc, changelog_url: ("https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v" + $version)}' \
-    version_info.json > temp.json && mv temp.json version_info.json || handle_error "Failed to update version_info.json"
+    version_info.json > temp.json && mv temp.json version_info.json || exit 1
 
 # Commit and push changes
-git add -A || handle_error "Git add failed"
-git commit -m "Bump version to $new_version and update version_info.json" || handle_error "Git commit failed"
+git add package.json package-lock.json version_info.json || exit 1
+git commit -m "Bump version to $new_version and update version_info.json" || exit 1
 
 # Push to GitHub
 git push origin main || handle_error "Git push failed"

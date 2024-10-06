@@ -76,15 +76,15 @@ jobs:
       if: failure()
       run: echo "Docker push failed. Manual intervention may be needed."
 
-    - name: Update Docker Hub README
+    - name: Update DockerHub Readme
       if: success()
       env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKERHUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       run: |
-        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-        README_CONTENT=$(cat src/dockerhub_readme.md)
-        curl -X PATCH "https://hub.docker.com/v2/repositories/heavygee/hello-dalle-discordbot/" \
+        cat dockerhub_readme.md | jq -Rs '{ "description": . }' > dockerhub_readme.json
+        curl -X PATCH \
+          -u $DOCKERHUB_USERNAME:$DOCKERHUB_PASSWORD \
           -H "Content-Type: application/json" \
-          -H "Authorization: Bearer $DOCKER_PASSWORD" \
-          -d "{\"full_description\": \"$README_CONTENT\"}"
+          -d @dockerhub_readme.json \
+          https://hub.docker.com/v2/repositories/heavygee/hello-dalle-discordbot/
