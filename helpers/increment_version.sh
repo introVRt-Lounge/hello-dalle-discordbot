@@ -134,7 +134,7 @@ jq --arg version "$new_version" --arg desc "$description" \
     version_info.json > temp.json && mv temp.json version_info.json || handle_error "Failed to update version_info.json"
 
 # Commit and push changes
-git add package.json package-lock.json version_info.json || handle_error "Git add failed"
+git add -A || handle_error "Git add failed"
 git commit -m "Bump version to $new_version and update version_info.json" || handle_error "Git commit failed"
 
 # Push to GitHub

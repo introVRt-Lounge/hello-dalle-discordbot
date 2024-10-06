@@ -8,6 +8,7 @@ This bot uses OpenAI's DALL-E to generate welcome images for new Discord members
 - **Wildcard Feature**: Introduces variability in the prompts with a configurable chance of using an alternate prompt (default is 0% / disabled. 99 is max for 99% likely)
 - **Image Storage**: Saves generated welcome images to a `welcome_images` subfolder with filenames based on the username and timestamp.
 - **Delay Feature**: Configurable delay (default 2 minutes) before posting the welcome image to the `new-users` channel. The bot will inform admins in `#botspam` about the delay before the image is posted in `new-users`.
+- **Stealth Welcome Messages**: Optionally configure the bot to post welcome messages in the `new-users` channel as silent messages, notifying only the new user without pinging everyone else. This can be controlled via the `STEALTH_WELCOME` environment variable.
 
 ## Installation
 
@@ -27,8 +28,10 @@ GENERAL_CHANNEL_ID=your_general_channel_id
 WELCOME_PROMPT=Create a welcome image for a new Discord user with the username '{username}'. Incorporate the users avatar into the image, its described as: {avatar}
 WILDCARD=0
 POSTING_DELAY=120  # Delay in seconds before posting the image to new-users
-WATERMARK_PATH=/usr/src/app/watermark.png  # Optional: path for a watermark image that will be added to welcome images. If not set, no watermark will be added. Add as a docker bind path to store the watermark image on your host. 
+WATERMARK_PATH=/usr/src/app/watermark.png  # Optional: path for a watermark image that will be added to welcome images. If not set, no watermark will be added. Add as a docker bind path to store the watermark image on your host.
+STEALTH_WELCOME=false  # Optional: Set to 'true' to enable stealth mode, making welcome messages in the new-users channel silent for everyone except the new user.
 ```
+
 GENERAL_CHANNEL_ID: The ID of the general channel where the bot will suggest profile pictures to users without profile pictures.
 
 ### Running with Docker
@@ -67,11 +70,11 @@ The "botspam" channel is a designated channel in your Discord server where your 
 
 ### Example Usage
 
-```
+```plaintext
 !welcome JohnDoe
 ```
 
-```
+```plaintext
 !wildcard 25
 ```
 
