@@ -102,7 +102,7 @@ export async function describeImage(imagePath: string, imageUrl: string): Promis
                     ]
                 }
             ],
-            max_tokens: 30 // Limit the response length
+            max_tokens: 50 // Limit the response length
         }, {
             headers: {
                 'Authorization': `Bearer ${OPENAI_API_KEY}`,
