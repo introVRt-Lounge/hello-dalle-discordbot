@@ -70,20 +70,27 @@ if [[ -z "$description" ]]; then
   exit 1
 fi
 
+# Read the current version from package.json
+current_version=$(grep -oP '"version":\s*"\K[0-9]+\.[0-9]+\.[0-9]+' package.json)
+
+# Save initial git state for rollback if necessary
+initial_state=$(git rev-parse HEAD)
+
 # Compile TypeScript files
 echo "Compiling TypeScript files..."
-npx tsc || exit 1
+npx tsc || {
+    echo "TypeScript compilation failed. Reverting to previous state..."
+    git checkout -- version_info.json package.json package-lock.json
+    exit 1
+}
 
 # Run npm audit fix
 echo "Running npm audit fix..."
-npm audit fix || exit 1
-
-# Run tests locally
-echo "Running npm tests..."
-npm test || exit 1  # Exit immediately if tests fail
-
-# Read the current version from package.json
-current_version=$(grep -oP '"version":\s*"\K[0-9]+\.[0-9]+\.[0-9]+' package.json)
+npm audit fix || {
+    echo "npm audit fix failed. Reverting to previous state..."
+    git checkout -- version_info.json package.json package-lock.json
+    exit 1
+}
 
 # Increment version logic
 if [[ -z "$new_version" ]]; then
@@ -117,21 +124,48 @@ if [[ -z "$new_version" ]]; then
     new_version="$major.$minor.$subminor"
 fi
 
+# Run tests locally
+echo "Running npm tests..."
+npm test || {
+    echo "Tests failed. Reverting to previous state..."
+    git checkout -- version_info.json package.json package-lock.json
+    exit 1
+}
+
 # Update the version in package.json and version_info.json
-sed -i "s/\"version\": \"$current_version\"/\"version\": \"$new_version\"/" package.json || exit 1
+sed -i "s/\"version\": \"$current_version\"/\"version\": \"$new_version\"/" package.json || {
+    echo "Version update failed in package.json. Reverting to previous state..."
+    git checkout -- version_info.json package.json package-lock.json
+    exit 1
+}
 
 jq --arg version "$new_version" --arg desc "$description" \
     '.[$version] = {description: $desc, changelog_url: ("https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v" + $version)}' \
-    version_info.json > temp.json && mv temp.json version_info.json || exit 1
+    version_info.json > temp.json && mv temp.json version_info.json || {
+        echo "Failed to update version_info.json. Reverting to previous state..."
+        git checkout -- version_info.json package.json package-lock.json
+        exit 1
+    }
 
-# Commit and push changes
-git add package.json package-lock.json version_info.json || exit 1
-git commit -m "Bump version to $new_version and update version_info.json" || exit 1
+# Add all modified files to staging area (including unstaged ones)
+git add -A || {
+    echo "Git add failed. Reverting to previous state..."
+    git checkout -- version_info.json package.json package-lock.json
+    exit 1
+}
 
-# Push to GitHub
-git push origin main || handle_error "Git push failed"
+# Use the provided description as the commit message
+git commit -m "$description" || {
+    echo "Git commit failed. Reverting to previous state..."
+    git checkout -- version_info.json package.json package-lock.json
+    exit 1
+}
+
+# Push the changes to the main branch
+git push origin main || {
+    echo "Git push failed. Reverting local version changes..."
+    git reset --hard "$initial_state"
+    exit 1
+}
 
 echo "Version updated to $new_version and changes pushed successfully."
-
-# Clean up temporary file if exists
-[ -f temp.json ] && rm temp.json
