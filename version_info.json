@@ -55,8 +55,8 @@
     "description": "refactor to clear up the use of a 'welcome' and 'profile' channel for the individual message options.",
     "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.10.0"
   },
-  "1.11.3": {
+  "1.10.1": {
     "description": "workflow tweaks to update dockerhub description",
-    "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.11.3"
+    "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.10.1"
   }
 }
