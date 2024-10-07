@@ -66,5 +66,9 @@
   "1.10.3": {
     "description": "workflow tweaks to update dockerhub description again x2",
     "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.10.3"
+  },
+  "1.10.4": {
+    "description": "workflow tweaks to update dockerhub description again x3",
+    "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.10.4"
   }
 }

@@ -62,10 +62,10 @@ jobs:
         git push origin --delete "v$version" || echo "Failed to delete remote tag"
 
     - name: Login to DockerHub
-      uses: docker/login-action@v2
+      uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD2 }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build Docker image
       run: |
@@ -87,6 +87,6 @@ jobs:
       uses: peter-evans/dockerhub-description@v2
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD2 }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
         repository: heavygee/hello-dalle-discordbot
         readme-filepath: dockerhub_readme.md
