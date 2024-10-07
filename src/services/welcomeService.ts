@@ -1,6 +1,7 @@
 import { Client, GuildMember, TextChannel } from 'discord.js';
+import { generateProfilePicture } from './pfpService';
 import { generateWelcomeImage, downloadAndSaveImage, describeImage } from '../utils/imageUtils';
-import { WELCOME_CHANNEL_ID, WELCOME_PROMPT, POSTING_DELAY, BOTSPAM_CHANNEL_ID, STEALTH_WELCOME, getWILDCARD, DEBUG } from '../config';
+import { WELCOME_CHANNEL_ID, WELCOME_PROMPT, POSTING_DELAY, BOTSPAM_CHANNEL_ID, STEALTH_WELCOME, getWILDCARD, DEBUG, GENDER_SENSITIVITY } from '../config';
 import path from 'path';
 import fs from 'fs';
 import { logMessage } from '../utils/log';
@@ -17,22 +18,33 @@ export async function welcomeUser(client: Client, member: GuildMember): Promise<
     try {
         // Log the avatar URL
         const avatarUrl = member.user.displayAvatarURL({ extension: 'png' });
-        if (DEBUG) console.log(`DEBUG: Avatar URL: ${avatarUrl}`);
 
-        // Download the avatar image
-        const avatarPath = path.join(__dirname, '../../temp', `downloaded_avatar_${Date.now()}.png`);
-        if (DEBUG) console.log(`DEBUG: Submitting avatar for description: ${avatarUrl}`);
-        await downloadAndSaveImage(avatarUrl, avatarPath);
+        let avatarPath = '';
+        let avatarDescription = '';
 
-        // Describe the avatar image
-        const avatarDescription = await describeImage(avatarPath, avatarUrl);
-        if (DEBUG) console.log(`DEBUG: Submitted avatar for description, result: ${avatarDescription}`);
+        // Check if the user has a profile picture
+        if (avatarUrl) {
+            // Download the avatar image
+            avatarPath = path.join(__dirname, '../../temp', `downloaded_avatar_${Date.now()}.png`);
+            await downloadAndSaveImage(avatarUrl, avatarPath);
+            if (DEBUG) console.log(`DEBUG: Downloaded avatar image to: ${avatarPath}`);
 
-        // Generate prompt with the avatar description
+            // Describe the avatar image
+            if (DEBUG) console.log(`DEBUG: Describing avatar.`);
+            avatarDescription = await describeImage(avatarPath, avatarUrl, GENDER_SENSITIVITY);
+            if (DEBUG) console.log(`DEBUG: Avatar description: ${avatarDescription}`);
+        } else {
+            // No profile picture available, generate one
+            if (DEBUG) console.log(`DEBUG: No profile picture found for user "${displayName}". Generating profile picture.`);
+            await generateProfilePicture(client, member, GENDER_SENSITIVITY);
+            return;  // Exit after generating profile picture, no welcome image is needed in this case
+        }
+
+        // Generate prompt with the avatar description if applicable
         const randomNumber = Math.random() * 100;
         const prompt = randomNumber < getWILDCARD()
             ? `Generate a welcome image for the user "${displayName}", inspired by their name. Add the text "Welcome ${displayName}" to the image.`
-            : WELCOME_PROMPT.replace('{username}', displayName).replace('{avatar}', avatarDescription);
+            : WELCOME_PROMPT.replace('{username}', displayName).replace('{avatar}', avatarDescription || 'an avatar');
 
         await logMessage(client, guild, `Generated prompt: ${prompt}`);
 
@@ -74,7 +86,6 @@ export async function welcomeUser(client: Client, member: GuildMember): Promise<
 
                 // Clean up temp files
                 fs.unlinkSync(avatarPath);
-                //fs.unlinkSync(welcomeImagePath);
             } catch (error) {
                 const errorMessage = error instanceof Error ? error.message : String(error);
                 if (DEBUG) console.error('Error during delayed welcome process:', errorMessage);
