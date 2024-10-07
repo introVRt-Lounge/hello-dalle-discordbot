@@ -132,13 +132,14 @@ npm test || {
     exit 1
 }
 
-# Update the version in package.json and version_info.json
+# Update the version in package.json
 sed -i "s/\"version\": \"$current_version\"/\"version\": \"$new_version\"/" package.json || {
     echo "Version update failed in package.json. Reverting to previous state..."
     git checkout -- version_info.json package.json package-lock.json
     exit 1
 }
 
+# Add new entry to version_info.json
 jq --arg version "$new_version" --arg desc "$description" \
     '.[$version] = {description: $desc, changelog_url: ("https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v" + $version)}' \
     version_info.json > temp.json && mv temp.json version_info.json || {

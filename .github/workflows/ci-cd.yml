@@ -31,10 +31,10 @@ jobs:
         BOTSPAM_CHANNEL_ID: ${{ secrets.BOTSPAM_CHANNEL_ID }}
       run: npm test
 
-    - name: Get latest version from version_info.json
+    - name: Get latest version from package.json
       id: version
       run: |
-        version=$(jq -r 'keys | map(.) | sort -V | last' version_info.json)
+        version=$(jq -r '.version' package.json)
         echo "Version: $version"
         echo "VERSION=$version" >> $GITHUB_ENV
 
