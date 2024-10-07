@@ -74,5 +74,9 @@
   "1.10.5": {
     "description": "workflow tweaks to update dockerhub description again x4. docker_username, d'oh",
     "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.10.5"
+  },
+  "1.11.0": {
+    "description": "now with gender sensitivity option",
+    "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.11.0"
   }
 }

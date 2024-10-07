@@ -5,16 +5,15 @@
 The Discord DALL-E Bot leverages OpenAI's DALL-E model to generate welcome images for new members joining your Discord server. When a new member joins, the bot uses their avatar and a customizable prompt to create a unique welcome image, ensuring each member feels special.
 
 ### Features
-
-- **Automated Welcome Messages**: Automatically generates and sends welcome images when new members join your server.
-- **Customizable Prompts**: Use environment variables to customize the welcome message and image generation prompt.
-- **Dynamic Avatar Description**: Utilizes GPT-4 Vision capabilities to describe user avatars dynamically.
-- **Secure Configuration**: Environment variables ensure sensitive information like API keys and tokens are not included in the Docker image.
+- **Welcome Images for New Members**: Automatically generates and sends a welcome image when new members join your server.
+- **Profile Picture Suggestion for New Members Without an Avatar**: For users without a profile picture, the bot will create one based on their username and suggest it as their profile picture.
+- **Gender Sensitivity Option**: Adds personalized touches to generated images based on perceivable characteristics. This is an optional feature, designed to make generated images more relatable, e.g., softer colors for traditionally feminine appearances, bold styles for traditionally masculine appearances. This feature must be explicitly enabled using an environment variable (`GENDER_SENSITIVITY`).
+- **Image Generation**: Uses OpenAI's DALL-E to generate images and re-uploads them to Discord to avoid expiration.
 - **Wildcard Feature**: Introduces variability in the prompts with a configurable chance of using an alternate prompt (default is 0% / disabled. 99 is max for 99% likely).
 - **Image Storage**: Saves generated welcome images to a `welcome_images` subfolder with filenames based on the username and timestamp.
-- **Delay Feature**: Adds a configurable delay (default 2 minutes) before posting the welcome image to the `welcome` channel. The bot will inform users in `#botspam` about the delay.
-- **Optional Watermark**: Optionally adds a watermark to the generated images. The watermark can be customized using an environment variable (`WATERMARK_PATH`). If not set, no watermark will be added.
-- **Configurable Welcome and Profile Picture Channels**: Allows users to explicitly set channels for welcome messages and profile picture suggestions, using environment variables (`WELCOME_CHANNEL_ID` and `PROFILE_CHANNEL_ID`). The channels can be the same if preferred.
+- **Delay Feature**: Configurable delay (default 2 minutes) before posting the welcome image to the `welcome` channel. The bot will inform admins in `#botspam` about the delay before the image is posted.
+- **Stealth Welcome Messages**: Optionally configure the bot to post welcome messages in the `welcome` channel as silent messages, notifying only the new user without pinging everyone else. This can be controlled via the `STEALTH_WELCOME` environment variable.
+- **Configurable Channels**: Allows specifying different channels for welcome images (`WELCOME_CHANNEL_ID`) and profile picture suggestions (`PROFILE_CHANNEL_ID`). These channels can be the same, at the user's discretion.
 
 ### Getting Started
 
@@ -37,6 +36,8 @@ WELCOME_PROMPT=Create a welcome image for a new Discord user with the username '
 WILDCARD=0
 POSTING_DELAY=120  # Delay in seconds before posting the image to the welcome channel
 WATERMARK_PATH=/usr/src/app/watermark.png  # Optional: Path to the watermark image that will be added to welcome images. If not set, no watermark will be added.
+STEALTH_WELCOME=false  # Optional: Set to 'true' to enable stealth mode, making welcome messages in the welcome channel silent for everyone except the new user.
+GENDER_SENSITIVITY=false # Optional: Set to 'true' to enable personalized touches for generated images based on gender-sensitive characteristics.
 ```
 
 Note: Environment variables are never accessed directly in the code. Instead, they are assigned to constants using helper functions to ensure safe and consistent use throughout the codebase.
