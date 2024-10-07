@@ -5,15 +5,15 @@ import path from 'path';
 import sharp from 'sharp';
 
 // Ensure the temp directory exists
-const tempDir = path.join(__dirname, '../../temp');  // Changed path to avoid using 'dist'
+const tempDir = path.join(__dirname, '../../temp');
 if (!fs.existsSync(tempDir)) {
-    fs.mkdirSync(tempDir, { recursive: true }); // Create the temp directory if it doesn't exist
+    fs.mkdirSync(tempDir, { recursive: true });
 }
 
 // Ensure the welcome_images directory exists
 const welcomeImagesDir = path.join(__dirname, '../../welcome_images');
 if (!fs.existsSync(welcomeImagesDir)) {
-    fs.mkdirSync(welcomeImagesDir, { recursive: true }); // Create the welcome_images directory if it doesn't exist
+    fs.mkdirSync(welcomeImagesDir, { recursive: true });
 }
 
 // Function to generate image via API (DALL-E or other)
@@ -32,7 +32,7 @@ export async function generateImage(prompt: string): Promise<string> {
             }
         });
 
-        return response.data.data[0].url; // Return generated image URL
+        return response.data.data[0].url;
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         throw new Error(`Failed to generate image: ${errorMessage}`);
@@ -44,12 +44,11 @@ export async function addWatermark(imagePath: string, watermarkPath: string | un
     try {
         const outputImagePath = path.join(welcomeImagesDir, `watermarked_${Date.now()}.png`);
 
-        // Resize the watermark to be smaller if necessary
         if (!watermarkPath) {
-        return imagePath; // If watermarkPath is not set, return the original image path
-    }
+            return imagePath;
+        }
 
-    const watermark = await sharp(watermarkPath).resize({ width: 200 }).toBuffer();
+        const watermark = await sharp(watermarkPath).resize({ width: 200 }).toBuffer();
 
         await sharp(imagePath)
             .composite([{
@@ -66,23 +65,24 @@ export async function addWatermark(imagePath: string, watermarkPath: string | un
 }
 
 // Function to describe the image using GPT-4 Vision API
-export async function describeImage(imagePath: string, imageUrl: string): Promise<string> {
+export async function describeImage(imagePath: string, imageUrl: string, genderSensitive: boolean): Promise<string> {
     if (DEBUG) console.log(`DEBUG: Describing image from URL: ${imageUrl}`);
     if (DEBUG) console.log(`DEBUG: Local image path: ${imagePath}`);
 
     try {
-        // Read the image from the filesystem and encode it as base64
         const image = fs.readFileSync(imagePath, { encoding: 'base64' });
-        const base64Image = `data:image/png;base64,${image}`;  // Add correct MIME type
+        const base64Image = `data:image/png;base64,${image}`;
 
-        // In DEBUG mode, save the base64 string to a file for inspection
         if (DEBUG) {
             const base64FilePath = path.join(tempDir, `base64_image_${Date.now()}.txt`);
             fs.writeFileSync(base64FilePath, base64Image);
             console.log(`DEBUG: Full base64 image string saved to: ${base64FilePath}`);
         }
 
-        // Prepare the request payload for OpenAI GPT-4 Vision
+        const prompt = genderSensitive
+            ? "This image is used as a discord profile picture. Describe its main features, especially any characteristics (such as hairstyle, clothing, or accessories) that might help in adjusting for personalization. Please provide a concise description in the form of '<description>' without using explicit gender labels unless the characteristics are very apparent. Limit your response to around 50 tokens."
+            : "This image is used as a discord profile picture. Describe the most notable visual feature concisely, in the form of '<description>'. Focus only on distinctive elements like colors, shapes, or items without drawing any conclusions about personal characteristics. Limit your response to around 50 tokens.";
+
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
             model: 'gpt-4-turbo',
             messages: [
@@ -91,18 +91,18 @@ export async function describeImage(imagePath: string, imageUrl: string): Promis
                     content: [
                         {
                             type: 'text',
-                            text: "What’s in this image?"
+                            text: prompt
                         },
                         {
                             type: 'image_url',
                             image_url: {
-                                url: base64Image  // Send the base64 image as an 'image_url'
+                                url: base64Image
                             }
                         }
                     ]
                 }
             ],
-            max_tokens: 50 // Limit the response length
+            max_tokens: 50 // Explicit token limit for the response
         }, {
             headers: {
                 'Authorization': `Bearer ${OPENAI_API_KEY}`,
@@ -141,10 +141,8 @@ export async function generateWelcomeImage(prompt: string): Promise<string> {
     const imageUrl = await generateImage(prompt);
     const imagePath = path.join(tempDir, `welcome_image_${Date.now()}.png`);
 
-    // Download the generated image
     await downloadAndSaveImage(imageUrl, imagePath);
 
-    // Add watermark to the welcome image
     const watermarkedImagePath = WATERMARK_PATH ? await addWatermark(imagePath, WATERMARK_PATH) : imagePath;
 
     return watermarkedImagePath;

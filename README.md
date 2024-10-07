@@ -3,8 +3,10 @@
 This bot uses OpenAI's DALL-E to generate welcome images for new Discord members. It describes the user's avatar and generates an image based on a prompt. Additionally, for users without a profile pic, it will generate a profile pic based on their username and suggest the user adopt it.
 
 ## Features
-- Automatically welcome new members with a custom image.
-- Generate images using DALL-E and re-upload to Discord to avoid expiration.
+- **Welcome Images for New Members**: Automatically generates and sends a welcome image when new members join your server.
+- **Profile Picture Suggestion for New Members Without an Avatar**: For users without a profile picture, the bot will create one based on their username and suggest it as their profile picture.
+- **Gender Sensitivity Option**: Attempts to add personalized touches to generated images based on very limited perceivable characteristics. This is an optional feature, designed to make generated images more accurate. This feature must be explicitly enabled using an environment variable (`GENDER_SENSITIVITY`).
+- **Image Generation**: Uses OpenAI's DALL-E to generate images and re-uploads them to Discord to avoid expiration.
 - **Wildcard Feature**: Introduces variability in the prompts with a configurable chance of using an alternate prompt (default is 0% / disabled. 99 is max for 99% likely).
 - **Image Storage**: Saves generated welcome images to a `welcome_images` subfolder with filenames based on the username and timestamp.
 - **Delay Feature**: Configurable delay (default 2 minutes) before posting the welcome image to the `welcome` channel. The bot will inform admins in `#botspam` about the delay before the image is posted.
@@ -31,6 +33,7 @@ WILDCARD=0
 POSTING_DELAY=120  # Delay in seconds before posting the image to the welcome channel
 WATERMARK_PATH=/usr/src/app/watermark.png  # Optional: path for a watermark image that will be added to welcome images. If not set, no watermark will be added. Add as a docker bind path to store the watermark image on your host.
 STEALTH_WELCOME=false  # Optional: Set to 'true' to enable stealth mode, making welcome messages in the welcome channel silent for everyone except the new user.
+GENDER_SENSITIVITY=false # Optional: Set to 'true' to enable personalized touches for generated images based on gender-sensitive characteristics.
 ```
 
 ### Running with Docker

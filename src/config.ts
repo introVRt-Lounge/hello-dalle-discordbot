@@ -27,6 +27,7 @@ export const DEBUG = process.env.DEBUG === 'true' || false; // Default DEBUG to 
 export const VERSION = require(path.resolve(__dirname, '../package.json')).version;
 export const WATERMARK_PATH = process.env.WATERMARK_PATH || undefined; // Optional watermark path
 export const STEALTH_WELCOME = process.env.STEALTH_WELCOME === 'true' || false; // Default STEALTH_WELCOME to false
+export const GENDER_SENSITIVITY = process.env.GENDER_SENSITIVITY === 'true' || false; // Default GENDER_SENSITIVITY to false
 
 // Manage WILDCARD as a variable with getter/setter
 let wildcard = WILDCARD;
