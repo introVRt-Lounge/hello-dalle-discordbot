@@ -68,7 +68,7 @@ jobs:
         docker build -t heavygee/hello-dalle-discordbot:latest .
         docker tag heavygee/hello-dalle-discordbot:latest heavygee/hello-dalle-discordbot:$version
         echo "Docker images tagged with $version and latest"
-        echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+        echo ${{ secrets.DOCKER_PASSWORD2 }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
         docker push heavygee/hello-dalle-discordbot:latest
         docker push heavygee/hello-dalle-discordbot:$version
 
@@ -80,10 +80,12 @@ jobs:
       if: success()
       env:
         DOCKERHUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKERHUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKERHUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD2 }}
       run: |
         cat dockerhub_readme.md | jq -Rs '{ "description": . }' > dockerhub_readme.json
-        curl -X PATCH \
+        echo "Updating DockerHub README with the following content:"
+        cat dockerhub_readme.json
+        curl -v -X PATCH \
           -u $DOCKERHUB_USERNAME:$DOCKERHUB_PASSWORD \
           -H "Content-Type: application/json" \
           -d @dockerhub_readme.json \
