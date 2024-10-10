@@ -18,13 +18,14 @@ export async function welcomeUser(client: Client, member: GuildMember): Promise<
     try {
         // Log the avatar URL
         const avatarUrl = member.user.displayAvatarURL({ extension: 'png' });
+        if (DEBUG) console.log(`DEBUG: Avatar URL: ${avatarUrl}`);
 
         let avatarPath = '';
         let avatarDescription = '';
 
-        // Check if the user has a profile picture
-        if (avatarUrl) {
-            // Download the avatar image
+        // Check if the user has a profile picture or is using a default Discord logo
+        if (avatarUrl && !avatarUrl.includes('https://discord.com/assets/')) {
+            // User has a custom profile picture, download and describe it
             avatarPath = path.join(__dirname, '../../temp', `downloaded_avatar_${Date.now()}.png`);
             await downloadAndSaveImage(avatarUrl, avatarPath);
             if (DEBUG) console.log(`DEBUG: Downloaded avatar image to: ${avatarPath}`);
@@ -34,8 +35,8 @@ export async function welcomeUser(client: Client, member: GuildMember): Promise<
             avatarDescription = await describeImage(avatarPath, avatarUrl, GENDER_SENSITIVITY);
             if (DEBUG) console.log(`DEBUG: Avatar description: ${avatarDescription}`);
         } else {
-            // No profile picture available, generate one
-            if (DEBUG) console.log(`DEBUG: No profile picture found for user "${displayName}". Generating profile picture.`);
+            // No custom profile picture available, generate one
+            if (DEBUG) console.log(`DEBUG: No custom profile picture found for user "${displayName}". Generating profile picture.`);
             await generateProfilePicture(client, member, GENDER_SENSITIVITY);
             return;  // Exit after generating profile picture, no welcome image is needed in this case
         }

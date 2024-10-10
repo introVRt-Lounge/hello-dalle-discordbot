@@ -78,5 +78,9 @@
   "1.11.0": {
     "description": "now with gender sensitivity option",
     "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.11.0"
+  },
+  "1.11.1": {
+    "description": "Making sure we catch all cases of no-pfp and we initialize welcomecount file",
+    "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.11.1"
   }
 }
