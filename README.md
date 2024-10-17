@@ -56,7 +56,7 @@ For details on running this project with Docker, visit the [Docker Hub page](htt
 
 ## Cost
 
-Using the bot incurs costs based on the usage of OpenAI's DALL-E API. Each welcome image generated costs approximately $0.03. Ensure you monitor your usage to manage costs effectively.
+Using the bot incurs costs based on the usage of OpenAI's DALL-E APIs. Each welcome image generated costs approximately $0.03. Ensure you monitor your usage to manage costs effectively.
 
 ## Debugging and Control
 
