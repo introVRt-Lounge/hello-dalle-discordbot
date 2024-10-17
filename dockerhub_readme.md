@@ -74,7 +74,10 @@ services:
       - ./welcome_images:/usr/src/app/welcome_images
 ```
 
-This `volumes` directive ensures that the `welcome_images` directory on your host machine is bound to the corresponding directory inside the Docker container. This allows you to store generated images outside the container and access them easily.
+This `volumes` directive ensures that the `welcome_images` directory on your host machine is bound to the corresponding directory inside the Docker container. This allows you to store:
+- generated images outside the container and access them easily.
+- the watermark image outside the container (e.g. if you mount "welcome_images" as above, you could make the WATERMARK_PATH=/usr/src/app/welcome_images/watermark.png and place your watermark.png in your welcome_images directory).
+- the /usr/src/app/data folder (that houses the welcomeCount.json file) - you can mount that volume on your host to survive container resets.
 
 Run the container using Docker Compose:
 ```plaintext

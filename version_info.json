@@ -82,5 +82,9 @@
   "1.11.1": {
     "description": "Making sure we catch all cases of no-pfp and we initialize welcomecount file",
     "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.11.1"
+  },
+  "1.11.2": {
+    "description": "making sure welcome count is retainable across restarts",
+    "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.11.2"
   }
 }
