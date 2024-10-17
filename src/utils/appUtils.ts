@@ -1,26 +1,30 @@
 import fs from 'fs';
 import path from 'path';
 
-const welcomeCountFilePath = path.join(__dirname, '../../data/welcomeCount.txt');
+const dataDir = path.join(__dirname, '../../data');
+const welcomeCountFilePath = path.join(dataDir, 'welcomeCount.json');
 
-// Function to ensure the welcome count file is provisioned correctly
-export function provisionWelcomeCountFile(): void {
-    if (!fs.existsSync(welcomeCountFilePath)) {
-        fs.writeFileSync(welcomeCountFilePath, '0', 'utf-8');
-        console.log('Welcome count file created with initial count of 0.');
-    }
+// Ensure the data directory exists
+if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
 }
 
-// Function to read the welcome count
+// Function to read the welcome count from the file, or initialize if not present
 export function readWelcomeCount(): number {
-    if (fs.existsSync(welcomeCountFilePath)) {
-        const count = fs.readFileSync(welcomeCountFilePath, 'utf-8');
-        return parseInt(count, 10);
+    if (!fs.existsSync(welcomeCountFilePath)) {
+        // Initialize with count 0 if file doesn't exist
+        const initialCount = { count: 0 };
+        fs.writeFileSync(welcomeCountFilePath, JSON.stringify(initialCount), { encoding: 'utf-8' });
+        return 0;
     }
-    return 0; // Fallback if the file doesn't exist (though provision should prevent this)
+
+    const data = fs.readFileSync(welcomeCountFilePath, { encoding: 'utf-8' });
+    const parsedData = JSON.parse(data);
+    return parsedData.count;
 }
 
-// Function to write the welcome count
+// Function to write the welcome count to the file
 export function writeWelcomeCount(count: number): void {
-    fs.writeFileSync(welcomeCountFilePath, count.toString(), 'utf-8');
+    const countData = { count };
+    fs.writeFileSync(welcomeCountFilePath, JSON.stringify(countData), { encoding: 'utf-8' });
 }
