@@ -10,6 +10,7 @@ import {
 import { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID, getWILDCARD, DEBUG, WELCOME_CHANNEL_ID, PROFILE_CHANNEL_ID } from './config';
 import { logMessage } from './utils/log';
 import versionInfoJson from '../version_info.json';
+import { readWelcomeCount } from './utils/appUtils';
 
 // Define the type for versionInfo
 type VersionInfo = {
@@ -47,8 +48,11 @@ client.once('ready', async () => {
         const changelogUrl: string = versionDetails ? versionDetails.changelog_url : '';
         const versionDescription: string = versionDetails ? versionDetails.description : 'No description available.';
 
+        // Read the welcome count from the file
+        const welcomeCount = readWelcomeCount();
+
         // Construct the startup message
-        const startupMessage = `Bot is online! Version: [${VERSION}](${changelogUrl}). Wildcard chance: ${getWILDCARD()}% - ${versionDescription}`;
+        const startupMessage = `Bot is online! Version: [${VERSION}](${changelogUrl}). Wildcard chance: ${getWILDCARD()}% - ${versionDescription}. Total welcomed users so far: ${welcomeCount}`;
 
         // Log the startup message
         await logMessage(client, guild, startupMessage);
