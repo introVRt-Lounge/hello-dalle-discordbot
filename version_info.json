@@ -86,5 +86,9 @@
   "1.11.2": {
     "description": "making sure welcome count is retainable across restarts",
     "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.11.2"
+  },
+  "1.11.3": {
+    "description": "bugfix: catch those with default pfps more comprehensively.",
+    "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.11.3"
   }
 }

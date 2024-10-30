@@ -24,7 +24,7 @@ export async function welcomeUser(client: Client, member: GuildMember): Promise<
         let avatarDescription = '';
 
         // Check if the user has a profile picture or is using a default Discord logo
-        if (avatarUrl && !avatarUrl.includes('https://discord.com/assets/')) {
+        if (avatarUrl && !avatarUrl.includes('https://discord.com/assets/') && !avatarUrl.includes('https://cdn.discordapp.com/embed/avatars/')) {
             // User has a custom profile picture, download and describe it
             avatarPath = path.join(__dirname, '../../temp', `downloaded_avatar_${Date.now()}.png`);
             await downloadAndSaveImage(avatarUrl, avatarPath);
@@ -40,6 +40,7 @@ export async function welcomeUser(client: Client, member: GuildMember): Promise<
             await generateProfilePicture(client, member, GENDER_SENSITIVITY);
             return;  // Exit after generating profile picture, no welcome image is needed in this case
         }
+
 
         // Generate prompt with the avatar description if applicable
         const randomNumber = Math.random() * 100;
