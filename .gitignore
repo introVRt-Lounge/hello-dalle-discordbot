@@ -25,3 +25,4 @@ watermark_noback.png
 watermark.png
 helpers/pfp*.png
 testDescribeImage.*s
+.dockerignore
