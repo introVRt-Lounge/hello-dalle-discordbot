@@ -9,7 +9,38 @@ import { readWelcomeCount, writeWelcomeCount } from '../utils/appUtils';
 
 export let welcomeCount = readWelcomeCount();
 
-// Function to handle welcoming a new user
+// Notify admins in botspam channel
+async function notifyAdmins(client: Client, guild: GuildMember['guild'], message: string, files: string[] = []): Promise<void> {
+    const botspamChannel = guild.channels.cache.get(BOTSPAM_CHANNEL_ID) as TextChannel;
+    if (botspamChannel?.isTextBased()) {
+        await botspamChannel.send({
+            content: message,
+            files: files
+        });
+    }
+}
+
+// Post to user in welcome or profile channel with a delay
+async function postToUser(client: Client, guild: GuildMember['guild'], userId: string, channelId: string, message: string, files: string[] = []): Promise<void> {
+    const postDelayInMs = POSTING_DELAY * 1000;
+    setTimeout(async () => {
+        try {
+            const targetChannel = guild.channels.cache.get(channelId) as TextChannel;
+            if (targetChannel?.isTextBased()) {
+                await targetChannel.send({
+                    content: message,
+                    files: files,
+                    allowedMentions: STEALTH_WELCOME ? { users: [userId] } : undefined // Silent mention for only the new user
+                });
+            }
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            if (DEBUG) console.error('Error during delayed post to user:', errorMessage);
+            await logMessage(client, guild, `Error during delayed post to user: ${errorMessage}`);
+        }
+    }, postDelayInMs);
+}
+
 export async function welcomeUser(client: Client, member: GuildMember): Promise<void> {
     const guild = member.guild;
     const displayName = member.displayName;
@@ -23,7 +54,7 @@ export async function welcomeUser(client: Client, member: GuildMember): Promise<
         let avatarPath = '';
         let avatarDescription = '';
 
-        // Check if the user has a profile picture or is using a default Discord logo
+        // Check if the user has a custom profile picture or is using a default Discord logo
         if (avatarUrl && !avatarUrl.includes('https://discord.com/assets/') && !avatarUrl.includes('https://cdn.discordapp.com/embed/avatars/')) {
             // User has a custom profile picture, download and describe it
             avatarPath = path.join(__dirname, '../../temp', `downloaded_avatar_${Date.now()}.png`);
@@ -38,9 +69,13 @@ export async function welcomeUser(client: Client, member: GuildMember): Promise<
             // No custom profile picture available, generate one
             if (DEBUG) console.log(`DEBUG: No custom profile picture found for user "${displayName}". Generating profile picture.`);
             await generateProfilePicture(client, member, GENDER_SENSITIVITY);
-            return;  // Exit after generating profile picture, no welcome image is needed in this case
-        }
 
+            // Notify admins about profile picture generation
+            await notifyAdmins(client, guild, `Profile picture generated for user "${displayName}".`, []);
+            
+            // Exit after generating profile picture, no welcome image is needed in this case
+            return;
+        }
 
         // Generate prompt with the avatar description if applicable
         const randomNumber = Math.random() * 100;
@@ -54,46 +89,19 @@ export async function welcomeUser(client: Client, member: GuildMember): Promise<
         const welcomeImagePath = await generateWelcomeImage(prompt);
         if (DEBUG) console.log(`DEBUG: Generated and watermarked image path: ${welcomeImagePath}`);
 
-        // Send both avatar and welcome images to the botspam channel using BOTSPAM_CHANNEL_ID
-        const botspamChannel = guild.channels.cache.get(BOTSPAM_CHANNEL_ID) as TextChannel;
-        const postDelayInMs = POSTING_DELAY * 1000;
+        // Notify admins about welcome image generation
+        await notifyAdmins(client, guild, `Welcome image generated for user "${displayName}".`, avatarPath ? [avatarPath, welcomeImagePath] : [welcomeImagePath]);
 
-        if (botspamChannel?.isTextBased()) {
-            await botspamChannel.send({
-                content: `Welcome, <@${userId}>! Here is the original profile pic and welcome image generated:`,
-                files: [avatarPath, welcomeImagePath]
-            });
+        // Post welcome image to the welcome channel with a delay
+        await postToUser(client, guild, userId, WELCOME_CHANNEL_ID, `Welcome, <@${userId}>!`, [welcomeImagePath]);
 
-            // Always notify admins about the upcoming post in the welcome channel
-            const delayTimestamp = Math.floor((Date.now() + postDelayInMs) / 1000);  // Convert to Unix timestamp in seconds
-            await botspamChannel.send(`The welcome image will be posted in <#${WELCOME_CHANNEL_ID}> <t:${delayTimestamp}:R>.`);
-        }
+        // Increment welcome count and log it
+        welcomeCount++;
+        writeWelcomeCount(welcomeCount);
+        await logMessage(client, guild, `Welcome count updated: ${welcomeCount}`);
 
-        // Delay for POSTING_DELAY seconds before sending to welcome channel
-        setTimeout(async () => {
-            try {
-                const welcomeChannel = guild.channels.cache.get(WELCOME_CHANNEL_ID) as TextChannel;
-                if (welcomeChannel?.isTextBased()) {
-                    await welcomeChannel.send({
-                        content: `Welcome, <@${userId}>!`,
-                        files: [welcomeImagePath],
-                        allowedMentions: { users: [userId] } // Silent mention for only the new user
-                    });
-                }
-
-                // Increment welcome count and log it
-                welcomeCount++;
-                writeWelcomeCount(welcomeCount);
-                await logMessage(client, guild, `Welcome count updated: ${welcomeCount}`);
-
-                // Clean up temp files
-                fs.unlinkSync(avatarPath);
-            } catch (error) {
-                const errorMessage = error instanceof Error ? error.message : String(error);
-                if (DEBUG) console.error('Error during delayed welcome process:', errorMessage);
-                await logMessage(client, guild, `Error during delayed welcome process: ${errorMessage}`);
-            }
-        }, postDelayInMs);
+        // Clean up temp files
+        if (avatarPath) fs.unlinkSync(avatarPath);
 
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
