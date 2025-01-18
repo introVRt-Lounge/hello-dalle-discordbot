@@ -26,3 +26,12 @@ watermark.png
 helpers/pfp*.png
 testDescribeImage.*s
 .dockerignore
+
+# Scripts and local helpers
+local_helpers/
+local_helpers/scripts/
+local_helpers/reset_prod_db.sh
+tsconfig.tsbuildinfo
+.pnpm-store/
+symlinked.docker-compose.yml
+.cursorrules
