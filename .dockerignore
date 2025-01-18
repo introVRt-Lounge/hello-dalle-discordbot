@@ -10,3 +10,10 @@ node_modules
 npm-debug.log
 .env
 .git
+*~
+vrchat-jellyfin-logs.txt
+watermark_noback.png
+watermark.png
+output.log
+pfp*.png
+.github/
