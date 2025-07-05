@@ -76,8 +76,8 @@ jobs:
           git add package.json version_info.json
           git commit -m "Release v$NEW_VERSION"
           git tag v$NEW_VERSION
-          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} main
-          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} v$NEW_VERSION
+          git push origin main
+          git push origin v$NEW_VERSION
 
       - name: Docker Login
         uses: docker/login-action@v3
