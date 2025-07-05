@@ -194,5 +194,9 @@
   "1.13.25": {
     "description": "Automated release for version 1.13.25",
     "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.13.25"
+  },
+  "1.13.26": {
+    "description": "Automated release for version 1.13.26",
+    "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.13.26"
   }
 }
