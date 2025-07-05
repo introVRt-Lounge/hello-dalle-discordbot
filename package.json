@@ -7,7 +7,8 @@
     "clean": "rm -rf dist",
     "build": "npm run clean && npx tsc",
     "test": "jest --config jest.config.ts",
-    "start": "node dist/bot.js"
+    "start": "node dist/bot.js",
+    "start:dev": "ts-node src/bot.ts"
   },
   "keywords": [],
   "author": "HeavyGee and ChatGPT",
