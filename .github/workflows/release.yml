@@ -5,6 +5,8 @@ on: push
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Grant write permission to allow pushing tags and commits
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
