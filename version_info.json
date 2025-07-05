@@ -94,5 +94,9 @@
   "1.12.0": {
     "description": "Move profile picture suggestions to #new-users channel and enhance botspam reporting with user analytics",
     "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.12.0"
+  },
+  "1.13.1": {
+    "description": "Automated release for version 1.13.1",
+    "changelog_url": "https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v1.13.1"
   }
 }
