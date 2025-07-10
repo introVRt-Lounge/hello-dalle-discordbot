@@ -1,6 +1,6 @@
 {
   "name": "hello-dalle-discordbot",
-  "version": "1.12.49",
+  "version": "1.12.50",
   "description": "Hello Dall-E will produce welcome images for your new users. Now with a wildcard that will 'prompt different' as you specify",
   "main": "bot.js",
   "scripts": {
