@@ -1,0 +1,100 @@
+name: Release and Publish
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    if: contains(github.event.head_commit.message, '[skip ci]') == false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Grant write permission to allow pushing tags and commits
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          ref: ${{ github.event.repository.default_branch }} # Explicitly checkout the default branch
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Compile TypeScript
+        run: npx tsc
+
+      - name: Run npm audit fix
+        run: npm audit fix
+
+      - name: Run tests
+        run: npm test
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          BOTSPAM_CHANNEL_ID: ${{ secrets.BOTSPAM_CHANNEL_ID }}
+          PROFILE_CHANNEL_ID: ${{ secrets.PROFILE_CHANNEL_ID }}
+          WELCOME_CHANNEL_ID: ${{ secrets.WELCOME_CHANNEL_ID }}
+          WELCOME_PROMPT: ${{ secrets.WELCOME_PROMPT }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Get current version and increment subminor
+        id: get_version
+        run: |
+          CURRENT_VERSION=$(grep -oP '"version":\s*"\K[0-9]+\.[0-9]+\.[0-9]+' package.json)
+          IFS='.' read -r -a version_parts <<< "$CURRENT_VERSION"
+          MAJOR=${version_parts[0]}
+          MINOR=${version_parts[1]}
+          SUBMINOR=$((version_parts[2] + 1))
+          NEW_VERSION="$MAJOR.$MINOR.$SUBMINOR"
+          echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Current version: $CURRENT_VERSION, New version: $NEW_VERSION"
+
+      - name: Update version in package.json
+        run: |
+          CURRENT_VERSION=$(grep -oP '"version":\s*"\K[0-9]+\.[0-9]+\.[0-9]+' package.json)
+          NEW_VERSION=${{ steps.get_version.outputs.new_version }}
+          sed -i "s/\"version\": \"$CURRENT_VERSION\"/\"version\": \"$NEW_VERSION\"/" package.json
+          echo "Updated package.json to version $NEW_VERSION"
+
+      - name: Update version_info.json
+        run: |
+          NEW_VERSION=${{ steps.get_version.outputs.new_version }}
+          DESCRIPTION="Automated release for version $NEW_VERSION"
+          jq --arg version "$NEW_VERSION" --arg desc "$DESCRIPTION" \
+              '.[$version] = {description: $desc, changelog_url: ("https://github.com/heavygee/hello-dalle-discordbot/releases/tag/v" + $version)}' \
+              version_info.json > temp.json && mv temp.json version_info.json
+          echo "Updated version_info.json for version $NEW_VERSION"
+
+      - name: Commit and Tag
+        run: |
+          NEW_VERSION=${{ steps.get_version.outputs.new_version }}
+          git add package.json version_info.json
+          git commit -m "Release v$NEW_VERSION [skip ci]"
+          git tag v$NEW_VERSION
+          git push origin ${{ github.event.repository.default_branch }}
+          git push origin v$NEW_VERSION
+
+      - name: Docker Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            heavygee/hello-dalle-discordbot:latest
+            heavygee/hello-dalle-discordbot:${{ steps.get_version.outputs.new_version }} 
