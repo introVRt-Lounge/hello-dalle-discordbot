@@ -92,3 +92,6 @@ This project is licensed under the MIT License. See the [LICENSE](https://github
 ## Support
 
 For issues, please open an issue on the [GitHub repository](https://github.com/heavygee/hello-dalle-discordbot).
+
+### CI/CD Workflow Activation
+This line is to re-activate the GitHub Actions workflow after history cleanup.
