@@ -1,13 +1,14 @@
 {
   "name": "hello-dalle-discordbot",
-  "version": "1.12.0",
+  "version": "1.12.3",
   "description": "Hello Dall-E will produce welcome images for your new users. Now with a wildcard that will 'prompt different' as you specify",
   "main": "bot.js",
   "scripts": {
     "clean": "rm -rf dist",
     "build": "npm run clean && npx tsc",
     "test": "jest --config jest.config.ts",
-    "start": "node dist/bot.js"
+    "start": "node dist/bot.js",
+    "start:dev": "ts-node src/bot.ts"
   },
   "keywords": [],
   "author": "HeavyGee and ChatGPT",
