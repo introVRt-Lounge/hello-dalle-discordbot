@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, Guild, GuildMember, Message, CommandInteraction } from 'discord.js';
+import { Client, GatewayIntentBits, Guild, GuildMember, Message, CommandInteraction, ChatInputCommandInteraction } from 'discord.js';
 import {
     welcomeCommand,
     welcomeNewMember,
@@ -157,18 +157,18 @@ client.on('interactionCreate', async (interaction) => {
             const { commandName } = interaction;
 
             switch (commandName) {
-                case 'pfp':
-                    await handlePfpSlashCommand(client, interaction, isPfpAnyoneEnabled());
-                    break;
-                case 'pfp-anyone':
-                    await pfpAnyoneSlashCommand(client, interaction);
-                    break;
-                case 'welcome':
-                    await welcomeSlashCommand(client, interaction);
-                    break;
-                case 'wildcard':
-                    await handleWildcardSlashCommand(client, interaction);
-                    break;
+                            case 'pfp':
+                await handlePfpSlashCommand(client, interaction as ChatInputCommandInteraction, isPfpAnyoneEnabled());
+                break;
+            case 'pfp-anyone':
+                await pfpAnyoneSlashCommand(client, interaction as ChatInputCommandInteraction);
+                break;
+            case 'welcome':
+                await welcomeSlashCommand(client, interaction as ChatInputCommandInteraction);
+                break;
+            case 'wildcard':
+                await handleWildcardSlashCommand(client, interaction as ChatInputCommandInteraction);
+                break;
                 default:
                     await interaction.reply({ content: 'Unknown command.', ephemeral: true });
             }

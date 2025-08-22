@@ -1,8 +1,8 @@
-import { Client, CommandInteraction, GuildMember } from 'discord.js';
+import { Client, ChatInputCommandInteraction, GuildMember } from 'discord.js';
 import { logMessage } from '../utils/log';
 import { welcomeUser } from '../services/welcomeService';
 
-export async function welcomeSlashCommand(client: Client, interaction: CommandInteraction): Promise<void> {
+export async function welcomeSlashCommand(client: Client, interaction: ChatInputCommandInteraction): Promise<void> {
     const guild = interaction.guild;
 
     if (!guild) {
@@ -10,7 +10,7 @@ export async function welcomeSlashCommand(client: Client, interaction: CommandIn
         return;
     }
 
-    const username = interaction.options.get('username')?.value as string;
+    const username = interaction.options.getString('username', true);
 
     try {
         // Try finding the user in the cache (case-insensitive)

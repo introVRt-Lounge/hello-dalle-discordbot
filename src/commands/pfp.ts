@@ -1,4 +1,4 @@
-import { Client, CommandInteraction, PermissionsBitField } from 'discord.js';
+import { Client, CommandInteraction, PermissionsBitField, ChatInputCommandInteraction } from 'discord.js';
 import { generateProfilePicture } from '../services/pfpService';
 import { logMessage } from '../utils/log';
 import { DEBUG, GENDER_SENSITIVITY } from '../config';
@@ -22,7 +22,7 @@ function hasPfpPermission(member: any, pfpAnyoneEnabled: boolean): boolean {
     return pfpAnyoneEnabled;
 }
 
-export async function handlePfpSlashCommand(client: Client, interaction: CommandInteraction, pfpAnyoneEnabled: boolean): Promise<void> {
+export async function handlePfpSlashCommand(client: Client, interaction: ChatInputCommandInteraction, pfpAnyoneEnabled: boolean): Promise<void> {
     const guild = interaction.guild;
     const member = interaction.member;
 
@@ -40,7 +40,7 @@ export async function handlePfpSlashCommand(client: Client, interaction: Command
         return;
     }
 
-    const username = (interaction.options.get('username')?.value as string).toLowerCase();
+    const username = interaction.options.getString('username', true)?.toLowerCase();
 
     try {
         // Fetch all members of the guild to ensure a complete search
