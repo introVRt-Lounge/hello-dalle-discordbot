@@ -14,6 +14,7 @@ const commands = [
         description: 'The username of the user to generate a profile picture for',
         type: 3, // STRING
         required: true,
+        autocomplete: true,
       },
     ],
   },
@@ -31,6 +32,7 @@ const commands = [
         description: 'The username of the user to welcome',
         type: 3, // STRING
         required: true,
+        autocomplete: true,
       },
     ],
   },
