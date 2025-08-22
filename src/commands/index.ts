@@ -1,4 +1,5 @@
-export { welcomeCommand, welcomeNewMember } from './welcome';
-export { handleWildcardCommand } from './wildcard';
-export { handlePfpCommand } from './pfp';
-export { pfpAnyoneCommand, isPfpAnyoneEnabled } from './pfp-anyone';
+export { welcomeCommand, welcomeNewMember, welcomeSlashCommand } from './welcome';
+export { handleWildcardCommand, handleWildcardSlashCommand } from './wildcard';
+export { handlePfpCommand, handlePfpSlashCommand } from './pfp';
+export { pfpAnyoneCommand, pfpAnyoneSlashCommand, isPfpAnyoneEnabled } from './pfp-anyone';
+export { registerSlashCommands } from './slashCommands';
