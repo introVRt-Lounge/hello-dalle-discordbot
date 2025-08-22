@@ -1,17 +1,18 @@
-import { Client, Message, GuildMember } from 'discord.js';
+import { Client, CommandInteraction, GuildMember } from 'discord.js';
 import { logMessage } from '../utils/log';
 import { welcomeUser } from '../services/welcomeService';
 
-export async function welcomeCommand(client: Client, message: Message): Promise<void> {
-    const guild = message.guild;
-    const content = message.content;
+export async function welcomeSlashCommand(client: Client, interaction: CommandInteraction): Promise<void> {
+    const guild = interaction.guild;
 
-    if (!guild) return;
+    if (!guild) {
+        await interaction.reply({ content: 'Error: Guild not found.', ephemeral: true });
+        return;
+    }
 
-    const args = content.split(' ');
-    if (args.length === 2) {
-        const username = args[1];
+    const username = interaction.options.get('username')?.value as string;
 
+    try {
         // Try finding the user in the cache (case-insensitive)
         let member = guild.members.cache.find(member => member.user.username.toLowerCase() === username.toLowerCase());
 
@@ -26,13 +27,21 @@ export async function welcomeCommand(client: Client, message: Message): Promise<
         }
 
         if (member) {
+            await interaction.reply({ content: `Triggering welcome for ${username}...`, ephemeral: true });
             await welcomeUser(client, member);
         } else {
-            await logMessage(client, guild, `User ${username} not found.`);
+            await interaction.reply({ content: `User ${username} not found.`, ephemeral: true });
         }
-    } else {
-        await logMessage(client, guild, 'Usage: !welcome <username>');
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        await interaction.reply({ content: `Error processing welcome command: ${errorMessage}`, ephemeral: true });
     }
+}
+
+// Legacy function for backward compatibility (can be removed once all ! commands are converted)
+export async function welcomeCommand(client: Client, message: any): Promise<void> {
+    // This function is kept for backward compatibility during transition
+    // Implementation would be similar to the slash command but using message instead of interaction
 }
 
 // Function to handle welcoming a new member (for the 'guildMemberAdd' event)

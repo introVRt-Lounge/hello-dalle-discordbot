@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, Guild, GuildMember, Message } from 'discord.js';
+import { Client, GatewayIntentBits, Guild, GuildMember, Message, CommandInteraction } from 'discord.js';
 import {
     welcomeCommand,
     welcomeNewMember,
@@ -7,6 +7,11 @@ import {
     pfpAnyoneCommand,
     isPfpAnyoneEnabled
 } from './commands'; // Importing all commands from the barrel
+import { handlePfpSlashCommand } from './commands/pfp';
+import { pfpAnyoneSlashCommand } from './commands/pfp-anyone';
+import { welcomeSlashCommand } from './commands/welcome';
+import { handleWildcardSlashCommand } from './commands/wildcard';
+import { registerSlashCommands } from './commands/slashCommands';
 import { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID, getWILDCARD, DEBUG, WELCOME_CHANNEL_ID, PROFILE_CHANNEL_ID } from './config';
 import { logMessage } from './utils/log';
 import versionInfoJson from '../version_info.json';
@@ -42,6 +47,9 @@ client.once('ready', async () => {
             console.error('No guild found during startup.');
             return;
         }
+
+        // Register slash commands
+        await registerSlashCommands(client);
 
         // Fetch version description and changelog link from version_info.json
         const versionDetails = versionInfo[VERSION as keyof typeof versionInfo];
@@ -101,6 +109,42 @@ client.on('messageCreate', async (message: Message) => {
             else if (content.startsWith('!wildcard')) {
                 await handleWildcardCommand(client, message);
             }
+        }
+    }
+});
+
+// Handle slash command interactions
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isCommand()) return;
+
+    const { commandName } = interaction;
+
+    try {
+        switch (commandName) {
+            case 'pfp':
+                await handlePfpSlashCommand(client, interaction, isPfpAnyoneEnabled());
+                break;
+            case 'pfp-anyone':
+                await pfpAnyoneSlashCommand(client, interaction);
+                break;
+            case 'welcome':
+                await welcomeSlashCommand(client, interaction);
+                break;
+            case 'wildcard':
+                await handleWildcardSlashCommand(client, interaction);
+                break;
+            default:
+                await interaction.reply({ content: 'Unknown command.', ephemeral: true });
+        }
+    } catch (error) {
+        console.error('Error handling slash command:', error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+
+        if (!interaction.replied && !interaction.deferred) {
+            await interaction.reply({
+                content: `An error occurred while processing the command: ${errorMessage}`,
+                ephemeral: true
+            });
         }
     }
 });
