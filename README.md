@@ -66,17 +66,28 @@ The "botspam" channel is a designated channel in your Discord server where your 
 
 ### Commands
 
-- `!welcome <username>`: Manually trigger a welcome message for a specific user. This command should be used in the `#botspam` channel.
+The bot recognizes the following `!` commands:
 
-- `!wildcard <value>`: Set the wildcard chance to a specific value between 0 and 99. This command allows you to control the variability in the welcome prompts. This command should be used in the `#botspam` channel.
+#### Profile Picture Commands
+
+- `!pfp <username>`: Generates a profile picture suggestion for a specific user. Can be used in `#botspam`, `#welcome`, or `#profile` channels. Requires admin permissions unless `!pfp-anyone` is enabled.
+
+- `!pfp-anyone`: Toggles whether regular users can use the `!pfp` command. Only works in the `#botspam` channel. Admin command.
+
+#### Welcome Commands
+
+- `!welcome <username>`: Manually trigger a welcome message for a specific user. Only works in the `#botspam` channel.
+
+#### Configuration Commands
+
+- `!wildcard <value>`: Set the wildcard chance to a specific value between 0 and 99. This command allows you to control the variability in the welcome prompts. Only works in the `#botspam` channel.
 
 ### Example Usage
 
 ```plaintext
-!welcome JohnDoe
-```
-
-```plaintext
+!pfp JohnDoe
+!pfp-anyone
+!welcome JaneSmith
 !wildcard 25
 ```
 
