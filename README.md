@@ -64,32 +64,36 @@ Using the bot incurs costs based on the usage of OpenAI's DALL-E APIs. Each welc
 
 The "botspam" channel is a designated channel in your Discord server where your bots can post detailed logs, debug information, and other outputs. When we reference `#botspam`, it refers to this designated channel where your bots will "spam" you with updates and logs. You will need to specify the ID of your botspam channel in the `.env` file.
 
-### Commands
+### Slash Commands
 
-The bot recognizes the following `!` commands:
+The bot now uses modern Discord slash commands (`/`) instead of the old `!` commands. The bot recognizes the following slash commands:
 
 #### Profile Picture Commands
 
-- `!pfp <username>`: Generates a profile picture suggestion for a specific user. Can be used in `#botspam`, `#welcome`, or `#profile` channels. Requires admin permissions unless `!pfp-anyone` is enabled.
+- `/pfp username:<username>`: Generates a profile picture suggestion for a specific user. Can be used in `#botspam`, `#welcome`, or `#profile` channels. Requires admin privileges or the designated role ID (`1237830433203552276`) unless `/pfp-anyone` is enabled.
 
-- `!pfp-anyone`: Toggles whether regular users can use the `!pfp` command. Only works in the `#botspam` channel. Admin command.
+- `/pfp-anyone`: Toggles whether regular users can use the `/pfp` command. Only works in the `#botspam` channel. Admin command only.
 
 #### Welcome Commands
 
-- `!welcome <username>`: Manually trigger a welcome message for a specific user. Only works in the `#botspam` channel.
+- `/welcome username:<username>`: Manually trigger a welcome message for a specific user. Only works in the `#botspam` channel.
 
 #### Configuration Commands
 
-- `!wildcard <value>`: Set the wildcard chance to a specific value between 0 and 99. This command allows you to control the variability in the welcome prompts. Only works in the `#botspam` channel.
+- `/wildcard value:<number>`: Set the wildcard chance to a specific value between 0 and 99. This command allows you to control the variability in the welcome prompts. Only works in the `#botspam` channel.
 
 ### Example Usage
 
 ```plaintext
-!pfp JohnDoe
-!pfp-anyone
-!welcome JaneSmith
-!wildcard 25
+/pfp username: JohnDoe
+/pfp-anyone
+/welcome username: JaneSmith
+/wildcard value: 25
 ```
+
+### Migration from Old Commands
+
+The bot has been converted from using `!` commands to modern Discord slash commands. The old `!` commands are no longer supported. Users should now use the `/` commands instead for better Discord integration, auto-completion, and help text.
 
 ## License
 
