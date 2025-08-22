@@ -1,9 +1,9 @@
-import { Client, CommandInteraction } from 'discord.js';
+import { Client, ChatInputCommandInteraction } from 'discord.js';
 import { getWILDCARD, setWILDCARD } from '../config';
 import { logMessage } from '../utils/log';
 
 // Handle the wildcard slash command
-export async function handleWildcardSlashCommand(client: Client, interaction: CommandInteraction): Promise<void> {
+export async function handleWildcardSlashCommand(client: Client, interaction: ChatInputCommandInteraction): Promise<void> {
     const guild = interaction.guild;
 
     if (!guild) {
@@ -11,7 +11,7 @@ export async function handleWildcardSlashCommand(client: Client, interaction: Co
         return;
     }
 
-    const value = interaction.options.get('value')?.value as number;
+    const value = interaction.options.getInteger('value', true);
 
     // Validate the input
     if (value >= 0 && value <= 99) {
