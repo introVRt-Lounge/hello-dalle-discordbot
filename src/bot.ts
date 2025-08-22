@@ -115,32 +115,75 @@ client.on('messageCreate', async (message: Message) => {
 
 // Handle slash command interactions
 client.on('interactionCreate', async (interaction) => {
-    if (!interaction.isCommand()) return;
-
-    const { commandName } = interaction;
-
     try {
-        switch (commandName) {
-            case 'pfp':
-                await handlePfpSlashCommand(client, interaction, isPfpAnyoneEnabled());
-                break;
-            case 'pfp-anyone':
-                await pfpAnyoneSlashCommand(client, interaction);
-                break;
-            case 'welcome':
-                await welcomeSlashCommand(client, interaction);
-                break;
-            case 'wildcard':
-                await handleWildcardSlashCommand(client, interaction);
-                break;
-            default:
-                await interaction.reply({ content: 'Unknown command.', ephemeral: true });
+        if (interaction.isAutocomplete()) {
+            // Handle autocomplete interactions for commands that need username autocomplete
+            if (interaction.commandName === 'welcome' || interaction.commandName === 'pfp') {
+                const focusedOption = interaction.options.getFocused(true);
+                if (focusedOption.name === 'username') {
+                    const guild = interaction.guild;
+                    if (!guild) return;
+
+                    try {
+                        // Fetch all members
+                        const members = await guild.members.fetch();
+                        const userInput = focusedOption.value.toLowerCase();
+
+                        // Filter members based on user input
+                        const filteredMembers = members
+                            .filter(member =>
+                                member.user.username.toLowerCase().includes(userInput) ||
+                                (member.displayName && member.displayName.toLowerCase().includes(userInput))
+                            );
+
+                        // Convert to array and limit to 25 options (Discord limit)
+                        const limitedMembers = Array.from(filteredMembers.values()).slice(0, 25);
+
+                        // Create autocomplete choices - show display name but use username as value
+                        const choices = limitedMembers.map((member: GuildMember) => ({
+                            name: member.displayName || member.user.username,
+                            value: member.user.username
+                        }));
+
+                        await interaction.respond(choices);
+                    } catch (error) {
+                        console.error('Error fetching members for autocomplete:', error);
+                        await interaction.respond([]);
+                    }
+                }
+            }
+        } else if (interaction.isCommand()) {
+            // Handle slash commands
+            const { commandName } = interaction;
+
+            switch (commandName) {
+                case 'pfp':
+                    await handlePfpSlashCommand(client, interaction, isPfpAnyoneEnabled());
+                    break;
+                case 'pfp-anyone':
+                    await pfpAnyoneSlashCommand(client, interaction);
+                    break;
+                case 'welcome':
+                    await welcomeSlashCommand(client, interaction);
+                    break;
+                case 'wildcard':
+                    await handleWildcardSlashCommand(client, interaction);
+                    break;
+                default:
+                    await interaction.reply({ content: 'Unknown command.', ephemeral: true });
+            }
         }
     } catch (error) {
-        console.error('Error handling slash command:', error);
+        console.error('Error handling interaction:', error);
         const errorMessage = error instanceof Error ? error.message : String(error);
 
-        if (!interaction.replied && !interaction.deferred) {
+        if (interaction.isAutocomplete()) {
+            try {
+                await interaction.respond([]);
+            } catch (e) {
+                // Ignore errors in autocomplete
+            }
+        } else if (interaction.isCommand() && !interaction.replied && !interaction.deferred) {
             await interaction.reply({
                 content: `An error occurred while processing the command: ${errorMessage}`,
                 ephemeral: true
