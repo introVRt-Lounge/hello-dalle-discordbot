@@ -70,13 +70,13 @@ The bot now uses modern Discord slash commands (`/`) instead of the old `!` comm
 
 #### Profile Picture Commands
 
-- `/pfp username:<username>`: Generates a profile picture suggestion for a specific user. Can be used in `#botspam`, `#welcome`, or `#profile` channels. Requires admin privileges or the designated role ID (`1237830433203552276`) unless `/pfp-anyone` is enabled.
+- `/pfp username:<username>`: Generates a profile picture suggestion for a specific user. Can be used in `#botspam`, `#welcome`, or `#profile` channels. Requires admin privileges or the designated role ID (`1237830433203552276`) unless `/pfp-anyone` is enabled. **Username field has autocomplete support.**
 
 - `/pfp-anyone`: Toggles whether regular users can use the `/pfp` command. Only works in the `#botspam` channel. Admin command only.
 
 #### Welcome Commands
 
-- `/welcome username:<username>`: Manually trigger a welcome message for a specific user. Only works in the `#botspam` channel.
+- `/welcome username:<username>`: Manually trigger a welcome message for a specific user. Only works in the `#botspam` channel. **Username field has autocomplete support.**
 
 #### Configuration Commands
 
@@ -90,6 +90,12 @@ The bot now uses modern Discord slash commands (`/`) instead of the old `!` comm
 /welcome username: JaneSmith
 /wildcard value: 25
 ```
+
+### Autocomplete Feature
+
+The `/pfp` and `/welcome` commands now include **autocomplete functionality** for the username parameter. When you type `/welcome username:` or `/pfp username:`, Discord will show a dropdown list of all server members that match what you've typed so far. This makes it much easier to find and select the correct user without having to remember exact usernames.
+
+The autocomplete searches through both usernames and display names, so you can find users more easily.
 
 ### Migration from Old Commands
 
