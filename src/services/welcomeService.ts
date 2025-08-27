@@ -80,7 +80,7 @@ export async function welcomeUser(client: Client, member: GuildMember): Promise<
         // Generate prompt with the avatar description if applicable
         const randomNumber = Math.random() * 100;
         const prompt = randomNumber < getWILDCARD()
-            ? `Generate a welcome image for the user "${displayName}", inspired by their name. Add the text "Welcome ${displayName}" to the image.`
+            ? `Create a humorous welcome image for "${displayName}" that playfully ribs them about their ${avatarDescription || 'unique style'}. Make it light-hearted and fun, not mean-spirited. Include the text "Welcome ${displayName}" prominently in a cyberpunk style billboard. The overall aesthetic should be synthwave/cyberpunk with their avatar characteristics incorporated in a creative, joking way.`
             : WELCOME_PROMPT.replace('{username}', displayName).replace('{avatar}', avatarDescription || 'an avatar');
 
         await logMessage(client, guild, `Generated prompt: ${prompt}`);

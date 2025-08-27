@@ -16,5 +16,29 @@ COPY . .
 # Compile TypeScript files (if this step is needed in your setup)
 RUN npx tsc
 
+# Test target for CI/CD
+FROM node:20 as test
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+RUN npx tsc
+
+CMD ["npm", "test"]
+
+# Production target
+FROM node:20 as production
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+RUN npm install --only=production
+
+COPY . .
+RUN npx tsc
+
 # Run the web service on container startup
 CMD ["node", "dist/bot.js"]
