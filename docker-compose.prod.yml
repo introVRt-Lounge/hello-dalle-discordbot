@@ -2,6 +2,10 @@ version: '3.8'
 
 services:
   hello-dalle-discordbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
     image: heavygee/hello-dalle-discordbot:latest
     environment:
       # These should be populated from your .env file locally, or GitHub secrets in CI/CD
@@ -11,4 +15,18 @@ services:
       - PROFILE_CHANNEL_ID=${PROFILE_CHANNEL_ID}
       - WELCOME_CHANNEL_ID=${WELCOME_CHANNEL_ID}
       - WELCOME_PROMPT=${WELCOME_PROMPT}
-    restart: unless-stopped 
+    restart: unless-stopped
+
+  hello-dalle-discordbot-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    environment:
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - BOTSPAM_CHANNEL_ID=${BOTSPAM_CHANNEL_ID}
+      - PROFILE_CHANNEL_ID=${PROFILE_CHANNEL_ID}
+      - WELCOME_CHANNEL_ID=${WELCOME_CHANNEL_ID}
+      - WELCOME_PROMPT=${WELCOME_PROMPT}
+    command: npm test 
