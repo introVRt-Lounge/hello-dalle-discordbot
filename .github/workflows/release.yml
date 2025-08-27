@@ -35,7 +35,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write # to create release tags
-      packages: write # to push docker image
       issues: write # to comment on issues
       pull-requests: write # to comment on pull requests
       deployments: write
