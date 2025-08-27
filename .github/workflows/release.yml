@@ -18,9 +18,9 @@ jobs:
       - name: Create dummy version.txt for test build
         run: echo "test-version" > version.txt
       - name: Build test container
-        run: docker compose build hello-dalle-discordbot-test
+        run: docker compose -f docker-compose.prod.yml build hello-dalle-discordbot-test
       - name: Run tests in Docker
-        run: docker compose run --rm hello-dalle-discordbot-test
+        run: docker compose -f docker-compose.prod.yml run --rm hello-dalle-discordbot-test
 
   build-and-release:
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
