@@ -35,3 +35,4 @@ tsconfig.tsbuildinfo
 .pnpm-store/
 symlinked.docker-compose.yml
 .cursorrules
+.cursor/mcp.json
