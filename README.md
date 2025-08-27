@@ -116,3 +116,4 @@ For issues, please open an issue on the [GitHub repository](https://github.com/h
 
 ### CI/CD Workflow Activation
 This line is to re-activate the GitHub Actions workflow after history cleanup.
+# Token permissions updated - testing workflow
