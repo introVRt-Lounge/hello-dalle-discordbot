@@ -31,3 +31,4 @@ if __name__ == "__main__":
 
     summary = summarize_notes(openai_key, release_notes)
     print(summary)
+
