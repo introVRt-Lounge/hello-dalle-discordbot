@@ -151,7 +151,7 @@ jobs:
           DISCORD_MESSAGE="🚀 **New Release: $RELEASE_VERSION**
 
           📦 **Docker Image**: \`heavygee/hello-dalle-discordbot:$RELEASE_VERSION\`
-          🔗 **Release Page**: https://github.com/${{ github.repository }}/releases/tag/$RELEASE_TAG
+          🔗 **Code Tree**: https://github.com/${{ github.repository }}/tree/$RELEASE_TAG
 
           📋 **What's New:**
           $RELEASE_NOTES
