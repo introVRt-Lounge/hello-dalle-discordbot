@@ -27,7 +27,8 @@ DISCORD_BOT_TOKEN=your_discord_bot_token
 OPENAI_API_KEY=your_openai_api_key
 BOTSPAM_CHANNEL_ID=your_botspam_channel_id
 WELCOME_CHANNEL_ID=your_welcome_channel_id  # Required: Channel ID where welcome images are posted.
-PROFILE_CHANNEL_ID=your_profile_channel_id  # Required: Channel ID where profile picture suggestions are posted.
+PROFILE_CHANNEL_ID=your_profile_channel_id  # Required: Channel ID where profile picture suggestions are posted (typically #general).
+BOT_USER_ROLE=your_bot_user_role_id  # Required: Role ID that allows users to use the /pfp command.
 WELCOME_PROMPT=Create a welcome image for a new Discord user with the username '{username}'. Incorporate the user's avatar into the image, its described as: {avatar}
 WILDCARD=0
 POSTING_DELAY=120  # Delay in seconds before posting the image to the welcome channel
@@ -70,7 +71,9 @@ The bot now uses modern Discord slash commands (`/`) instead of the old `!` comm
 
 #### Profile Picture Commands
 
-- `/pfp username:<username>`: Generates a profile picture suggestion for a specific user. Can be used in `#botspam`, `#welcome`, or `#profile` channels. Requires admin privileges or the designated role ID (`1237830433203552276`) unless `/pfp-anyone` is enabled. **Username field has autocomplete support.**
+- `/pfp username:<username>`: Generates a profile picture suggestion for a specific user. Can be used in `#botspam`, `#welcome`, or `#general` channels. Requires admin privileges or the designated role ID (set in `BOT_USER_ROLE`) unless `/pfp-anyone` is enabled. **Username field has autocomplete support.**
+
+**Note**: The old `!pfp` command is deprecated and no longer supported. Use `/pfp` instead.
 
 - `/pfp-anyone`: Toggles whether regular users can use the `/pfp` command. Only works in the `#botspam` channel. Admin command only.
 
