@@ -7,6 +7,8 @@ describe('Config Tests', () => {
         expect(config.BOTSPAM_CHANNEL_ID).toBeDefined();
         expect(config.WELCOME_CHANNEL_ID).toBeDefined();
         expect(config.PROFILE_CHANNEL_ID).toBeDefined();
+        expect(config.BOT_USER_ROLE).toBeDefined();
+        expect(config.WELCOME_PROMPT).toBeDefined();
         expect(config.WILDCARD).toBeDefined();
         expect(config.VERSION).toBeDefined();
     });
