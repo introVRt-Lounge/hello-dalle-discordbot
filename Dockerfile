@@ -37,8 +37,8 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install --only=production
 
-COPY . .
-RUN npx tsc
+# Copy compiled files from test stage
+COPY --from=test /usr/src/app/dist ./dist
 
 # Run the web service on container startup
 CMD ["node", "dist/bot.js"]
