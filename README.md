@@ -79,7 +79,11 @@ The bot now uses modern Discord slash commands (`/`) instead of the old `!` comm
 
 #### Welcome Commands
 
-- `/welcome username:<username>`: Manually trigger a welcome message for a specific user. Only works in the `#botspam` channel. **Username field has autocomplete support.**
+- `/welcome username:<username> destination:<channel>`: Manually trigger a welcome message for a specific user. Requires admin privileges or the designated role ID (set in `BOT_USER_ROLE`). **Username field has autocomplete support.**
+  - `username`: The username of the user to welcome (required)
+  - `destination`: Where to send the welcome message (required)
+    - `Welcome Channel (Default)`: Posts to the configured welcome channel
+    - `Botspam Channel (Debug/Test)`: Posts to botspam channel for testing/debugging
 
 #### Configuration Commands
 
@@ -90,7 +94,7 @@ The bot now uses modern Discord slash commands (`/`) instead of the old `!` comm
 ```plaintext
 /pfp username: JohnDoe
 /pfp-anyone
-/welcome username: JaneSmith
+/welcome username: JaneSmith destination: Welcome Channel (Default)
 /wildcard value: 25
 ```
 

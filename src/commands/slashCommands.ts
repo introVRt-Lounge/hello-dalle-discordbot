@@ -34,6 +34,22 @@ const commands = [
         required: true,
         autocomplete: true,
       },
+      {
+        name: 'destination',
+        description: 'Where to send the welcome message',
+        type: 3, // STRING
+        required: true,
+        choices: [
+          {
+            name: 'Welcome Channel (Default)',
+            value: 'welcome'
+          },
+          {
+            name: 'Botspam Channel (Debug/Test)',
+            value: 'botspam'
+          }
+        ]
+      },
     ],
   },
   {
