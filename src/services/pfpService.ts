@@ -15,7 +15,8 @@ if (!fs.existsSync(basePath)) {
 export async function generateProfilePicture(
     client: Client,
     member: GuildMember,
-    genderSensitive: boolean = false
+    genderSensitive: boolean = false,
+    overridePrompt?: string
 ): Promise<void> {
     const guild = member.guild;
     const displayName = member.displayName;
@@ -24,8 +25,14 @@ export async function generateProfilePicture(
     const accountAgeInYears = ((Date.now() - accountCreationDate.getTime()) / (1000 * 60 * 60 * 24 * 365)).toFixed(1);
 
     try {
-        // Generate a profile picture based on the username
-        const fullPrompt = `To the best of your ability, create a discord profile picture for the user "${displayName}" inspired by their name. Image only, no text. Circular to ease cropping.`;
+        // Generate a profile picture based on the username or custom override prompt
+        let promptBase = `To the best of your ability, create a discord profile picture for the user "${displayName}"`;
+        if (overridePrompt) {
+            promptBase += ` based on this description: ${overridePrompt}`;
+        } else {
+            promptBase += ` inspired by their name`;
+        }
+        const fullPrompt = `${promptBase}. Image only, no text. Circular to ease cropping.`;
         
         // Log to botspam about starting the process
         await logMessage(client, guild, `Generating profile picture for "${displayName}" - user account is ${accountAgeInYears} years old.`);

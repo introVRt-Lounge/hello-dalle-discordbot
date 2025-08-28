@@ -38,6 +38,7 @@ export async function handlePfpSlashCommand(client: Client, interaction: ChatInp
     }
 
     const username = interaction.options.getString('username', true)?.toLowerCase();
+    const overridePrompt = interaction.options.getString('override');
 
     try {
         // Fetch all members of the guild to ensure a complete search
@@ -47,8 +48,9 @@ export async function handlePfpSlashCommand(client: Client, interaction: ChatInp
         );
 
         if (targetMember) {
-            await interaction.reply({ content: `Generating profile picture for ${username}...`, ephemeral: true });
-            await generateProfilePicture(client, targetMember, GENDER_SENSITIVITY);
+            const promptDescription = overridePrompt ? 'using custom prompt' : 'using default prompt';
+            await interaction.reply({ content: `Generating profile picture for ${username} ${promptDescription}...`, ephemeral: true });
+            await generateProfilePicture(client, targetMember, GENDER_SENSITIVITY, overridePrompt || undefined);
         } else {
             await interaction.reply({ content: `User ${username} not found.`, ephemeral: true });
         }

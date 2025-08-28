@@ -16,6 +16,12 @@ const commands = [
         required: true,
         autocomplete: true,
       },
+      {
+        name: 'override',
+        description: 'Custom prompt to use instead of the default (optional)',
+        type: 3, // STRING
+        required: false,
+      },
     ],
   },
   {
