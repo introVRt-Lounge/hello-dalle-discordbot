@@ -20,6 +20,7 @@ export const BOTSPAM_CHANNEL_ID = checkEnvVar('BOTSPAM_CHANNEL_ID', process.env.
 export const WELCOME_CHANNEL_ID = checkEnvVar('WELCOME_CHANNEL_ID', process.env.WELCOME_CHANNEL_ID);
 export const PROFILE_CHANNEL_ID = checkEnvVar('PROFILE_CHANNEL_ID', process.env.PROFILE_CHANNEL_ID);
 export const WELCOME_PROMPT = checkEnvVar('WELCOME_PROMPT', process.env.WELCOME_PROMPT);
+export const BOT_USER_ROLE = checkEnvVar('BOT_USER_ROLE', process.env.BOT_USER_ROLE);
 
 // Optional variables with default values
 export const WILDCARD = parseInt(process.env.WILDCARD ?? '0', 10);
