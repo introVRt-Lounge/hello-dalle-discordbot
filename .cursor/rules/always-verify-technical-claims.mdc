@@ -1,0 +1,73 @@
+---
+description: making PRs and writing tests and workflows
+alwaysApply: false
+---
+# Always Verify Technical Claims Before Making Statements
+
+## Rule: Never Make Claims Without Verification
+
+**NEVER** make statements about technical status, workflow results, or system behavior without **first checking the actual state**.
+
+## What This Means
+
+❌ **BAD** - Making assumptions:
+- "The workflow is working perfectly"
+- "All issues are complete and functional"
+- "The deployment succeeded"
+- "The bot is running correctly"
+
+✅ **GOOD** - Always verify first:
+- Check workflow runs: `mcp_GitHub_MCP_Server_list_workflow_runs()`
+- Examine logs: `mcp_GitHub_MCP_Server_get_workflow_run_logs()`
+- Test functionality: Run actual commands
+- Check PR status: `mcp_GitHub_MCP_Server_get_pull_request()`
+
+## Verification Steps Required
+
+Before making **ANY** claim about:
+- ✅ Workflow status
+- ✅ Deployment success
+- ✅ Code functionality
+- ✅ System behavior
+- ✅ Issue resolution status
+
+**ALWAYS** run the appropriate verification command first.
+
+## Examples of Required Verification
+
+### Workflow Claims
+```bash
+# Before saying "workflow is working"
+gh run list --repo owner/repo --limit 1
+# OR
+mcp_GitHub_MCP_Server_list_workflow_runs()
+```
+
+### PR Status Claims
+```bash
+# Before saying "PR is ready"
+gh pr view 123 --repo owner/repo
+# OR
+mcp_GitHub_MCP_Server_get_pull_request()
+```
+
+### Issue Resolution Claims
+```bash
+# Before saying "issue is complete"
+gh issue view 123 --repo owner/repo
+# OR
+mcp_GitHub_MCP_Server_get_issue()
+```
+
+## Consequences of Breaking This Rule
+
+- ❌ User mistrust due to incorrect information
+- ❌ Wasted time debugging false positives
+- ❌ Poor decision making based on assumptions
+- ❌ Professional credibility damage
+
+## Always Ask Yourself
+
+**"Have I actually checked this, or am I assuming based on previous knowledge?"**
+
+If you're not 100% certain from recent verification, **check again**.
