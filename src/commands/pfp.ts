@@ -1,10 +1,7 @@
 import { Client, CommandInteraction, PermissionsBitField, ChatInputCommandInteraction } from 'discord.js';
 import { generateProfilePicture } from '../services/pfpService';
 import { logMessage } from '../utils/log';
-import { DEBUG, GENDER_SENSITIVITY } from '../config';
-
-// Role ID that should have access to pfp command
-const ALLOWED_ROLE_ID = '1237830433203552276';
+import { DEBUG, GENDER_SENSITIVITY, BOT_USER_ROLE } from '../config';
 
 // Check if user has permission to use pfp command
 function hasPfpPermission(member: any, pfpAnyoneEnabled: boolean): boolean {
@@ -15,7 +12,7 @@ function hasPfpPermission(member: any, pfpAnyoneEnabled: boolean): boolean {
     if (isAdmin) return true;
 
     // Check if user has the specific role
-    const hasRole = member.roles.cache.has(ALLOWED_ROLE_ID);
+    const hasRole = member.roles.cache.has(BOT_USER_ROLE);
     if (hasRole) return true;
 
     // Check if pfp is enabled for everyone
