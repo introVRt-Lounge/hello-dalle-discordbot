@@ -70,7 +70,7 @@ jobs:
         id: deployment
         uses: chrnorm/deployment-action@v2
         with:
-          token: '${{ github.token }}'
+          token: '${{ secrets.GH_TOKEN }}'
           environment-url: https://discord.com/channels/816371255539138620/1164501234271653918
           environment: production
 
