@@ -71,7 +71,9 @@ The bot now uses modern Discord slash commands (`/`) instead of the old `!` comm
 
 #### Profile Picture Commands
 
-- `/pfp username:<username>`: Generates a profile picture suggestion for a specific user. Can be used in `#botspam`, `#welcome`, or `#general` channels. Requires admin privileges or the designated role ID (set in `BOT_USER_ROLE`) unless `/pfp-anyone` is enabled. **Username field has autocomplete support.**
+- `/pfp username:<username> [override:<custom_prompt>]`: Generates a profile picture suggestion for a specific user. Can be used in `#botspam`, `#welcome`, or `#general` channels. Requires admin privileges or the designated role ID (set in `BOT_USER_ROLE`) unless `/pfp-anyone` is enabled. **Username field has autocomplete support.**
+  - `username`: The username of the user to generate a profile picture for (required)
+  - `override`: Custom prompt to use instead of the default username-based prompt (optional)
 
 **Note**: The old `!pfp` command is deprecated and no longer supported. Use `/pfp` instead.
 
@@ -89,6 +91,7 @@ The bot now uses modern Discord slash commands (`/`) instead of the old `!` comm
 
 ```plaintext
 /pfp username: JohnDoe
+/pfp username: JohnDoe override: a futuristic cyborg with glowing blue eyes
 /pfp-anyone
 /welcome username: JaneSmith
 /wildcard value: 25
