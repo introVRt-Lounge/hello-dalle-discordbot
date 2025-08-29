@@ -41,7 +41,7 @@ async function postToUser(client: Client, guild: GuildMember['guild'], userId: s
     }, postDelayInMs);
 }
 
-export async function welcomeUser(client: Client, member: GuildMember): Promise<void> {
+export async function welcomeUser(client: Client, member: GuildMember, debugMode: boolean = false): Promise<void> {
     const guild = member.guild;
     const displayName = member.displayName;
     const userId = member.user.id;
@@ -92,8 +92,10 @@ export async function welcomeUser(client: Client, member: GuildMember): Promise<
         // Notify admins about welcome image generation
         await notifyAdmins(client, guild, `Welcome image generated for user "${displayName}".`, avatarPath ? [avatarPath, welcomeImagePath] : [welcomeImagePath]);
 
-        // Post welcome image to the welcome channel with a delay
-        await postToUser(client, guild, userId, WELCOME_CHANNEL_ID, `Welcome, <@${userId}>!`, [welcomeImagePath]);
+        // Post welcome image to the appropriate channel based on debug mode
+        const targetChannelId = debugMode ? BOTSPAM_CHANNEL_ID : WELCOME_CHANNEL_ID;
+        const welcomeMessage = debugMode ? `DEBUG WELCOME: Welcome, <@${userId}>!` : `Welcome, <@${userId}>!`;
+        await postToUser(client, guild, userId, targetChannelId, welcomeMessage, [welcomeImagePath]);
 
         // Increment welcome count and log it
         welcomeCount++;
