@@ -124,3 +124,4 @@ For issues, please open an issue on the [GitHub repository](https://github.com/h
 This line is to re-activate the GitHub Actions workflow after history cleanup.
 # Token permissions updated - testing workflow
 # Test commit to trigger workflow and Discord announcements
+# Add feature documentation
