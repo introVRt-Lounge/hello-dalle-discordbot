@@ -16,6 +16,8 @@ import { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID, getWILDCARD, DEBUG, WEL
 import { logMessage } from './utils/log';
 import versionInfoJson from '../version_info.json';
 import { readWelcomeCount } from './utils/appUtils';
+import { ReleaseManagement } from './cogs/releaseManagement.js';
+import { Logger } from './utils/log.js';
 
 // Define the type for versionInfo
 type VersionInfo = {
@@ -38,6 +40,9 @@ const client = new Client({
     ]
 });
 
+// Initialize release management
+const releaseManager = new ReleaseManagement(client);
+
 client.once('ready', async () => {
     try {
         // Get the first guild (server) the bot is in
@@ -47,6 +52,9 @@ client.once('ready', async () => {
             console.error('No guild found during startup.');
             return;
         }
+
+        // Set Logger context for Discord logging
+        Logger.setContext(client, guild);
 
         // Register slash commands
         await registerSlashCommands(client);
@@ -65,6 +73,24 @@ client.once('ready', async () => {
         // Log the startup message
         await logMessage(client, guild, startupMessage);
         console.log(`DEBUG mode is set to: ${DEBUG}`);
+
+        // Start periodic release checking (every hour)
+        setInterval(async () => {
+            try {
+                await releaseManager.checkForNewReleases();
+            } catch (error) {
+                console.error('Error checking for releases:', error);
+            }
+        }, 60 * 60 * 1000); // 1 hour
+
+        // Also check immediately on startup
+        setTimeout(async () => {
+            try {
+                await releaseManager.checkForNewReleases();
+            } catch (error) {
+                console.error('Error checking for releases on startup:', error);
+            }
+        }, 30000); // 30 seconds after startup
     } catch (error) {
         console.error('Error during ready event:', error instanceof Error ? error.message : String(error));
     }
