@@ -161,9 +161,8 @@ jobs:
 
           # Send to Discord webhook if webhook URL is configured
           if [ -n "$DISCORD_WEBHOOK_URL" ]; then
-            curl -X POST -H "Content-Type: application/json" \
-              -d "{\"content\": \"$DISCORD_MESSAGE\"}" \
-              "$DISCORD_WEBHOOK_URL"
+            # Use jq to properly format JSON and handle special characters
+            echo "$DISCORD_MESSAGE" | jq -R -s '{"content": .}' | curl -X POST -H "Content-Type: application/json" -d @- "$DISCORD_WEBHOOK_URL"
           else
             echo "Discord webhook URL not configured. Skipping Discord announcement."
           fi 
