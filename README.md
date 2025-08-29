@@ -125,3 +125,4 @@ This line is to re-activate the GitHub Actions workflow after history cleanup.
 # Token permissions updated - testing workflow
 # Test commit to trigger workflow and Discord announcements
 # Add feature documentation
+# Testing Discord announcement fix
