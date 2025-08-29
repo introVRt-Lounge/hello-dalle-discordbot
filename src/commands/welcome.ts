@@ -11,6 +11,7 @@ export async function welcomeSlashCommand(client: Client, interaction: ChatInput
     }
 
     const username = interaction.options.getString('username', true);
+    const destination = interaction.options.getString('destination', true);
 
     try {
         // Try finding the user in the cache (case-insensitive)
@@ -27,8 +28,9 @@ export async function welcomeSlashCommand(client: Client, interaction: ChatInput
         }
 
         if (member) {
-            await interaction.reply({ content: `Triggering welcome for ${username}...`, ephemeral: true });
-            await welcomeUser(client, member);
+            const destinationText = destination === 'welcome' ? 'welcome channel' : 'botspam channel (debug mode)';
+            await interaction.reply({ content: `Triggering welcome for ${username} in ${destinationText}...`, ephemeral: true });
+            await welcomeUser(client, member, destination === 'botspam');
         } else {
             await interaction.reply({ content: `User ${username} not found.`, ephemeral: true });
         }
