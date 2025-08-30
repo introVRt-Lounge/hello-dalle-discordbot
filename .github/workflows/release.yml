@@ -41,7 +41,7 @@ jobs:
           docker rm -f test-container || true
 
           # Create and run test container with unique name
-          CONTAINER_NAME="test-container-${{ github.run_id }}"
+          CONTAINER_NAME="test-container-$GITHUB_RUN_ID"
           docker create --name $CONTAINER_NAME hello-dalle-test
           docker cp .env.test $CONTAINER_NAME:/usr/src/app/.env.test
           docker start -i $CONTAINER_NAME npm test
