@@ -22,7 +22,7 @@ jobs:
       - name: Copy test env file and run tests
         run: |
           docker create --name test-container hello-dalle-test
-          docker cp ${{ github.workspace }}/.env.test test-container:/usr/src/app/.env.test
+          docker cp "${{ github.workspace }}/.env.test" test-container:/usr/src/app/.env.test
           docker start -i test-container npm test
           docker rm test-container
 
