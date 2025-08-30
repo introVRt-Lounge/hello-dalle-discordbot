@@ -39,7 +39,7 @@ jobs:
 
           # Run tests using docker run (cleaner than create/start)
           docker run --rm --name "test-run-$GITHUB_RUN_ID" \
-            -v ./.env.test:/usr/src/app/.env.test \
+            -v /github/workspace/.env.test:/usr/src/app/.env.test \
             hello-dalle-test npm test
 
   build-and-release:
