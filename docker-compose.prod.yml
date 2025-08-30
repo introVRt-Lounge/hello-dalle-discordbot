@@ -1,5 +1,7 @@
 version: '3.8'
 
+name: hello-dalle-discordbot
+
 services:
   hello-dalle-discordbot:
     build:
@@ -7,8 +9,11 @@ services:
       dockerfile: Dockerfile
       target: production
     image: heavygee/hello-dalle-discordbot:latest
+    container_name: hello-dalle-discordbot
+    env_file:
+      - .env
     environment:
-      # These should be populated from your .env file locally, or GitHub secrets in CI/CD
+      # Environment variables loaded from .env file
       - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - BOTSPAM_CHANNEL_ID=${BOTSPAM_CHANNEL_ID}
@@ -16,19 +21,21 @@ services:
       - WELCOME_CHANNEL_ID=${WELCOME_CHANNEL_ID}
       - BOT_USER_ROLE=${BOT_USER_ROLE}
       - WELCOME_PROMPT=${WELCOME_PROMPT}
+      - GENDER_SENSITIVITY=${GENDER_SENSITIVITY:-false}
+      - STEALTH_WELCOME=${STEALTH_WELCOME:-false}
+      - WILDCARD=${WILDCARD:-0}
+      - DEBUG=${DEBUG:-false}
+      # Production-specific overrides
+      - NODE_ENV=production
+    volumes:
+      # Mount data directory for persistent storage
+      - ./data:/usr/src/app/data
+      # Mount logs directory if needed
+      - ./logs:/usr/src/app/logs
     restart: unless-stopped
-
-  hello-dalle-discordbot-test:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: test
-    environment:
-      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - BOTSPAM_CHANNEL_ID=${BOTSPAM_CHANNEL_ID}
-      - PROFILE_CHANNEL_ID=${PROFILE_CHANNEL_ID}
-      - WELCOME_CHANNEL_ID=${WELCOME_CHANNEL_ID}
-      - BOT_USER_ROLE=${BOT_USER_ROLE}
-      - WELCOME_PROMPT=${WELCOME_PROMPT}
-    command: npm test 
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]  # Assuming health check endpoint
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s 
