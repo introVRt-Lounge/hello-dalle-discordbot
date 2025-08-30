@@ -19,8 +19,12 @@ jobs:
         run: echo "test-version" > version.txt
       - name: Build test container
         run: docker build --target test -t hello-dalle-test .
-      - name: Run tests in Docker
-        run: docker run --rm -v ${{ github.workspace }}/.env.test:/usr/src/app/.env.test hello-dalle-test npm test
+      - name: Copy test env file and run tests
+        run: |
+          docker create --name test-container hello-dalle-test
+          docker cp ${{ github.workspace }}/.env.test test-container:/usr/src/app/.env.test
+          docker start -i test-container npm test
+          docker rm test-container
 
   build-and-release:
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
