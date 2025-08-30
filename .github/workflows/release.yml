@@ -20,20 +20,7 @@ jobs:
       - name: Build test container
         run: docker build --target test -t hello-dalle-test .
       - name: Run tests in Docker
-        env:
-          DISCORD_BOT_TOKEN: "test-token"
-          OPENAI_API_KEY: "test-key"
-          BOTSPAM_CHANNEL_ID: "123456789"
-          WELCOME_CHANNEL_ID: "123456789"
-          PROFILE_CHANNEL_ID: "123456789"
-          BOT_USER_ROLE: "123456789"
-          WELCOME_PROMPT: "test prompt"
-          GENDER_SENSITIVITY: "false"
-          STEALTH_WELCOME: "false"
-          WILDCARD: "0"
-          DEBUG: "false"
-          NODE_ENV: "test"
-        run: docker run --rm -e DISCORD_BOT_TOKEN -e OPENAI_API_KEY -e BOTSPAM_CHANNEL_ID -e WELCOME_CHANNEL_ID -e PROFILE_CHANNEL_ID -e BOT_USER_ROLE -e WELCOME_PROMPT -e GENDER_SENSITIVITY -e STEALTH_WELCOME -e WILDCARD -e DEBUG -e NODE_ENV hello-dalle-test npm test
+        run: docker run --rm -v ${{ github.workspace }}/.env.test:/usr/src/app/.env.test hello-dalle-test npm test
 
   build-and-release:
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
