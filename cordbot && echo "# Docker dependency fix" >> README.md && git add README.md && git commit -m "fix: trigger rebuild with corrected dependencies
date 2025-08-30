@@ -1,0 +1,10 @@
+[33m31637ee[m Fix production container: move dotenv to dependencies and copy version_info.json to production stage
+[33m2ba4de0[m feat: add funny wildcard ribbing images and migrate to lensbot-dev workflow pattern
+[33mcff7db1[m[33m ([m[1;33mtag: v1.12.9[m[33m)[m Release v1.12.9 [skip ci]
+[33mb4235a5[m[33m ([m[1;33mtag: v1.12.8[m[33m)[m Release v1.12.8 [skip ci]
+[33me48482b[m[33m ([m[1;33mtag: v1.12.7[m[33m)[m Release v1.12.7 [skip ci]
+[33ma16f2d5[m[33m ([m[1;33mtag: v1.12.6[m[33m)[m Release v1.12.6 [skip ci]
+[33m4a53545[m[33m ([m[1;33mtag: v1.12.5[m[33m)[m Release v1.12.5 [skip ci]
+[33mbd74abd[m[33m ([m[1;33mtag: v1.12.4[m[33m)[m Release v1.12.4 [skip ci]
+[33m45f2008[m Re-initialize project after Git history cleanup. Contains all necessary files and CI/CD setup.
+[33mc8d42de[m Move profile picture suggestions to #new-users channel and enhance botspam reporting with user analytics
