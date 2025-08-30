@@ -1,3 +1,0 @@
-[33mabcb324[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Fix Dockerfile build issues and healthcheck configuration
-[33m0f7acaa[m Fix production Docker setup: correct compose file structure, env vars, and Dockerfile for proper production deployment
-[33m31637ee[m Fix production container: move dotenv to dependencies and copy version_info.json to production stage
