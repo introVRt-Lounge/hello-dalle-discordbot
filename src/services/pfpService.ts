@@ -5,10 +5,15 @@ import { generateImage, downloadAndSaveImage } from '../utils/imageUtils'; // Ut
 import path from 'path';
 import fs from 'fs';
 
-// Ensure the welcome_images directory exists
-const basePath = path.join(__dirname, '..', '..', 'welcome_images');
+// Use the mounted welcome_images directory (from docker volume)
+// In container: /usr/src/app/welcome_images (mounted from docker volume)
+// In development: fallback to relative path
+const basePath = process.env.NODE_ENV === 'production'
+    ? '/usr/src/app/welcome_images'
+    : path.join(__dirname, '..', '..', 'welcome_images');
+
 if (!fs.existsSync(basePath)) {
-    fs.mkdirSync(basePath);
+    fs.mkdirSync(basePath, { recursive: true });
 }
 
 // Function to generate profile picture based on username
