@@ -1,50 +1,33 @@
+# This file is used ONLY for GitHub Actions testing
+# Production deployment uses: /home/heavygee/docker/apps/hello-dalle/docker-compose.prod.yml
+# DO NOT use this file for production deployment
+
 version: '3.8'
 
-name: hello-dalle-prod
+name: hello-dalle-test
 
 services:
-  hello-dalle-discordbot:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: hello-dalle-discordbot
-    image: heavygee/hello-dalle-discordbot:latest
-    environment:
-      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - BOTSPAM_CHANNEL_ID=${BOTSPAM_CHANNEL_ID}
-      - PROFILE_CHANNEL_ID=${PROFILE_CHANNEL_ID}
-      - WELCOME_CHANNEL_ID=${WELCOME_CHANNEL_ID}
-      - BOT_USER_ROLE=${BOT_USER_ROLE}
-      - WELCOME_PROMPT=${WELCOME_PROMPT}
-    volumes:
-      - ./data:/usr/src/app/data
-      - ./logs:/usr/src/app/logs
-      - ./welcome_images:/usr/src/app/welcome_images
-      - ./profile_images:/usr/src/app/profile_images
-      - ./watermark.png:/usr/src/app/watermark.png
-      - ./avatar.png:/usr/src/app/avatar.png
-      - ./welcomeCount.json:/usr/src/app/welcomeCount.json
-    restart: unless-stopped
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "com.centurylinklabs.watchtower.scope=minutely"
-
   hello-dalle-discordbot-test:
     build:
       context: .
       dockerfile: Dockerfile
+      target: test
     container_name: hello-dalle-discordbot-test
-    image: heavygee/hello-dalle-discordbot:test
     environment:
-      - DISCORD_BOT_TOKEN=test-token
-      - OPENAI_API_KEY=test-key
-      - BOTSPAM_CHANNEL_ID=123456789
-      - PROFILE_CHANNEL_ID=123456789
-      - WELCOME_CHANNEL_ID=123456789
-      - BOT_USER_ROLE=123456789
-      - WELCOME_PROMPT=test prompt
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN:-test-token}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-test-key}
+      - BOTSPAM_CHANNEL_ID=${BOTSPAM_CHANNEL_ID:-123456789}
+      - WELCOME_CHANNEL_ID=${WELCOME_CHANNEL_ID:-123456789}
+      - PROFILE_CHANNEL_ID=${PROFILE_CHANNEL_ID:-123456789}
+      - BOT_USER_ROLE=${BOT_USER_ROLE:-123456789}
+      - WELCOME_PROMPT=${WELCOME_PROMPT:-test prompt}
+      - GENDER_SENSITIVITY=${GENDER_SENSITIVITY:-false}
+      - STEALTH_WELCOME=${STEALTH_WELCOME:-false}
+      - WILDCARD=${WILDCARD:-0}
+      - DEBUG=${DEBUG:-false}
+      - NODE_ENV=test
     volumes:
+      # Minimal volumes for testing
       - ./data:/usr/src/app/data
       - ./logs:/usr/src/app/logs
     command: npm test

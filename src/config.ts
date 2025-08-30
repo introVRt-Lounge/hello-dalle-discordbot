@@ -1,8 +1,11 @@
 import { config as loadEnv } from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 
-// Load environment variables from .env file, if present
-loadEnv();
+// Load environment variables from .env file, if present and not in CI/test environment
+if (!process.env.CI && !process.env.NODE_ENV?.includes('test') && fs.existsSync(path.resolve(__dirname, '../.env'))) {
+    loadEnv();
+}
 
 // Helper function to ensure env variables are set
 function checkEnvVar(name: string, value: string | undefined): string {
