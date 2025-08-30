@@ -10,8 +10,13 @@ if (!fs.existsSync(tempDir)) {
     fs.mkdirSync(tempDir, { recursive: true });
 }
 
-// Ensure the welcome_images directory exists
-const welcomeImagesDir = path.join(__dirname, '../../welcome_images');
+// Use the mounted welcome_images directory (from docker volume)
+// In container: /usr/src/app/welcome_images (mounted from docker volume)
+// In development: fallback to relative path
+const welcomeImagesDir = process.env.NODE_ENV === 'production'
+    ? '/usr/src/app/welcome_images'
+    : path.join(__dirname, '../../welcome_images');
+
 if (!fs.existsSync(welcomeImagesDir)) {
     fs.mkdirSync(welcomeImagesDir, { recursive: true });
 }
