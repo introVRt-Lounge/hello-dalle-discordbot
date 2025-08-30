@@ -144,3 +144,4 @@ This line is to re-activate the GitHub Actions workflow after history cleanup.
 # Testing Discord announcement fix
 test
 test post-commit
+test pre-commit hook
