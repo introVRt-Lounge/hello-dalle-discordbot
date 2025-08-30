@@ -38,7 +38,7 @@ jobs:
           EOF
 
           docker create --name test-container hello-dalle-test
-          docker cp ./.env.test test-container:/usr/src/app/.env.test
+          docker cp .env.test test-container:/usr/src/app/.env.test
           docker start -i test-container npm test
           docker rm test-container
 
