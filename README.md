@@ -1,5 +1,17 @@
 # ![Logo](https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/logo.png) Hello Dall-E Discord Bot
 
+# 🚫 **PRODUCTION DEPLOYMENT WARNING**
+
+**⚠️ THIS REPOSITORY IS FOR DEVELOPMENT AND CI/CD ONLY**
+
+**DO NOT ATTEMPT TO BUILD OR RUN PRODUCTION CONTAINERS FROM THIS DIRECTORY**
+
+**Production deployment happens automatically via GitHub Actions → Docker Hub → Watchtower**
+
+📖 **Read:** [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md) for complete deployment information
+
+---
+
 This bot uses OpenAI's DALL-E to generate welcome images for new Discord members. It describes the user's avatar and generates an image based on a prompt. Additionally, for users without a profile pic, it will generate a profile pic based on their username and suggest the user adopt it.
 
 ## Features
