@@ -1,6 +1,6 @@
 import { config as loadEnv } from 'dotenv';
 import path from 'path';
-import fs from 'fs';
+import * as fs from 'fs';
 
 // Load environment variables from .env file, if present and not in CI/test environment
 if (!process.env.CI && !process.env.NODE_ENV?.includes('test') && fs.existsSync(path.resolve(__dirname, '../.env'))) {
@@ -28,7 +28,25 @@ export const BOT_USER_ROLE = checkEnvVar('BOT_USER_ROLE', process.env.BOT_USER_R
 // Optional variables with default values
 export const WILDCARD = parseInt(process.env.WILDCARD ?? '0', 10);
 export const DEBUG = process.env.DEBUG === 'true' || false; // Default DEBUG to false
-export const VERSION = require(path.resolve(__dirname, '../package.json')).version;
+
+// Get version from semantic release files, fallback to package.json for development
+let version = 'dev';
+try {
+  // Try to read from version.txt (created by semantic release)
+  const versionPath = path.resolve(__dirname, '../version.txt');
+  if (fs.existsSync(versionPath)) {
+    version = fs.readFileSync(versionPath, 'utf8').trim();
+  } else {
+    // Fallback to package.json for development
+    version = require(path.resolve(__dirname, '../package.json')).version;
+  }
+} catch (error) {
+  // Final fallback
+  version = require(path.resolve(__dirname, '../package.json')).version;
+}
+
+export const VERSION = version;
+
 export const WATERMARK_PATH = process.env.WATERMARK_PATH || undefined; // Optional watermark path
 export const STEALTH_WELCOME = process.env.STEALTH_WELCOME === 'true' || false; // Default STEALTH_WELCOME to false
 export const GENDER_SENSITIVITY = process.env.GENDER_SENSITIVITY === 'true' || false; // Default GENDER_SENSITIVITY to false
