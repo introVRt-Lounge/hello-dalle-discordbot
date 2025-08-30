@@ -1,0 +1,91 @@
+name: build-and-deploy
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 20
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests
+      env:
+        DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        WELCOME_CHANNEL_ID: ${{ secrets.WELCOME_CHANNEL_ID }}
+        PROFILE_CHANNEL_ID: ${{ secrets.PROFILE_CHANNEL_ID }}
+        WELCOME_PROMPT: ${{ secrets.WELCOME_PROMPT }}
+        BOTSPAM_CHANNEL_ID: ${{ secrets.BOTSPAM_CHANNEL_ID }}
+      run: npm test
+
+    - name: Get version from package.json
+      id: version
+      run: |
+        version=$(jq -r '.version' package.json)
+        echo "Version: $version"
+        echo "VERSION=$version" >> $GITHUB_ENV
+
+    - name: Create Git tag
+      run: |
+        version=${{ env.VERSION }}
+        git tag "v$version"
+        git push origin "v$version"
+
+    - name: Create GitHub Release
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        version=${{ env.VERSION }}
+        description=$(jq -r --arg version "$version" '.[$version].description' version_info.json)
+        gh release create "v$version" --title "v$version" --notes "$description"
+      continue-on-error: true  # You can set this to false if you want the job to fail on release issues
+
+    - name: Delete Git tag if release fails
+      if: failure() && steps.version.outputs.VERSION != ''
+      run: |
+        version=${{ env.VERSION }}
+        echo "Deleting tag v$version due to release failure"
+        git tag -d "v$version" || echo "Tag not found, nothing to delete"
+        git push origin --delete "v$version" || echo "Failed to delete remote tag"
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build Docker image
+      run: |
+        version=${{ env.VERSION }}
+        docker build -t heavygee/hello-dalle-discordbot:latest -t heavygee/hello-dalle-discordbot:$version .
+
+    - name: Push Docker image
+      run: |
+        version=${{ env.VERSION }}
+        docker push heavygee/hello-dalle-discordbot:latest
+        docker push heavygee/hello-dalle-discordbot:$version
+
+    - name: Log Docker push failure
+      if: failure()
+      run: echo "Docker push failed. Manual intervention may be needed."
+
+    - name: Update DockerHub README
+      if: success()
+      uses: peter-evans/dockerhub-description@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        repository: heavygee/hello-dalle-discordbot
+        readme-filepath: dockerhub_readme.md
