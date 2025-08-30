@@ -37,15 +37,10 @@ jobs:
           NODE_ENV=test
           EOF
 
-          # Clean up any existing test container
-          docker rm -f test-container || true
-
-          # Create and run test container with unique name
-          CONTAINER_NAME="test-container-$GITHUB_RUN_ID"
-          docker create --name $CONTAINER_NAME hello-dalle-test
-          docker cp .env.test $CONTAINER_NAME:/usr/src/app/.env.test
-          docker start -i $CONTAINER_NAME npm test
-          docker rm $CONTAINER_NAME
+          # Run tests using docker run (cleaner than create/start)
+          docker run --rm --name "test-run-$GITHUB_RUN_ID" \
+            -v ./.env.test:/usr/src/app/.env.test \
+            hello-dalle-test npm test
 
   build-and-release:
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
