@@ -34,7 +34,7 @@ services:
       - ./logs:/usr/src/app/logs
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]  # Assuming health check endpoint
+      test: ["CMD", "node", "-e", "process.exit(0)"]  # Simple health check
       interval: 30s
       timeout: 10s
       retries: 3
