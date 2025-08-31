@@ -102,9 +102,13 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           RELEASE_NOTES: ${{ steps.semantic.outputs.new_release_notes }}
         run: |
-          pip install openai
-          SUMMARY=$(python .github/scripts/summarize_release_notes.py)
-          gh release edit ${{ steps.semantic.outputs.new_release_git_tag }} --notes "$SUMMARY" --repo ${{ github.repository }}
+          pip install openai || echo "Failed to install openai, skipping summarization"
+          if command -v python &> /dev/null && [ -n "$OPENAI_API_KEY" ]; then
+            SUMMARY=$(python .github/scripts/summarize_release_notes.py 2>/dev/null) || SUMMARY="${{ steps.semantic.outputs.new_release_notes }}"
+            gh release edit ${{ steps.semantic.outputs.new_release_git_tag }} --notes "$SUMMARY" --repo ${{ github.repository }} || echo "Failed to update release notes"
+          else
+            echo "Python or OpenAI API key not available, using original release notes"
+          fi
 
       - name: Create GitHub deployment
         if: steps.semantic.outputs.new_release_published == 'true'
