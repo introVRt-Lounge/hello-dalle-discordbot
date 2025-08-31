@@ -45,15 +45,10 @@ jobs:
           EOF
 
           # Clean up any existing test container
-          docker rm -f test-container || true
+          docker rm -f test-run || true
 
-          # Create and run test container with unique name
-          TIMESTAMP=$(date +%s)
-          CONTAINER_NAME="test-container-$TIMESTAMP"
-          docker create --name $CONTAINER_NAME hello-dalle-test
-          docker cp .env.test $CONTAINER_NAME:/usr/src/app/.env.test
-          docker start -i $CONTAINER_NAME npm test
-          docker rm $CONTAINER_NAME
+          # Create and run test container
+          docker run --rm --name test-run -v $(pwd)/.env.test:/usr/src/app/.env.test hello-dalle-test npm test
 
   build-and-release:
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
