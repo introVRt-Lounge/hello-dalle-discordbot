@@ -29,20 +29,20 @@ export const BOT_USER_ROLE = checkEnvVar('BOT_USER_ROLE', process.env.BOT_USER_R
 export const WILDCARD = parseInt(process.env.WILDCARD ?? '0', 10);
 export const DEBUG = process.env.DEBUG === 'true' || false; // Default DEBUG to false
 
-// Get version from semantic release files, fallback to package.json for development
-let version = 'dev';
+// Get version from version.txt - no fallback, must exist
+const versionPath = path.resolve(__dirname, '../version.txt');
+if (!fs.existsSync(versionPath)) {
+  throw new Error('version.txt not found! This indicates a build issue. Version file must be present for proper versioning.');
+}
+
+let version: string;
 try {
-  // Try to read from version.txt (created by semantic release)
-  const versionPath = path.resolve(__dirname, '../version.txt');
-  if (fs.existsSync(versionPath)) {
-    version = fs.readFileSync(versionPath, 'utf8').trim();
-  } else {
-    // Fallback to package.json for development
-    version = require(path.resolve(__dirname, '../package.json')).version;
+  version = fs.readFileSync(versionPath, 'utf8').trim();
+  if (!version) {
+    throw new Error('version.txt is empty!');
   }
 } catch (error) {
-  // Final fallback
-  version = require(path.resolve(__dirname, '../package.json')).version;
+  throw new Error(`Failed to read version.txt: ${error}`);
 }
 
 export const VERSION = version;
