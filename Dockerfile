@@ -45,6 +45,7 @@ COPY --from=test /usr/src/app/dist ./dist
 
 # Copy essential runtime files
 COPY version_info.json ./
+COPY version.txt ./
 
 # Ensure proper permissions
 RUN chmod -R 755 /usr/src/app
