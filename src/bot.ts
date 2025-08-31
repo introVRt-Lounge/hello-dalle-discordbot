@@ -15,8 +15,6 @@ import { registerSlashCommands } from './commands/slashCommands';
 import { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID, getWILDCARD, DEBUG, WELCOME_CHANNEL_ID, PROFILE_CHANNEL_ID } from './config';
 import { logMessage } from './utils/log';
 import { readWelcomeCount } from './utils/appUtils';
-import { ReleaseManagement } from './cogs/releaseManagement.js';
-import { Logger } from './utils/log.js';
 
 // Create a new Discord client instance
 const client = new Client({
@@ -28,8 +26,7 @@ const client = new Client({
     ]
 });
 
-// Initialize release management
-const releaseManager = new ReleaseManagement(client);
+
 
 client.once('ready', async () => {
     try {
@@ -41,8 +38,7 @@ client.once('ready', async () => {
             return;
         }
 
-        // Set Logger context for Discord logging
-        Logger.setContext(client, guild);
+
 
         // Register slash commands
         await registerSlashCommands(client);
@@ -57,23 +53,7 @@ client.once('ready', async () => {
         await logMessage(client, guild, startupMessage);
         console.log(`DEBUG mode is set to: ${DEBUG}`);
 
-        // Start periodic release checking (every hour)
-        setInterval(async () => {
-            try {
-                await releaseManager.checkForNewReleases();
-            } catch (error) {
-                console.error('Error checking for releases:', error);
-            }
-        }, 60 * 60 * 1000); // 1 hour
 
-        // Also check immediately on startup
-        setTimeout(async () => {
-            try {
-                await releaseManager.checkForNewReleases();
-            } catch (error) {
-                console.error('Error checking for releases on startup:', error);
-            }
-        }, 30000); // 30 seconds after startup
     } catch (error) {
         console.error('Error during ready event:', error instanceof Error ? error.message : String(error));
     }
