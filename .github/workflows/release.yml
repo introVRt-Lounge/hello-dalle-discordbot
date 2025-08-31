@@ -17,28 +17,12 @@ jobs:
         uses: actions/checkout@v4
       - name: Create version.txt for test build
         run: echo "test-version" > version.txt
-      - name: Build test container
-        run: docker build --target test -t hello-dalle-test .
-      - name: Create test environment and run tests
+      - name: Run tests
         run: |
-          # Create test environment file with dummy values for CI
-          cat > .env.test << 'EOF'
-          DISCORD_BOT_TOKEN=test-bot-token-for-jest
-          OPENAI_API_KEY=sk-fake-test-key-not-real-for-ci-only
-          BOTSPAM_CHANNEL_ID=123456789012345678
-          WELCOME_CHANNEL_ID=123456789012345679
-          PROFILE_CHANNEL_ID=123456789012345680
-          BOT_USER_ROLE=123456789012345681
-          WELCOME_PROMPT=Test welcome prompt for Jest
-          GENDER_SENSITIVITY=false
-          STEALTH_WELCOME=false
-          WILDCARD=0
-          DEBUG=false
-          NODE_ENV=test
-          EOF
-
-          # Run tests using docker run (cleaner than create/start)
-          docker run --rm --name "test-run-$GITHUB_RUN_ID" -v ./.env.test:/usr/src/app/.env.test hello-dalle-test npm test
+          # Simple test execution without Docker for now
+          npm install
+          npm run build
+          npm test
 
   build-and-release:
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
@@ -61,19 +45,26 @@ jobs:
         uses: cycjimmy/semantic-release-action@v4
         with:
           branch: main
+          dry_run: false
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
-      - name: Summarize release notes and update release
+      - name: Debug semantic release output
+        run: |
+          echo "New release published: ${{ steps.semantic.outputs.new_release_published }}"
+          echo "New release version: ${{ steps.semantic.outputs.new_release_version }}"
+          echo "New release git tag: ${{ steps.semantic.outputs.new_release_git_tag }}"
+          echo "New release git head: ${{ steps.semantic.outputs.new_release_git_head }}"
+          echo "New release notes: ${{ steps.semantic.outputs.new_release_notes }}"
+
+      - name: Update release notes
         if: steps.semantic.outputs.new_release_published == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          RELEASE_NOTES: ${{ steps.semantic.outputs.new_release_notes }}
         run: |
-          pip install openai
-          SUMMARY=$(python .github/scripts/summarize_release_notes.py)
-          gh release edit ${{ steps.semantic.outputs.new_release_git_tag }} --notes "$SUMMARY" --repo ${{ github.repository }}
+          # Skip AI summarization for now to avoid workflow failures
+          # Just use the raw release notes from semantic-release
+          gh release edit ${{ steps.semantic.outputs.new_release_git_tag }} --notes "${{ steps.semantic.outputs.new_release_notes }}" --repo ${{ github.repository }}
 
       - name: Create GitHub deployment
         if: steps.semantic.outputs.new_release_published == 'true'
