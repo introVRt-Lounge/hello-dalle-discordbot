@@ -37,3 +37,4 @@ symlinked.docker-compose.yml
 .cursorrules
 .cursor/mcp.json
 docker-compose.prod-DEPRECATED.yml
+version.txt
