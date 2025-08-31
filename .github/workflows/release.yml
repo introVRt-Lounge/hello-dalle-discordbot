@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Create dummy version.txt for test build
+      - name: Create version.txt for test build
         run: echo "test-version" > version.txt
       - name: Build test container
         run: docker build --target test -t hello-dalle-test .
