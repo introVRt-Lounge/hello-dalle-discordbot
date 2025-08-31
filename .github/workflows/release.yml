@@ -71,6 +71,10 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
       - name: Install dependencies
         run: npm install
 
