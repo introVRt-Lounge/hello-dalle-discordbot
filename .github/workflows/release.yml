@@ -176,7 +176,6 @@ jobs:
       - name: Announce release to Discord
         if: steps.semantic.outputs.new_release_published == 'true'
         env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           # Get release information
@@ -184,21 +183,11 @@ jobs:
           RELEASE_VERSION="${{ steps.semantic.outputs.new_release_version }}"
           RELEASE_NOTES="${{ steps.semantic.outputs.new_release_notes }}"
 
-          # Create Discord announcement
-          DISCORD_MESSAGE="🚀 **New Release: $RELEASE_VERSION**
-
-          📦 **Docker Image**: \`heavygee/hello-dalle-discordbot:$RELEASE_VERSION\`
-          🔗 **Code Tree**: https://github.com/${{ github.repository }}/tree/$RELEASE_TAG
-
-          📋 **What's New:**
-          $RELEASE_NOTES
-
-          #deployment #release"
-
-          # Send to Discord webhook if webhook URL is configured
-          if [ -n "$DISCORD_WEBHOOK_URL" ]; then
-            # Use jq to properly format JSON and handle special characters
-            echo "$DISCORD_MESSAGE" | jq -R -s '{"content": .}' | curl -X POST -H "Content-Type: application/json" -d @- "$DISCORD_WEBHOOK_URL"
-          else
-            echo "Discord webhook URL not configured. Skipping Discord announcement."
-          fi
+          echo "🚀 **New Release: $RELEASE_VERSION**"
+          echo "📦 **Docker Image**: heavygee/hello-dalle-discordbot:$RELEASE_VERSION"
+          echo "🔗 **Code Tree**: https://github.com/${{ github.repository }}/tree/$RELEASE_TAG"
+          echo ""
+          echo "📋 **What's New:**"
+          echo "$RELEASE_NOTES"
+          echo ""
+          echo "#deployment #release"
