@@ -44,7 +44,6 @@ RUN npm install --only=production
 COPY --from=test /usr/src/app/dist ./dist
 
 # Copy essential runtime files
-COPY version_info.json ./
 COPY version.txt ./
 
 # Ensure proper permissions
