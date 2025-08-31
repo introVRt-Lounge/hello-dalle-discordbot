@@ -48,7 +48,7 @@ jobs:
           docker rm -f test-run || true
 
           # Create and run test container
-          docker run --rm --name test-run -v $(pwd)/.env.test:/usr/src/app/.env.test hello-dalle-test npm test
+          docker run --rm --name test-run -v ${{ github.workspace }}/.env.test:/usr/src/app/.env.test hello-dalle-test npm test
 
   build-and-release:
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
