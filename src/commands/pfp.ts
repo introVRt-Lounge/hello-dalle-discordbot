@@ -50,7 +50,18 @@ export async function handlePfpSlashCommand(client: Client, interaction: ChatInp
         if (targetMember) {
             const promptDescription = overridePrompt ? 'using custom prompt' : 'using default prompt';
             await interaction.reply({ content: `Generating profile picture for ${username} ${promptDescription}...`, ephemeral: true });
-            await generateProfilePicture(client, targetMember, GENDER_SENSITIVITY, overridePrompt || undefined);
+
+            try {
+                await generateProfilePicture(client, targetMember, GENDER_SENSITIVITY, overridePrompt || undefined);
+                await interaction.followUp({ content: `✅ Profile picture generated successfully for ${username}!`, ephemeral: true });
+            } catch (genError) {
+                const genErrorMessage = genError instanceof Error ? genError.message : String(genError);
+                if (DEBUG) console.error('Error generating profile picture:', genErrorMessage);
+                await interaction.followUp({
+                    content: `❌ Failed to generate profile picture for ${username}: ${genErrorMessage}`,
+                    ephemeral: true
+                });
+            }
         } else {
             await interaction.reply({ content: `User ${username} not found.`, ephemeral: true });
         }
