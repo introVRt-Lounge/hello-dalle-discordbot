@@ -1,35 +1,201 @@
-name: Simple Docker Build
+name: Docker Build and Push to GHCR
 
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for semantic-release to analyze history
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm install
+      - name: Create version.txt for test build
+        run: echo "test-version" > version.txt
+      - name: Build test container
+        run: docker build --target test -t hello-dalle-test .
+      - name: Create test environment and run tests
+        run: |
+          # Create test environment file with dummy values for CI
+          cat > .env.test << 'EOF'
+          DISCORD_BOT_TOKEN=test-bot-token-for-jest
+          OPENAI_API_KEY=sk-fake-test-key-not-real-for-ci-only
+          BOTSPAM_CHANNEL_ID=123456789012345678
+          WELCOME_CHANNEL_ID=123456789012345679
+          PROFILE_CHANNEL_ID=123456789012345680
+          BOT_USER_ROLE=123456789012345681
+          WELCOME_PROMPT=Test welcome prompt for Jest
+          GENDER_SENSITIVITY=false
+          STEALTH_WELCOME=false
+          WILDCARD=0
+          DEBUG=false
+          NODE_ENV=test
+          EOF
+
+          # Clean up any existing test container
+          docker rm -f test-run || true
+
+          # Create and run test container
+          docker run --rm --name test-run -v ${{ github.workspace }}/.env.test:/usr/src/app/.env.test hello-dalle-test npm test
+
+  build-and-release:
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # to create release tags
+      issues: write # to comment on issues
+      pull-requests: write # to comment on pull requests
+      deployments: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for semantic-release to analyze history
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate version.txt and release notes
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v4
+        with:
+          branch: main
+          dry_run: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Debug semantic release output
+        run: |
+          echo "New release published: ${{ steps.semantic.outputs.new_release_published }}"
+          echo "New release version: ${{ steps.semantic.outputs.new_release_version }}"
+          echo "New release git tag: ${{ steps.semantic.outputs.new_release_git_tag }}"
+          echo "New release git head: ${{ steps.semantic.outputs.new_release_git_head }}"
+          echo "New release notes: ${{ steps.semantic.outputs.new_release_notes }}"
+
+      - name: Summarize release notes and update release
+        if: steps.semantic.outputs.new_release_published == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          RELEASE_NOTES: ${{ steps.semantic.outputs.new_release_notes }}
+        run: |
+          pip install openai || echo "Failed to install openai, skipping summarization"
+          if command -v python &> /dev/null && [ -n "$OPENAI_API_KEY" ]; then
+            SUMMARY=$(python .github/scripts/summarize_release_notes.py 2>/dev/null) || SUMMARY="${{ steps.semantic.outputs.new_release_notes }}"
+            gh release edit ${{ steps.semantic.outputs.new_release_git_tag }} --notes "$SUMMARY" --repo ${{ github.repository }} || echo "Failed to update release notes"
+          else
+            echo "Python or OpenAI API key not available, using original release notes"
+          fi
+
+      - name: Create GitHub deployment
+        if: steps.semantic.outputs.new_release_published == 'true'
+        id: deployment
+        uses: chrnorm/deployment-action@v2
+        with:
+          token: '${{ secrets.GH_TOKEN }}'
+          environment-url: https://discord.com/channels/816371255539138620/1164501234271653918
+          environment: production
+
+      - name: Generate version files
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: |
+          echo "${{ steps.semantic.outputs.new_release_version }}" > version.txt
+          echo "VERSION=${{ steps.semantic.outputs.new_release_version }}" > .env.version
+          echo "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> .env.version
+          echo "GIT_COMMIT=${{ github.sha }}" >> .env.version
 
       - name: Set up Docker Buildx
+        if: steps.semantic.outputs.new_release_published == 'true'
         uses: docker/setup-buildx-action@v3
 
       - name: Docker Login to Docker Hub
+        if: steps.semantic.outputs.new_release_published == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker image
+      - name: Build and push Docker image to Docker Hub
+        if: steps.semantic.outputs.new_release_published == 'true'
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           tags: |
             heavygee/hello-dalle-discordbot:latest
-            heavygee/hello-dalle-discordbot:manual-${{ github.run_number }}
+            heavygee/hello-dalle-discordbot:${{ steps.semantic.outputs.new_release_version }}
           build-args: |
-            VERSION=manual-${{ github.run_number }}
+            VERSION=${{ steps.semantic.outputs.new_release_version }}
             BUILD_DATE=${{ github.event.head_commit.timestamp }}
             GIT_COMMIT=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Update deployment status (in progress)
+        if: steps.semantic.outputs.new_release_published == 'true'
+        uses: chrnorm/deployment-status@v2
+        with:
+          token: "${{ secrets.GH_TOKEN }}"
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+          state: "in_progress"
+          environment-url: "https://discord.com/channels/816371255539138620/1164501234271653918"
+
+      - name: Update deployment status (success)
+        if: steps.semantic.outputs.new_release_published == 'true'
+        uses: chrnorm/deployment-status@v2
+        with:
+          token: "${{ secrets.GH_TOKEN }}"
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+          state: "success"
+          environment-url: "https://discord.com/channels/816371255539138620/1164501234271653918"
+
+      - name: Update deployment status (failure)
+        if: failure() && steps.semantic.outputs.new_release_published == 'true'
+        uses: chrnorm/deployment-status@v2
+        with:
+          token: "${{ secrets.GH_TOKEN }}"
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+          state: "failure"
+          environment-url: "https://discord.com/channels/816371255539138620/1164501234271653918"
+
+      - name: Announce release to Discord
+        if: steps.semantic.outputs.new_release_published == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          # Get release information
+          RELEASE_TAG="${{ steps.semantic.outputs.new_release_git_tag }}"
+          RELEASE_VERSION="${{ steps.semantic.outputs.new_release_version }}"
+          RELEASE_NOTES="${{ steps.semantic.outputs.new_release_notes }}"
+
+          echo "🚀 **New Release: $RELEASE_VERSION**"
+          echo "📦 **Docker Image**: heavygee/hello-dalle-discordbot:$RELEASE_VERSION"
+          echo "🔗 **Code Tree**: https://github.com/${{ github.repository }}/tree/$RELEASE_TAG"
+          echo ""
+          echo "📋 **What's New:**"
+          echo "$RELEASE_NOTES"
+          echo ""
+          echo "#deployment #release"
