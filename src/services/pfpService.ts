@@ -2,6 +2,7 @@ import { Client, GuildMember, TextChannel } from 'discord.js';
 import { DEBUG, WELCOME_CHANNEL_ID, STEALTH_WELCOME, BOTSPAM_CHANNEL_ID } from '../config';
 import { logMessage } from '../utils/log';
 import { generateImage, downloadAndSaveImage } from '../utils/imageUtils'; // Utilities for generating and saving images
+import { formatAxiosError } from '../utils/errorUtils';
 import path from 'path';
 import fs from 'fs';
 
@@ -68,13 +69,9 @@ export async function generateProfilePicture(
         if (DEBUG) console.log(`Profile picture sent for user: ${displayName}`);
 
     } catch (error) {
-        if (typeof error === 'object' && error !== null && 'response' in error) {
-            const errResponse = (error as any).response;
-            console.error('Response data:', errResponse.data);
-        }
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        if (DEBUG) console.error('Error during profile picture generation:', errorMessage);
-        await logMessage(client, guild, `Error generating profile picture: ${errorMessage}`);
+        const detailed = formatAxiosError(error);
+        if (DEBUG) console.error('Error during profile picture generation:', detailed);
+        await logMessage(client, guild, `Error generating profile picture: ${detailed}`);
     }
 }
 

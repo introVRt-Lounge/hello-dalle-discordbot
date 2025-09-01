@@ -3,6 +3,7 @@ import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
+import { formatAxiosError } from './errorUtils';
 
 // Ensure the temp directory exists
 const tempDir = path.join(__dirname, '../../temp');
@@ -39,8 +40,8 @@ export async function generateImage(prompt: string): Promise<string> {
 
         return response.data.data[0].url;
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        throw new Error(`Failed to generate image: ${errorMessage}`);
+        const detailed = formatAxiosError(error);
+        throw new Error(`Failed to generate image: ${detailed}`);
     }
 }
 
@@ -118,9 +119,9 @@ export async function describeImage(imagePath: string, imageUrl: string, genderS
         if (DEBUG) console.log(`DEBUG: Image described: ${response.data.choices[0].message.content}`);
         return response.data.choices[0].message.content;
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        if (DEBUG) console.error('DEBUG: Error describing image:', errorMessage);
-        throw new Error(errorMessage);
+        const detailed = formatAxiosError(error);
+        if (DEBUG) console.error('DEBUG: Error describing image:', detailed);
+        throw new Error(detailed);
     }
 }
 

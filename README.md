@@ -103,6 +103,10 @@ The bot now uses modern Discord slash commands (`/`) instead of the old `!` comm
 
 - `/wildcard value:<number>`: Set the wildcard chance to a specific value between 0 and 99. This command allows you to control the variability in the welcome prompts. Only works in the `#botspam` channel.
 
+### Error transparency
+
+When OpenAI returns an error (for example, HTTP 400 due to content policy), the bot now surfaces the full reason code and message in `#botspam`. Errors include the OpenAI error message and metadata like `type`, `code`, and HTTP status to help you quickly understand why an image was rejected.
+
 ### Example Usage
 
 ```plaintext

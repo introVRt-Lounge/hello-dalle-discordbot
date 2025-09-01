@@ -5,6 +5,7 @@ import { WELCOME_CHANNEL_ID, WELCOME_PROMPT, POSTING_DELAY, BOTSPAM_CHANNEL_ID, 
 import path from 'path';
 import fs from 'fs';
 import { logMessage } from '../utils/log';
+import { formatAxiosError } from '../utils/errorUtils';
 import { readWelcomeCount, writeWelcomeCount } from '../utils/appUtils';
 
 export let welcomeCount = readWelcomeCount();
@@ -106,8 +107,8 @@ export async function welcomeUser(client: Client, member: GuildMember, debugMode
         if (avatarPath) fs.unlinkSync(avatarPath);
 
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        if (DEBUG) console.error('Error during welcome process:', errorMessage);
-        await logMessage(client, guild, `Error during welcome process: ${errorMessage}`);
+        const detailed = formatAxiosError(error);
+        if (DEBUG) console.error('Error during welcome process:', detailed);
+        await logMessage(client, guild, `Error during welcome process: ${detailed}`);
     }
 }
