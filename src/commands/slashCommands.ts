@@ -22,6 +22,12 @@ const commands = [
         type: 3, // STRING
         required: false,
       },
+      {
+        name: 'private',
+        description: 'Do not reveal the override prompt publicly',
+        type: 5, // BOOLEAN
+        required: false,
+      },
     ],
   },
   {

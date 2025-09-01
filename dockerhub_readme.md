@@ -44,6 +44,11 @@ Note: Environment variables are never accessed directly in the code. Instead, th
 
 ### Usage
 
+#### Slash Commands
+
+- `/pfp username:<username> [override:<custom_prompt>] [private:<true|false>]`
+  - `private:false` will reveal the override prompt in the public message; `true` hides it. Default is `false`.
+
 #### Docker Run
 To run the bot using Docker, use the following command:
 ```plaintext

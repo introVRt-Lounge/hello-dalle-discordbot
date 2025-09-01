@@ -1,5 +1,5 @@
 import { Client, GuildMember, TextChannel } from 'discord.js';
-import { DEBUG, WELCOME_CHANNEL_ID, STEALTH_WELCOME, BOTSPAM_CHANNEL_ID } from '../config';
+import { DEBUG, WELCOME_CHANNEL_ID, STEALTH_WELCOME, BOTSPAM_CHANNEL_ID, PROFILE_CHANNEL_ID } from '../config';
 import { logMessage } from '../utils/log';
 import { generateImage, downloadAndSaveImage } from '../utils/imageUtils'; // Utilities for generating and saving images
 import path from 'path';
@@ -21,7 +21,8 @@ export async function generateProfilePicture(
     client: Client,
     member: GuildMember,
     genderSensitive: boolean = false,
-    overridePrompt?: string
+    overridePrompt?: string,
+    isPrivate: boolean = false
 ): Promise<void> {
     const guild = member.guild;
     const displayName = member.displayName;
@@ -56,14 +57,17 @@ export async function generateProfilePicture(
         // Log the generated image to botspam
         const botspamChannel = guild.channels.cache.get(BOTSPAM_CHANNEL_ID) as TextChannel;
         if (botspamChannel?.isTextBased()) {
+            const revealText = overridePrompt && !isPrivate
+                ? ` (override prompt: ${overridePrompt})`
+                : '';
             await botspamChannel.send({
-                content: `Profile picture generated for "${displayName}":`,
+                content: `Profile picture generated for "${displayName}"${revealText}:`,
                 files: [profilePicPath]
             });
         }
 
         // Post to welcome channel for users without a profile pic
-        await postToProfileChannel(client, member, profilePicPath);
+        await postToProfileChannel(client, member, profilePicPath, overridePrompt, isPrivate);
 
         if (DEBUG) console.log(`Profile picture sent for user: ${displayName}`);
 
@@ -79,13 +83,17 @@ export async function generateProfilePicture(
 }
 
 // Send a profile pic for a new user without one
-async function postToProfileChannel(client: Client, member: GuildMember, profilePicPath: string): Promise<void> {
-    const profileChannel = member.guild.channels.cache.get(WELCOME_CHANNEL_ID) as TextChannel;
+async function postToProfileChannel(client: Client, member: GuildMember, profilePicPath: string, overridePrompt?: string, isPrivate: boolean = false): Promise<void> {
+    const profileChannel = member.guild.channels.cache.get(PROFILE_CHANNEL_ID) as TextChannel;
     if (profileChannel?.isTextBased()) {
         if (DEBUG) console.log(`Sending profile picture to welcome channel for user: ${member.user.username}`);
 
+        const revealSuffix = overridePrompt && !isPrivate
+            ? ` We used this prompt: "${overridePrompt}"`
+            : ` based on your username.`;
+
         await profileChannel.send({
-            content: `Hey <@${member.user.id}>, you don't have a profile pic yet - do you want to use this one we made for you, based on your username?`,
+            content: `Hey <@${member.user.id}>, you don't have a profile pic yet - do you want to use this one we made for you,${revealSuffix}`,
             files: [profilePicPath],
             allowedMentions: STEALTH_WELCOME ? { users: [member.user.id] } : undefined // Stealth notification for profile picture suggestion
         });
