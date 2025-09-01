@@ -38,9 +38,35 @@ export async function generateImage(prompt: string): Promise<string> {
         });
 
         return response.data.data[0].url;
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        throw new Error(`Failed to generate image: ${errorMessage}`);
+    } catch (error: any) {
+        // Extract detailed error information from OpenAI API response
+        let errorDetails = 'Unknown error occurred';
+
+        if (error.response) {
+            const status = error.response.status;
+            const data = error.response.data;
+
+            if (data && typeof data === 'object') {
+                // Extract OpenAI-specific error details
+                if (data.error && data.error.message) {
+                    errorDetails = `${status}: ${data.error.message}`;
+                    if (data.error.type) {
+                        errorDetails += ` (Type: ${data.error.type})`;
+                    }
+                } else if (data.message) {
+                    errorDetails = `${status}: ${data.message}`;
+                } else {
+                    errorDetails = `${status}: ${JSON.stringify(data)}`;
+                }
+            } else {
+                errorDetails = `${status}: ${String(data)}`;
+            }
+        } else if (error.message) {
+            errorDetails = error.message;
+        }
+
+        console.error('OpenAI API Error Details:', errorDetails);
+        throw new Error(`Failed to generate image: ${errorDetails}`);
     }
 }
 
@@ -117,10 +143,35 @@ export async function describeImage(imagePath: string, imageUrl: string, genderS
 
         if (DEBUG) console.log(`DEBUG: Image described: ${response.data.choices[0].message.content}`);
         return response.data.choices[0].message.content;
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        if (DEBUG) console.error('DEBUG: Error describing image:', errorMessage);
-        throw new Error(errorMessage);
+    } catch (error: any) {
+        // Extract detailed error information from OpenAI API response
+        let errorDetails = 'Unknown error occurred';
+
+        if (error.response) {
+            const status = error.response.status;
+            const data = error.response.data;
+
+            if (data && typeof data === 'object') {
+                // Extract OpenAI-specific error details
+                if (data.error && data.error.message) {
+                    errorDetails = `${status}: ${data.error.message}`;
+                    if (data.error.type) {
+                        errorDetails += ` (Type: ${data.error.type})`;
+                    }
+                } else if (data.message) {
+                    errorDetails = `${status}: ${data.message}`;
+                } else {
+                    errorDetails = `${status}: ${JSON.stringify(data)}`;
+                }
+            } else {
+                errorDetails = `${status}: ${String(data)}`;
+            }
+        } else if (error.message) {
+            errorDetails = error.message;
+        }
+
+        if (DEBUG) console.error('DEBUG: OpenAI Vision API Error Details:', errorDetails);
+        throw new Error(`Failed to describe image: ${errorDetails}`);
     }
 }
 
