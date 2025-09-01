@@ -21,7 +21,8 @@ export async function generateProfilePicture(
     client: Client,
     member: GuildMember,
     genderSensitive: boolean = false,
-    overridePrompt?: string
+    overridePrompt?: string,
+    isPrivate: boolean = false
 ): Promise<void> {
     const guild = member.guild;
     const displayName = member.displayName;
@@ -40,7 +41,15 @@ export async function generateProfilePicture(
         const fullPrompt = `${promptBase}. Image only, no text. Circular to ease cropping.`;
         
         // Log to botspam about starting the process
-        await logMessage(client, guild, `Generating profile picture for "${displayName}" - user account is ${accountAgeInYears} years old.`);
+        let logMessageContent = `Generating profile picture for "${displayName}" - user account is ${accountAgeInYears} years old.`;
+        if (overridePrompt) {
+            if (isPrivate) {
+                logMessageContent += ' Using custom prompt (private).';
+            } else {
+                logMessageContent += ` Using custom prompt: "${overridePrompt}".`;
+            }
+        }
+        await logMessage(client, guild, logMessageContent);
 
         const imageUrl = await generateImage(fullPrompt);
         if (DEBUG) console.log(`DEBUG: Generated profile picture URL for ${displayName}: ${imageUrl}`);
