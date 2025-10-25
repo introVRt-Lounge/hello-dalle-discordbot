@@ -1,14 +1,15 @@
 interface UserCooldownData {
     activeRequests: Set<string>; // Track active request IDs
-    recentRequests: number[]; // Timestamps of recent requests (last 3)
+    allRequestTimestamps: number[]; // All timestamps of PFP requests (for session tracking)
 }
 
 class CooldownService {
     private userCooldowns = new Map<string, UserCooldownData>();
 
     private readonly MAX_CONCURRENT_REQUESTS = 1;
-    private readonly MAX_REQUESTS_BEFORE_COOLDOWN = 3;
-    private readonly COOLDOWN_DURATION_MS = 60 * 1000; // 60 seconds
+    private readonly FAST_MODE_LIMIT = 3; // Allow 3 fast requests
+    private readonly FAST_MODE_RESET_HOURS = 1; // Reset to fast mode after 1 hour of inactivity
+    private readonly COOLDOWN_DURATION_MS = 90 * 1000; // 90 seconds between requests in slow mode
 
     /**
      * Check if a user can make a new pfp request
@@ -17,6 +18,7 @@ class CooldownService {
      */
     canMakePfpRequest(userId: string): { canProceed: boolean; message?: string } {
         const userData = this.getUserData(userId);
+        const now = Date.now();
 
         // Check for concurrent requests
         if (userData.activeRequests.size >= this.MAX_CONCURRENT_REQUESTS) {
@@ -27,22 +29,36 @@ class CooldownService {
             };
         }
 
-        // Check rate limiting - if they have 3 recent requests and the oldest is still within cooldown period, block
-        if (userData.recentRequests.length === this.MAX_REQUESTS_BEFORE_COOLDOWN) {
-            const oldestRecentRequest = userData.recentRequests[0];
-            const timeSinceOldest = Date.now() - oldestRecentRequest;
-
-            if (timeSinceOldest < this.COOLDOWN_DURATION_MS) {
-                const remainingTimeSeconds = Math.ceil((this.COOLDOWN_DURATION_MS - timeSinceOldest) / 1000);
-                console.log(`Cooldown check: User ${userId} blocked - cooldown active, ${remainingTimeSeconds}s remaining`);
-                return {
-                    canProceed: false,
-                    message: `Hold on, cool it a little, wait a bit. You can make another request in ${remainingTimeSeconds} seconds.`
-                };
-            }
+        // Fast mode: Allow up to 3 requests without restrictions
+        if (userData.allRequestTimestamps.length < this.FAST_MODE_LIMIT) {
+            console.log(`Cooldown check: User ${userId} allowed - fast mode (${userData.allRequestTimestamps.length}/${this.FAST_MODE_LIMIT} requests)`);
+            return { canProceed: true };
         }
 
-        console.log(`Cooldown check: User ${userId} allowed - ${userData.activeRequests.size} active, ${userData.recentRequests.length} recent requests`);
+        // Check if user should reset to fast mode (1 hour of inactivity)
+        const lastRequestTime = Math.max(...userData.allRequestTimestamps);
+        const timeSinceLastRequest = now - lastRequestTime;
+        const resetThreshold = this.FAST_MODE_RESET_HOURS * 60 * 60 * 1000; // 1 hour in milliseconds
+
+        if (timeSinceLastRequest >= resetThreshold) {
+            console.log(`Cooldown check: User ${userId} resetting to fast mode - ${Math.floor(timeSinceLastRequest / (60 * 1000))} minutes since last request`);
+            // Reset their request history for fast mode
+            userData.allRequestTimestamps = [];
+            return { canProceed: true };
+        }
+
+        // Slow mode: One request every 90 seconds
+        const timeSinceLastRequestSeconds = timeSinceLastRequest / 1000;
+        if (timeSinceLastRequestSeconds < 90) {
+            const remainingTimeSeconds = Math.ceil(90 - timeSinceLastRequestSeconds);
+            console.log(`Cooldown check: User ${userId} blocked - slow mode, ${remainingTimeSeconds}s remaining`);
+            return {
+                canProceed: false,
+                message: 'Hold on, cool it a little, wait a bit. You can make another request in a few minutes.'
+            };
+        }
+
+        console.log(`Cooldown check: User ${userId} allowed - slow mode, ${Math.floor(timeSinceLastRequestSeconds)}s since last request`);
         return { canProceed: true };
     }
 
@@ -57,13 +73,8 @@ class CooldownService {
         // Add to active requests
         userData.activeRequests.add(requestId);
 
-        // Add timestamp to recent requests
-        userData.recentRequests.push(Date.now());
-
-        // Keep only the last 3 requests for rate limiting
-        if (userData.recentRequests.length > this.MAX_REQUESTS_BEFORE_COOLDOWN) {
-            userData.recentRequests = userData.recentRequests.slice(-this.MAX_REQUESTS_BEFORE_COOLDOWN);
-        }
+        // Add timestamp to all requests (for session tracking)
+        userData.allRequestTimestamps.push(Date.now());
     }
 
     /**
@@ -85,7 +96,7 @@ class CooldownService {
         if (!this.userCooldowns.has(userId)) {
             this.userCooldowns.set(userId, {
                 activeRequests: new Set(),
-                recentRequests: []
+                allRequestTimestamps: []
             });
         }
         return this.userCooldowns.get(userId)!;
@@ -98,42 +109,60 @@ class CooldownService {
      */
     getUserStatus(userId: string): {
         activeRequests: number;
-        recentRequests: number;
+        totalRequests: number;
+        mode: 'fast' | 'slow';
         cooldownRemaining?: number;
+        resetRemaining?: number;
     } {
         const userData = this.getUserData(userId);
         const now = Date.now();
 
+        const isFastMode = userData.allRequestTimestamps.length < this.FAST_MODE_LIMIT;
         let cooldownRemaining: number | undefined;
-        if (userData.recentRequests.length >= this.MAX_REQUESTS_BEFORE_COOLDOWN) {
-            const oldestRecentRequest = userData.recentRequests[0];
-            const timeSinceOldest = now - oldestRecentRequest;
-            if (timeSinceOldest < this.COOLDOWN_DURATION_MS) {
-                cooldownRemaining = Math.ceil((this.COOLDOWN_DURATION_MS - timeSinceOldest) / 1000);
+        let resetRemaining: number | undefined;
+
+        if (!isFastMode && userData.allRequestTimestamps.length > 0) {
+            const lastRequestTime = Math.max(...userData.allRequestTimestamps);
+            const timeSinceLastRequest = now - lastRequestTime;
+
+            // Check if in cooldown period (90 seconds)
+            const cooldownSeconds = timeSinceLastRequest / 1000;
+            if (cooldownSeconds < 90) {
+                cooldownRemaining = Math.ceil(90 - cooldownSeconds);
+            }
+
+            // Time until reset to fast mode (1 hour)
+            const resetThreshold = this.FAST_MODE_RESET_HOURS * 60 * 60 * 1000;
+            if (timeSinceLastRequest < resetThreshold) {
+                resetRemaining = Math.ceil((resetThreshold - timeSinceLastRequest) / (60 * 1000)); // minutes
             }
         }
 
         return {
             activeRequests: userData.activeRequests.size,
-            recentRequests: userData.recentRequests.length,
-            cooldownRemaining
+            totalRequests: userData.allRequestTimestamps.length,
+            mode: isFastMode ? 'fast' : 'slow',
+            cooldownRemaining,
+            resetRemaining
         };
     }
 
     /**
      * Clean up old request data (optional maintenance)
-     * Removes users who haven't made requests recently
+     * Removes users who haven't made requests in over an hour (when they would reset to fast mode anyway)
      */
     cleanup(): void {
         const now = Date.now();
-        const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+        const resetThreshold = this.FAST_MODE_RESET_HOURS * 60 * 60 * 1000; // 1 hour
 
         for (const [userId, userData] of this.userCooldowns.entries()) {
-            // Remove if no active requests and oldest recent request is older than maxAge
+            // Remove if no active requests and last request is older than reset threshold
             if (userData.activeRequests.size === 0 &&
-                (userData.recentRequests.length === 0 ||
-                 (userData.recentRequests[0] + maxAge) < now)) {
-                this.userCooldowns.delete(userId);
+                userData.allRequestTimestamps.length > 0) {
+                const lastRequestTime = Math.max(...userData.allRequestTimestamps);
+                if ((lastRequestTime + resetThreshold) < now) {
+                    this.userCooldowns.delete(userId);
+                }
             }
         }
     }
