@@ -1,0 +1,29 @@
+version: 2
+updates:
+  # JS deps (works with npm, yarn, or pnpm based on the lockfile)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"         # daily | weekly | monthly
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "deps"
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+    # Optional: pin noisy types/testing deps into the group above
+    # ignore:
+    #   - dependency-name: "typescript"
+    #     update-types: ["version-update:semver-major"]
+
+  # GitHub Actions (e.g., docker/login-action, actions/checkout)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # Docker base images in ./Dockerfile
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
