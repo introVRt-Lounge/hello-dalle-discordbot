@@ -77,13 +77,21 @@ export async function generateProfilePicture(
         if (DEBUG) console.log(`Profile picture sent for user: ${displayName}`);
 
     } catch (error) {
-        if (typeof error === 'object' && error !== null && 'response' in error) {
-            const errResponse = (error as any).response;
-            console.error('Response data:', errResponse.data);
-        }
         const errorMessage = error instanceof Error ? error.message : String(error);
         if (DEBUG) console.error('Error during profile picture generation:', errorMessage);
+
+        // Log the error to botspam channel
         await logMessage(client, guild, `Error generating profile picture: ${errorMessage}`);
+
+        // Try to send error message to the user who triggered the command
+        try {
+            const botspamChannel = guild.channels.cache.get(BOTSPAM_CHANNEL_ID) as TextChannel;
+            if (botspamChannel?.isTextBased()) {
+                await botspamChannel.send(`❌ Profile picture generation failed for "${displayName}": ${errorMessage}`);
+            }
+        } catch (sendError) {
+            console.error('Failed to send error message to channel:', sendError);
+        }
     }
 }
 

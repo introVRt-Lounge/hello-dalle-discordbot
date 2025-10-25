@@ -1,5 +1,6 @@
 import { Client, CommandInteraction, PermissionsBitField, ChatInputCommandInteraction } from 'discord.js';
 import { generateProfilePicture } from '../services/pfpService';
+import { cooldownService } from '../services/cooldownService';
 import { logMessage } from '../utils/log';
 import { DEBUG, GENDER_SENSITIVITY, BOT_USER_ROLE } from '../config';
 
@@ -37,6 +38,19 @@ export async function handlePfpSlashCommand(client: Client, interaction: ChatInp
         return;
     }
 
+    const userId = (member as any).user?.id;
+    if (!userId) {
+        await interaction.reply({ content: 'Error: Could not identify user.', ephemeral: true });
+        return;
+    }
+
+    // Check cooldown/rate limiting
+    const cooldownCheck = cooldownService.canMakePfpRequest(userId);
+    if (!cooldownCheck.canProceed) {
+        await interaction.reply({ content: cooldownCheck.message!, ephemeral: true });
+        return;
+    }
+
     const username = interaction.options.getString('username', true)?.toLowerCase();
     const overridePrompt = interaction.options.getString('override');
     const isPrivate = interaction.options.getBoolean('private') ?? false;
@@ -49,6 +63,9 @@ export async function handlePfpSlashCommand(client: Client, interaction: ChatInp
         );
 
         if (targetMember) {
+            // Generate unique request ID for tracking
+            const requestId = `${userId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
             let promptDescription = 'using default prompt';
             if (overridePrompt) {
                 if (isPrivate) {
@@ -57,8 +74,27 @@ export async function handlePfpSlashCommand(client: Client, interaction: ChatInp
                     promptDescription = `using custom prompt: "${overridePrompt}"`;
                 }
             }
+
+            // Start tracking the request
+            cooldownService.startPfpRequest(userId, requestId);
+
             await interaction.reply({ content: `Generating profile picture for ${username} ${promptDescription}...`, ephemeral: true });
-            await generateProfilePicture(client, targetMember, GENDER_SENSITIVITY, overridePrompt || undefined, isPrivate);
+
+            try {
+                await generateProfilePicture(client, targetMember, GENDER_SENSITIVITY, overridePrompt || undefined, isPrivate);
+                // Complete the request tracking on success
+                cooldownService.completePfpRequest(userId, requestId);
+                await interaction.followUp({ content: `✅ Profile picture generated successfully for ${username}!`, ephemeral: true });
+            } catch (genError) {
+                // Complete the request tracking on error too
+                cooldownService.completePfpRequest(userId, requestId);
+                const genErrorMessage = genError instanceof Error ? genError.message : String(genError);
+                if (DEBUG) console.error('Error generating profile picture:', genErrorMessage);
+                await interaction.followUp({
+                    content: `❌ Failed to generate profile picture for ${username}: ${genErrorMessage}`,
+                    ephemeral: true
+                });
+            }
         } else {
             await interaction.reply({ content: `User ${username} not found.`, ephemeral: true });
         }
