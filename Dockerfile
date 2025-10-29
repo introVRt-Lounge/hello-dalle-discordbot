@@ -1,5 +1,5 @@
 # Use the official Node.js image with version 20
-FROM node:20
+FROM node:25
 
 # Create and change to the app directory
 WORKDIR /usr/src/app
@@ -17,7 +17,7 @@ COPY . .
 RUN npx tsc
 
 # Test target for CI/CD
-FROM node:20 as test
+FROM node:25 as test
 
 WORKDIR /usr/src/app
 
@@ -30,7 +30,7 @@ RUN npx tsc
 CMD ["npm", "test"]
 
 # Production target
-FROM node:20 as production
+FROM node:25 as production
 
 WORKDIR /usr/src/app
 
