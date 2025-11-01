@@ -14,6 +14,7 @@ The bot supports two image generation engines with fundamentally different appro
 | **Input Type** | Text prompts only | Text + Image inputs |
 | **Welcome Images** | Username-based description | Avatar analysis + enhancement |
 | **Profile Pictures** | Text-to-image | Image-to-image transformation |
+| **use-existing-pfp** | Image description + generation | Direct image-to-image |
 | **Customization** | Override prompts | Override prompts + existing image |
 | **Cost** | $0.04/image (1024×1024) | Limited free (~2/day), $0.039/image paid |
 | **Speed** | Fast | Slower (double analysis) |
@@ -41,12 +42,19 @@ flowchart TD
     B --> C{use-existing-pfp?}
     C -->|No| D[Generate from username + override prompt]
     D --> E[DALL-E creates new image]
-    C -->|Yes| F[❌ Not supported - falls back to username generation]
-    F --> D
-    E --> G[Return generated image]
+    C -->|Yes| F[Download user's current avatar]
+    F --> G[Check description cache by image hash]
+    G --> H{Cached?}
+    H -->|Yes| I[Use cached description]
+    H -->|No| J[Describe image with GPT-4 Vision]
+    J --> K[Cache description for future use]
+    K --> I
+    I --> L[Enhance prompt with avatar description]
+    L --> E
+    E --> M[Return generated image]
 ```
 
-**Strategy**: Pure text-to-image generation. Cannot use existing profile pictures as input.
+**Strategy**: Text-to-image generation with optional avatar description enhancement. When `use-existing-pfp` is enabled, DALL-E describes the user's current avatar (with caching to avoid redundant API calls) and incorporates that description into the generation prompt for more personalized results.
 
 ### When Gemini is Default Engine
 

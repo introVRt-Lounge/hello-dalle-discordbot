@@ -1,8 +1,9 @@
 import { Client, GuildMember, TextChannel } from 'discord.js';
 import { DEBUG, WELCOME_CHANNEL_ID, STEALTH_WELCOME, BOTSPAM_CHANNEL_ID } from '../config';
 import { logMessage } from '../utils/log';
-import { generateImage, downloadAndSaveImage } from '../utils/imageUtils'; // Utilities for generating and saving images
+import { generateImage, downloadAndSaveImage, describeImage } from '../utils/imageUtils'; // Utilities for generating and saving images
 import { ImageEngine, getDEFAULT_ENGINE } from '../config';
+import { calculateImageHash, getCachedImageDescription, setCachedImageDescription } from '../utils/appUtils';
 import path from 'path';
 import fs from 'fs';
 
@@ -58,24 +59,54 @@ export async function generateProfilePicture(
 
         let finalPrompt = fullPrompt;
 
-        // Handle use-existing-pfp for Gemini image-to-image generation
-        if (useExistingPfp && engine === 'gemini') {
-            // Download the user's current avatar for image-to-image generation
+        // Handle use-existing-pfp for both Gemini and DALL-E
+        if (useExistingPfp) {
+            // Download the user's current avatar
             const avatarUrl = member.user.displayAvatarURL({ extension: 'png', size: 512 });
             if (avatarUrl) {
                 const avatarPath = path.join(__dirname, '../../temp', `avatar_${userId}_${Date.now()}.png`);
                 await downloadAndSaveImage(avatarUrl, avatarPath);
-                imageInput = avatarPath;
 
-                // Modify prompt to indicate we're using their existing avatar
-                finalPrompt = overridePrompt
-                    ? `Transform this user's existing profile picture according to: ${overridePrompt}. Keep the core visual elements but modify the style and appearance.`
-                    : `Transform this user's existing profile picture into a new creative version. Maintain the overall appearance but add artistic enhancements.`;
+                if (engine === 'gemini') {
+                    // Gemini: Use image directly for image-to-image generation
+                    imageInput = avatarPath;
 
-                if (DEBUG) console.log(`DEBUG: Using existing avatar for image-to-image generation: ${avatarPath}`);
+                    // Modify prompt to indicate we're using their existing avatar
+                    finalPrompt = overridePrompt
+                        ? `Transform this user's existing profile picture according to: ${overridePrompt}. Keep the core visual elements but modify the style and appearance.`
+                        : `Transform this user's existing profile picture into a new creative version. Maintain the overall appearance but add artistic enhancements.`;
+
+                    if (DEBUG) console.log(`DEBUG: Using existing avatar for Gemini image-to-image generation: ${avatarPath}`);
+                } else if (engine === 'dalle') {
+                    // DALL-E: Describe the image first (with caching) and incorporate into prompt
+                    const imageHash = calculateImageHash(avatarPath);
+                    let avatarDescription = getCachedImageDescription(imageHash);
+
+                    if (avatarDescription) {
+                        if (DEBUG) console.log(`DEBUG: Using cached image description for avatar: ${avatarDescription}`);
+                    } else {
+                        if (DEBUG) console.log(`DEBUG: Describing avatar image for DALL-E prompt enhancement`);
+                        avatarDescription = await describeImage(avatarPath, avatarUrl, genderSensitive);
+                        setCachedImageDescription(imageHash, avatarDescription);
+                        if (DEBUG) console.log(`DEBUG: Cached new image description: ${avatarDescription}`);
+                    }
+
+                    // Incorporate the avatar description into the prompt
+                    const basePrompt = overridePrompt
+                        ? `Transform this profile picture described as: "${avatarDescription}" according to: ${overridePrompt}. Create a new artistic version while maintaining the key visual characteristics.`
+                        : `Create a new artistic profile picture inspired by this existing avatar: "${avatarDescription}". Maintain the core visual elements but create a fresh, creative version.`;
+
+                    finalPrompt = `${basePrompt}. Image only, no text. Circular to ease cropping.`;
+
+                    // Clean up the avatar file since we don't need it for DALL-E (only the description)
+                    if (fs.existsSync(avatarPath)) {
+                        fs.unlinkSync(avatarPath);
+                        if (DEBUG) console.log(`DEBUG: Cleaned up avatar file after description for DALL-E`);
+                    }
+                }
             } else {
                 // Fallback if avatar download fails
-                if (DEBUG) console.log(`DEBUG: Could not download avatar for image-to-image, falling back to text-only generation`);
+                if (DEBUG) console.log(`DEBUG: Could not download avatar for use-existing-pfp, falling back to text-only generation`);
             }
         }
 
