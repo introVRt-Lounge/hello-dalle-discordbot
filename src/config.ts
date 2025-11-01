@@ -28,6 +28,7 @@ export const BOT_USER_ROLE = checkEnvVar('BOT_USER_ROLE', process.env.BOT_USER_R
 // Optional variables with default values
 export const WILDCARD = parseInt(process.env.WILDCARD ?? '0', 10);
 export const DEBUG = process.env.DEBUG === 'true' || false; // Default DEBUG to false
+export const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // Optional: for Gemini image generation
 
 // Get version from version.txt - no fallback, must exist
 const versionPath = path.resolve(__dirname, '../version.txt');

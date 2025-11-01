@@ -1,7 +1,7 @@
 import { Client, GuildMember, TextChannel } from 'discord.js';
 import { DEBUG, WELCOME_CHANNEL_ID, STEALTH_WELCOME, BOTSPAM_CHANNEL_ID } from '../config';
 import { logMessage } from '../utils/log';
-import { generateImage, downloadAndSaveImage } from '../utils/imageUtils'; // Utilities for generating and saving images
+import { generateImage, downloadAndSaveImage, ImageEngine } from '../utils/imageUtils'; // Utilities for generating and saving images
 import path from 'path';
 import fs from 'fs';
 
@@ -22,7 +22,9 @@ export async function generateProfilePicture(
     member: GuildMember,
     genderSensitive: boolean = false,
     overridePrompt?: string,
-    isPrivate: boolean = false
+    isPrivate: boolean = false,
+    engine: ImageEngine = 'dalle',
+    useExistingPfp: boolean = false
 ): Promise<void> {
     const guild = member.guild;
     const displayName = member.displayName;
@@ -51,14 +53,51 @@ export async function generateProfilePicture(
         }
         await logMessage(client, guild, logMessageContent);
 
-        const imageUrl = await generateImage(fullPrompt);
-        if (DEBUG) console.log(`DEBUG: Generated profile picture URL for ${displayName}: ${imageUrl}`);
+        let imageInput: string | undefined;
+        let finalPrompt = fullPrompt;
+
+        // Handle use-existing-pfp for Gemini image-to-image generation
+        if (useExistingPfp && engine === 'gemini') {
+            // Download the user's current avatar for image-to-image generation
+            const avatarUrl = member.user.displayAvatarURL({ extension: 'png', size: 512 });
+            if (avatarUrl) {
+                const avatarPath = path.join(__dirname, '../../temp', `avatar_${userId}_${Date.now()}.png`);
+                await downloadAndSaveImage(avatarUrl, avatarPath);
+                imageInput = avatarPath;
+
+                // Modify prompt to indicate we're using their existing avatar
+                finalPrompt = overridePrompt
+                    ? `Transform this user's existing profile picture according to: ${overridePrompt}. Keep the core visual elements but modify the style and appearance.`
+                    : `Transform this user's existing profile picture into a new creative version. Maintain the overall appearance but add artistic enhancements.`;
+
+                if (DEBUG) console.log(`DEBUG: Using existing avatar for image-to-image generation: ${avatarPath}`);
+            } else {
+                // Fallback if avatar download fails
+                if (DEBUG) console.log(`DEBUG: Could not download avatar for image-to-image, falling back to text-only generation`);
+            }
+        }
+
+        const imageResult = await generateImage(finalPrompt, engine, { imageInput });
+
+        if (DEBUG) console.log(`DEBUG: Generated profile picture for ${displayName} using ${engine} engine`);
 
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const profilePicPath = path.join(basePath, `${displayName}-profile-${timestamp}.png`);
 
-        // Download the image
-        await downloadAndSaveImage(imageUrl, profilePicPath);
+        // Handle different return types: DALL-E returns URL, Gemini returns file path
+        if (imageResult.startsWith('http')) {
+            // DALL-E: download from URL
+            await downloadAndSaveImage(imageResult, profilePicPath);
+        } else {
+            // Gemini: copy from generated file path
+            if (fs.existsSync(imageResult)) {
+                fs.copyFileSync(imageResult, profilePicPath);
+                // Clean up the temporary file created by Gemini
+                fs.unlinkSync(imageResult);
+            } else {
+                throw new Error('Generated image file not found');
+            }
+        }
 
         if (DEBUG) console.log(`Profile picture generated and saved to path: ${profilePicPath}`);
 
