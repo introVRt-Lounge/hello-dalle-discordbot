@@ -306,8 +306,8 @@ Each example shows the same input processed by both engines to demonstrate the t
 
 | Original Avatar | DALL-E Result (Vision + Text) | Gemini Result (Multimodal) |
 |-----------------|------------------------------|---------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp1.png" width="200" height="200" alt="Ariabel"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-1-ariabel-welcome-default-dalle.png" width="300" height="300" alt="Ariabel DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-1-ariabel-welcome-default-gemini.png" width="300" height="300" alt="Ariabel Gemini"> |
-| **Input**: Ariabel's avatar | **Process**: Describe avatar → enhance welcome prompt | **Process**: Avatar image + welcome prompt |
+| Ariabel's avatar (mystical woman with elegant features, long dark hair, ethereal presence) | ✅ Generated: Welcome image with cyberpunk billboard incorporating avatar features | ✅ Generated: Welcome image using avatar directly in multimodal generation |
+| **Input**: Ariabel's avatar | **Process**: GPT-4 Vision analysis → enhanced prompt | **Process**: Direct avatar input + double-LLM analysis |
 
 ### 2. heavygee - PFP Transformation (Space Explorer)
 
@@ -315,8 +315,8 @@ Each example shows the same input processed by both engines to demonstrate the t
 
 | Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Transform) |
 |-----------------|-------------------------------|-----------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp6.png" width="200" height="200" alt="heavygee"> | *Pending* | *Pending* |
-| **Input**: heavygee's current avatar | **Process**: Describe avatar → "space explorer" | **Process**: Avatar + "transform into space explorer" |
+| heavygee's avatar (scholarly intellectual with glasses, thoughtful demeanor) | ❌ Protocol mismatch - pending fix | ❌ Protocol mismatch - pending fix |
+| **Input**: heavygee's current avatar | **Process**: GPT-4 Vision analysis → space explorer transformation | **Process**: Direct avatar transformation (when fixed) |
 
 ### 3. radgey - PFP Transformation (Medieval Knight)
 
@@ -324,8 +324,8 @@ Each example shows the same input processed by both engines to demonstrate the t
 
 | Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Transform) |
 |-----------------|-------------------------------|-----------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp5.png" width="200" height="200" alt="radgey"> | *Pending* | *Pending* |
-| **Input**: radgey's current avatar | **Process**: Describe avatar → "medieval knight" | **Process**: Avatar + "transform into medieval knight" |
+| radgey's avatar (creative artist with distinctive features, imaginative presence) | ❌ Protocol mismatch - pending fix | ❌ Protocol mismatch - pending fix |
+| **Input**: radgey's current avatar | **Process**: GPT-4 Vision analysis → medieval knight transformation | **Process**: Direct avatar transformation (when fixed) |
 
 ### 4. tokentrevor - Welcome Image (Steampunk City)
 
@@ -333,8 +333,8 @@ Each example shows the same input processed by both engines to demonstrate the t
 
 | Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Image) |
 |-----------------|-------------------------------|-----------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp3.png" width="200" height="200" alt="tokentrevor"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-4-tokentrevor-welcome-steampunk-city-dalle.png" width="300" height="300" alt="tokentrevor DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-4-tokentrevor-welcome-steampunk-city-gemini.png" width="300" height="300" alt="tokentrevor Gemini"> |
-| **Input**: tokentrevor's avatar | **Process**: Describe avatar → steampunk city welcome | **Process**: Avatar + steampunk city welcome prompt |
+| tokentrevor's avatar (determined professional with sharp features, thoughtful expression) | ✅ Generated: Welcome image with steampunk city billboard incorporating avatar features | ✅ Generated: Welcome image using avatar directly in steampunk city theme |
+| **Input**: tokentrevor's avatar | **Process**: GPT-4 Vision analysis → steampunk city welcome | **Process**: Direct avatar input + steampunk city theme |
 
 ### 5. wallac3 - PFP Transformation (Superhero)
 
@@ -342,8 +342,8 @@ Each example shows the same input processed by both engines to demonstrate the t
 
 | Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Transform) |
 |-----------------|-------------------------------|-----------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp4.png" width="200" height="200" alt="wallac3"> | *Pending* | *Pending* |
-| **Input**: wallac3's current avatar | **Process**: Describe avatar → "superhero" | **Process**: Avatar + "transform into superhero" |
+| wallac3's avatar (confident adventurer with strong features, determined look) | ❌ Protocol mismatch - pending fix | ❌ Protocol mismatch - pending fix |
+| **Input**: wallac3's current avatar | **Process**: GPT-4 Vision analysis → superhero transformation | **Process**: Direct avatar transformation (when fixed) |
 
 ### 6. pecachu - Default Welcome Image
 
@@ -351,8 +351,8 @@ Each example shows the same input processed by both engines to demonstrate the t
 
 | Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Image) |
 |-----------------|-------------------------------|-----------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp2.png" width="200" height="200" alt="pecachu"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-6-pecachu-welcome-default-dalle.png" width="300" height="300" alt="pecachu DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-6-pecachu-welcome-default-gemini.png" width="300" height="300" alt="pecachu Gemini"> |
-| **Input**: pecachu's avatar | **Process**: Describe avatar → enhance welcome prompt | **Process**: Avatar image + welcome prompt |
+| pecachu's avatar (playful animated character with large expressive eyes, curious expression) | ✅ Generated: Welcome image with cyberpunk billboard incorporating character features | ✅ Generated: Welcome image using character directly in multimodal generation |
+| **Input**: pecachu's avatar | **Process**: GPT-4 Vision analysis → enhanced welcome prompt | **Process**: Direct avatar input + double-LLM analysis |
 
 ---
 
