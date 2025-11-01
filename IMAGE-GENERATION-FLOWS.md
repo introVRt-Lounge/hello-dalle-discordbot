@@ -309,7 +309,7 @@ Each example shows the same input processed by both engines to demonstrate the t
 
 | Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
 |-----------------|-------------------------|---------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp1.png" width="200" height="200" alt="Ariabel's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-1-ariabel-welcome-default-dalle.png" width="300" height="300" alt="Ariabel DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-1-ariabel-welcome-default-gemini.png" width="300" height="300" alt="Ariabel Gemini"> |
+| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp1.png" width="200" height="200" alt="Ariabel's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/welcome-ariabel-default-openai.png" width="300" height="300" alt="Ariabel OpenAI"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/welcome-ariabel-default-gemini.png" width="300" height="300" alt="Ariabel Gemini"> |
 
 #### 🔍 **DALL-E Processing** (Two Steps):
 **Step 1 - Avatar Analysis (GPT-4 Vision):** `<span style="color: #FF6B35; font-weight: bold;">"Multicolored iridescent butterfly wings and intricate black fantasy outfit."</span>`
@@ -345,7 +345,7 @@ Each example shows the same input processed by both engines to demonstrate the t
 
 | Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
 |-----------------|-------------------------|---------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp3.png" width="200" height="200" alt="tokentrevor's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-4-tokentrevor-welcome-steampunk-city-dalle.png" width="300" height="300" alt="tokentrevor DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-4-tokentrevor-welcome-steampunk-city-gemini.png" width="300" height="300" alt="tokentrevor Gemini"> |
+| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp3.png" width="200" height="200" alt="tokentrevor's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/welcome-tokentrevor-steampunk-openai.png" width="300" height="300" alt="tokentrevor OpenAI"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/welcome-tokentrevor-steampunk-gemini.png" width="300" height="300" alt="tokentrevor Gemini"> |
 
 #### 🔍 **DALL-E Processing** (Two Steps):
 **Step 1 - Avatar Analysis (GPT-4 Vision):** `<span style="color: #FF6B35; font-weight: bold;">"broad smiling face with green eyes"</span>`
@@ -372,7 +372,7 @@ Each example shows the same input processed by both engines to demonstrate the t
 
 | Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
 |-----------------|-------------------------|---------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp2.png" width="200" height="200" alt="pecachu's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-6-pecachu-welcome-default-dalle.png" width="300" height="300" alt="pecachu DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-6-pecachu-welcome-default-gemini.png" width="300" height="300" alt="pecachu Gemini"> |
+| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp2.png" width="200" height="200" alt="pecachu's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/welcome-pecachu-default-openai.png" width="300" height="300" alt="pecachu OpenAI"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/welcome-pecachu-default-gemini.png" width="300" height="300" alt="pecachu Gemini"> |
 
 #### 🔍 **DALL-E Processing** (Two Steps):
 **Step 1 - Avatar Analysis (GPT-4 Vision):** `<span style="color: #FF6B35; font-weight: bold;">"Yellow and pink cartoon-style character with heart and star shapes, labeled 'PECACHU'"</span>`
