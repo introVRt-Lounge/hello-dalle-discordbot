@@ -1,6 +1,6 @@
 import { Client, GuildMember, TextChannel } from 'discord.js';
 import { generateProfilePicture } from './pfpService';
-import { generateWelcomeImage, downloadAndSaveImage, describeImage } from '../utils/imageUtils';
+import { generateWelcomeImage, downloadAndSaveImage, describeImage, ImageEngine } from '../utils/imageUtils';
 import { WELCOME_CHANNEL_ID, WELCOME_PROMPT, POSTING_DELAY, BOTSPAM_CHANNEL_ID, STEALTH_WELCOME, getWILDCARD, DEBUG, GENDER_SENSITIVITY } from '../config';
 import path from 'path';
 import fs from 'fs';
@@ -41,7 +41,7 @@ async function postToUser(client: Client, guild: GuildMember['guild'], userId: s
     }, postDelayInMs);
 }
 
-export async function welcomeUser(client: Client, member: GuildMember, debugMode: boolean = false): Promise<void> {
+export async function welcomeUser(client: Client, member: GuildMember, debugMode: boolean = false, engine: ImageEngine = 'dalle'): Promise<void> {
     const guild = member.guild;
     const displayName = member.displayName;
     const userId = member.user.id;
@@ -86,7 +86,19 @@ export async function welcomeUser(client: Client, member: GuildMember, debugMode
         await logMessage(client, guild, `Generated prompt: ${prompt}`);
 
         // Generate the welcome image with watermark
-        const welcomeImagePath = await generateWelcomeImage(prompt);
+        // For Gemini, use image-to-image generation with the user's actual avatar
+        let imageInput: string | undefined;
+        let finalPrompt = prompt;
+
+        if (engine === 'gemini' && avatarPath) {
+            // Use the actual avatar image for image-to-image generation
+            imageInput = avatarPath;
+            finalPrompt = `Create a welcome image featuring this user's avatar. ${prompt.replace('{avatar}', 'the provided avatar image')}`;
+
+            if (DEBUG) console.log(`DEBUG: Using avatar image for image-to-image welcome generation: ${avatarPath}`);
+        }
+
+        const welcomeImagePath = await generateWelcomeImage(finalPrompt, engine, { imageInput });
         if (DEBUG) console.log(`DEBUG: Generated and watermarked image path: ${welcomeImagePath}`);
 
         // Notify admins about welcome image generation

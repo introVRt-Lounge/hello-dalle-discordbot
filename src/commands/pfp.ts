@@ -3,6 +3,7 @@ import { generateProfilePicture } from '../services/pfpService';
 import { cooldownService } from '../services/cooldownService';
 import { logMessage } from '../utils/log';
 import { DEBUG, GENDER_SENSITIVITY, BOT_USER_ROLE } from '../config';
+import { ImageEngine } from '../utils/imageUtils';
 
 // Check if user has permission to use pfp command
 function hasPfpPermission(member: any, pfpAnyoneEnabled: boolean): boolean {
@@ -54,6 +55,8 @@ export async function handlePfpSlashCommand(client: Client, interaction: ChatInp
     const username = interaction.options.getString('username', true)?.toLowerCase();
     const overridePrompt = interaction.options.getString('override');
     const isPrivate = interaction.options.getBoolean('private') ?? false;
+    const engine = (interaction.options.getString('engine') as ImageEngine) ?? 'dalle';
+    const useExistingPfp = interaction.options.getBoolean('use-existing-pfp') ?? false;
 
     try {
         // Fetch all members of the guild to ensure a complete search
@@ -66,13 +69,16 @@ export async function handlePfpSlashCommand(client: Client, interaction: ChatInp
             // Generate unique request ID for tracking
             const requestId = `${userId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-            let promptDescription = 'using default prompt';
+            let promptDescription = `using ${engine} engine with default prompt`;
             if (overridePrompt) {
                 if (isPrivate) {
-                    promptDescription = 'using custom prompt (private)';
+                    promptDescription = `using ${engine} engine with custom prompt (private)`;
                 } else {
-                    promptDescription = `using custom prompt: "${overridePrompt}"`;
+                    promptDescription = `using ${engine} engine with custom prompt: "${overridePrompt}"`;
                 }
+            }
+            if (useExistingPfp && engine === 'gemini') {
+                promptDescription += ' (using existing avatar)';
             }
 
             // Start tracking the request
@@ -81,10 +87,10 @@ export async function handlePfpSlashCommand(client: Client, interaction: ChatInp
             await interaction.reply({ content: `Generating profile picture for ${username} ${promptDescription}...`, ephemeral: true });
 
             try {
-                await generateProfilePicture(client, targetMember, GENDER_SENSITIVITY, overridePrompt || undefined, isPrivate);
+                await generateProfilePicture(client, targetMember, GENDER_SENSITIVITY, overridePrompt || undefined, isPrivate, engine, useExistingPfp);
                 // Complete the request tracking on success
                 cooldownService.completePfpRequest(userId, requestId);
-                await interaction.followUp({ content: `✅ Profile picture generated successfully for ${username}!`, ephemeral: true });
+                await interaction.followUp({ content: `✅ Profile picture generated successfully for ${username} using ${engine}!`, ephemeral: true });
             } catch (genError) {
                 // Complete the request tracking on error too
                 cooldownService.completePfpRequest(userId, requestId);

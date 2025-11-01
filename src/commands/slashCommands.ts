@@ -28,6 +28,28 @@ const commands = [
         type: 5, // BOOLEAN
         required: false,
       },
+      {
+        name: 'engine',
+        description: 'Image generation engine to use (default: dalle)',
+        type: 3, // STRING
+        required: false,
+        choices: [
+          {
+            name: 'DALL-E (OpenAI)',
+            value: 'dalle'
+          },
+          {
+            name: 'Gemini (Google)',
+            value: 'gemini'
+          }
+        ]
+      },
+      {
+        name: 'use-existing-pfp',
+        description: 'Use the user\'s current Discord avatar as input for generation (only works with Gemini)',
+        type: 5, // BOOLEAN
+        required: false,
+      },
     ],
   },
   {
@@ -59,6 +81,22 @@ const commands = [
           {
             name: 'Botspam Channel (Debug/Test)',
             value: 'botspam'
+          }
+        ]
+      },
+      {
+        name: 'engine',
+        description: 'Image generation engine to use (default: dalle)',
+        type: 3, // STRING
+        required: false,
+        choices: [
+          {
+            name: 'DALL-E (OpenAI)',
+            value: 'dalle'
+          },
+          {
+            name: 'Gemini (Google)',
+            value: 'gemini'
           }
         ]
       },
