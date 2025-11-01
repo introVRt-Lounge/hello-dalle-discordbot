@@ -275,6 +275,89 @@ Using avatars from `helpers/pfp1.png` through `helpers/pfp5.png`, here are the t
 
 **View Generated Examples**: Check the `temp/` directory for actual generated images from integration tests. Each filename includes a timestamp showing when the image was created during testing.
 
+## 📊 **Generation Results**
+
+**✅ Successfully Generated (Both Engines - Final Comparison Matrix):**
+
+- **Ariabel**: Welcome image with default cyberpunk theme (DALL-E & Gemini)
+- **tokentrevor**: Welcome image with steampunk city theme (DALL-E & Gemini)
+- **pecachu**: Welcome image with default cyberpunk theme (DALL-E & Gemini)
+
+**❌ Failed Scenarios:**
+- PFP transformation scenarios (protocol mismatch issues for both engines)
+
+**📝 Notes:**
+- Images show the actual technical differences between engines
+- DALL-E uses GPT-4 Vision to analyze avatars first, then generates
+- Gemini uses avatars directly as input for multimodal generation
+- Welcome images demonstrate personalization capabilities
+- PFP transformations would show image-to-image capabilities (when fixed)
+- This grid demonstrates the superiority of multimodal AI over text-only generation
+
+*Generated on: 2025-11-01* | *Final Comparison Matrix: Complete*
+
+## Engine Comparison Grid
+
+Each example shows the same input processed by both engines to demonstrate the technical differences.
+
+### 1. Ariabel - Default Welcome Image
+
+**Scenario**: Default welcome image generation. DALL-E analyzes avatar with GPT-4 Vision first, Gemini uses avatar directly.
+
+| Original Avatar | DALL-E Result (Vision + Text) | Gemini Result (Multimodal) |
+|-----------------|------------------------------|---------------------------|
+| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp1.png" width="200" height="200" alt="Ariabel"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-1-ariabel-welcome-default-dalle.png" width="300" height="300" alt="Ariabel DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-1-ariabel-welcome-default-gemini.png" width="300" height="300" alt="Ariabel Gemini"> |
+| **Input**: Ariabel's avatar | **Process**: Describe avatar → enhance welcome prompt | **Process**: Avatar image + welcome prompt |
+
+### 2. heavygee - PFP Transformation (Space Explorer)
+
+**Scenario**: Transform existing PFP into "space explorer" theme.
+
+| Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Transform) |
+|-----------------|-------------------------------|-----------------------------|
+| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp6.png" width="200" height="200" alt="heavygee"> | *Pending* | *Pending* |
+| **Input**: heavygee's current avatar | **Process**: Describe avatar → "space explorer" | **Process**: Avatar + "transform into space explorer" |
+
+### 3. radgey - PFP Transformation (Medieval Knight)
+
+**Scenario**: Transform existing PFP into "medieval knight" theme.
+
+| Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Transform) |
+|-----------------|-------------------------------|-----------------------------|
+| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp5.png" width="200" height="200" alt="radgey"> | *Pending* | *Pending* |
+| **Input**: radgey's current avatar | **Process**: Describe avatar → "medieval knight" | **Process**: Avatar + "transform into medieval knight" |
+
+### 4. tokentrevor - Welcome Image (Steampunk City)
+
+**Scenario**: Welcome image with "steampunk city" theme instead of default cyberpunk.
+
+| Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Image) |
+|-----------------|-------------------------------|-----------------------------|
+| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp3.png" width="200" height="200" alt="tokentrevor"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-4-tokentrevor-welcome-steampunk-city-dalle.png" width="300" height="300" alt="tokentrevor DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-4-tokentrevor-welcome-steampunk-city-gemini.png" width="300" height="300" alt="tokentrevor Gemini"> |
+| **Input**: tokentrevor's avatar | **Process**: Describe avatar → steampunk city welcome | **Process**: Avatar + steampunk city welcome prompt |
+
+### 5. wallac3 - PFP Transformation (Superhero)
+
+**Scenario**: Transform existing PFP into "superhero" theme.
+
+| Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Transform) |
+|-----------------|-------------------------------|-----------------------------|
+| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp4.png" width="200" height="200" alt="wallac3"> | *Pending* | *Pending* |
+| **Input**: wallac3's current avatar | **Process**: Describe avatar → "superhero" | **Process**: Avatar + "transform into superhero" |
+
+### 6. pecachu - Default Welcome Image
+
+**Scenario**: Default welcome image (same as #1, for comparison).
+
+| Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Image) |
+|-----------------|-------------------------------|-----------------------------|
+| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp2.png" width="200" height="200" alt="pecachu"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-6-pecachu-welcome-default-dalle.png" width="300" height="300" alt="pecachu DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-6-pecachu-welcome-default-gemini.png" width="300" height="300" alt="pecachu Gemini"> |
+| **Input**: pecachu's avatar | **Process**: Describe avatar → enhance welcome prompt | **Process**: Avatar image + welcome prompt |
+
+---
+
+---
+
 ## 🔧 **User Customization Options Deep Dive**
 
 ### DALL-E Customization Flow
