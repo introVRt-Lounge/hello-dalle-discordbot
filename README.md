@@ -44,7 +44,11 @@ BOT_USER_ROLE=your_bot_user_role_id  # Required: Role ID that allows users to us
 WELCOME_PROMPT=Create a welcome image for a new Discord user with the username '{username}'. Incorporate the user's avatar into the image, its described as: {avatar}
 WILDCARD=0
 POSTING_DELAY=120  # Delay in seconds before posting the image to the welcome channel
-WATERMARK_PATH=/usr/src/app/watermark.png  # Optional: path for a watermark image that will be added to welcome images. If not set, no watermark will be added. Add as a docker bind path to store the watermark image on your host.
+WATERMARK_PATH=/usr/src/app/watermark.png
+
+# Optional: Google Gemini for alternative image generation (free tier available)
+GEMINI_API_KEY=your_gemini_api_key  # Optional: Enables Gemini image generation as alternative to DALL-E
+
 STEALTH_WELCOME=false  # Optional: Set to 'true' to enable stealth mode, making welcome messages in the welcome channel silent for everyone except the new user.
 GENDER_SENSITIVITY=false # Optional: Set to 'true' to enable personalized touches for generated images based on gender-sensitive characteristics.
 ```
@@ -52,6 +56,39 @@ GENDER_SENSITIVITY=false # Optional: Set to 'true' to enable personalized touche
 ### Running with Docker
 
 For details on running this project with Docker, visit the [Docker Hub page](https://hub.docker.com/r/heavygee/hello-dalle-discordbot).
+
+## Image Generation Engines
+
+This bot supports two image generation engines:
+
+### DALL-E (Default)
+- Uses OpenAI's DALL-E 3 model
+- High-quality, consistent results
+- Requires OpenAI API key with credits
+
+### Google Gemini (Optional)
+- Uses Google's Gemini models with "Nano Banana" (free tier available)
+- Supports both text-to-image and **image-to-image** generation
+- Free tier available with generous limits
+- Requires `GEMINI_API_KEY` environment variable
+
+#### Gemini Features
+- **Text-to-Image**: Generate images from text prompts
+- **Image-to-Image**: Transform existing images (welcome images use actual user avatars)
+- **PFP Enhancement**: Use `use-existing-pfp` flag to transform user's current Discord avatar
+- **Cost Effective**: Free tier with Nano Banana model
+
+#### Gemini Commands
+```bash
+# Use Gemini for text-to-image
+/pfp Make me look like a cyberpunk hacker engine:gemini
+
+# Use Gemini with existing avatar transformation
+/pfp Transform my avatar into something magical use-existing-pfp engine:gemini
+
+# Welcome command with Gemini (uses actual user avatar)
+/welcome username:testuser engine:gemini
+```
 
 ## Examples of Output
 
@@ -69,7 +106,15 @@ For details on running this project with Docker, visit the [Docker Hub page](htt
 
 ## Cost
 
-Using the bot incurs costs based on the usage of OpenAI's DALL-E APIs. Each welcome image generated costs approximately $0.03. Ensure you monitor your usage to manage costs effectively.
+### DALL-E (Default)
+Using DALL-E incurs costs based on OpenAI's API pricing. Each image generated costs approximately $0.03. Monitor your OpenAI usage dashboard to manage costs effectively.
+
+### Google Gemini (Optional)
+- **Free Tier**: Generous free tier available with Nano Banana model
+- **Paid Tier**: Very low cost for high-volume usage
+- **No Cost for Testing**: Perfect for development and low-traffic servers
+
+Choose Gemini for cost-effective image generation, especially for servers with moderate usage.
 
 ## Debugging and Control
 
