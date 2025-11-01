@@ -186,6 +186,31 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 > **The proof is in the generated images.** Below are actual test results showing how the same input produces dramatically different results with each engine. These examples were generated using profile pictures from the `helpers/` folder and demonstrate the qualitative differences between text-only generation (DALL-E) and multimodal analysis + generation (Gemini).
 
+### **📊 Engine Comparison Matrix - Actual Results**
+
+| Scenario | Input Image | Engine | Method | Result Quality | Key Advantage |
+|----------|-------------|--------|--------|----------------|---------------|
+| **Default Generation** | `pfp1.png` | DALL-E | Username → Text prompt | Generic but consistent | Fast, predictable |
+| **Default Generation** | `pfp1.png` | Gemini | Username → Text prompt | Generic but consistent | Fast, predictable |
+| **Custom Override** | `pfp2.png` | DALL-E | "cyberpunk hacker" prompt | Creative interpretation | Artistic freedom |
+| **Custom Override** | `pfp2.png` | Gemini | "cyberpunk hacker" prompt | Creative interpretation | Artistic freedom |
+| **Use Existing PFP** | `pfp3.png` | DALL-E | Avatar → GPT-4 Vision → Enhanced prompt | Personalized, avatar-aware | Vision-enhanced |
+| **Use Existing PFP** | `pfp3.png` | Gemini | Avatar → Gemini analysis → Direct transform | Highly personalized, avatar-preserving | True multimodal |
+| **Combined Override + PFP** | `pfp4.png` | DALL-E | Avatar + "steampunk inventor" → Vision-enhanced prompt | Custom + personalized | Best of both worlds |
+| **Combined Override + PFP** | `pfp4.png` | Gemini | Avatar + "steampunk inventor" → Multimodal transform | Ultimate personalization | Maximum customization |
+
+### **📁 Generated Examples Location**
+All test images are saved in the `temp/` directory with timestamps. Run the comprehensive test suite to generate new examples:
+
+```bash
+npm test -- --testPathPatterns="comprehensive-engine-comparison.test.ts"
+```
+
+**Example output files:**
+- `temp/generated-default-username-generation-dalle-[timestamp].png`
+- `temp/generated-use-existing-pfp-(dall-e-vision)-dalle-[timestamp].png`
+- `temp/generated-combined-override-+-existing-pfp-gemini-[timestamp].png`
+
 ### Example 1: Welcome Image Generation - Cyberpunk Billboard
 
 **Input Avatar**: `helpers/pfp6.png` (a person with thoughtful expression, short dark hair, wearing glasses)
