@@ -65,7 +65,7 @@ flowchart TD
     B --> C[Has custom avatar?]
     C -->|No| D[Generate username-based PFP instead]
     C -->|Yes| E[Step 1: Analyze avatar with Gemini 2.0 Flash]
-    E --> F[Get detailed description: "A person with X features..."]
+    E --> F[Get detailed avatar description]
     F --> G[Step 2: Generate welcome image with Gemini 2.5 Flash Image]
     G --> H[Use analyzed description + enhanced welcome prompt]
     H --> I[Apply watermark]
