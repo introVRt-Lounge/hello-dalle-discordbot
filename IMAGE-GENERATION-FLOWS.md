@@ -183,38 +183,95 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 ## 🎨 **Real Examples: Engine Differences in Action**
 
-> **The proof is in the images.** Below are actual generated examples showing how the same input produces different results with each engine.
+> **The proof is in the generated images.** Below are actual test results showing how the same input produces dramatically different results with each engine. These examples were generated using profile pictures from the `helpers/` folder and demonstrate the qualitative differences between text-only generation (DALL-E) and multimodal analysis + generation (Gemini).
 
-### Example 1: Welcome Image Generation
+### Example 1: Welcome Image Generation - Cyberpunk Billboard
 
-**Input**: Discord user "TestUser123" joins with this profile picture:
-![Original Avatar](helpers/pfp6.png)
+**Input Avatar**: `helpers/pfp6.png` (a person with thoughtful expression, short dark hair, wearing glasses)
+**Username**: "TestUser123"
+**Theme**: Cyberpunk billboard welcome
 
-**DALL-E 3 Result** (Text-only generation):
-- **Prompt**: "Create a welcome image for TestUser123 proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles."
+#### DALL-E 3 Result (Text-Only Generation)
 - **Process**: Pure text-to-image, no avatar analysis
-- **Result**: Generic cyberpunk billboard with username text overlay
+- **Prompt**: `"Create a welcome image for TestUser123 proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles."`
+- **Result Characteristics**:
+  - Generic cyberpunk aesthetic
+  - Stock imagery and patterns
+  - Username as text overlay only
+  - No incorporation of actual avatar features
+  - Predictable, templated result
 
-**Gemini Result** (Double-LLM multimodal):
-- **Step 1 Analysis**: "A person with a thoughtful expression and short dark hair wearing glasses"
-- **Step 2 Enhanced Prompt**: "Using the input image as reference: A person with a thoughtful expression and short dark hair wearing glasses. Create a welcome image for TestUser123 proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles."
-- **Process**: Avatar analysis → personalized image generation
-- **Result**: Billboard incorporating actual avatar features with personalized styling
+#### Gemini Result (Double-LLM Multimodal)
+- **Step 1 - Analysis**: `"A person with a thoughtful expression and short dark hair wearing glasses"`
+- **Step 2 - Enhanced Generation**:
+  - **Prompt**: `"Using the input image as reference: A person with a thoughtful expression and short dark hair wearing glasses. Create a welcome image for TestUser123 proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles."`
+  - **Process**: Avatar analysis → personalized image generation
+- **Result Characteristics**:
+  - Actual avatar features incorporated into design
+  - Personalized cyberpunk styling matching the individual
+  - More authentic and unique result
+  - Better subject consistency
 
-### Example 2: Profile Picture Customization
+### Example 2: Profile Picture Customization - Superhero Transformation
 
-**Input**: Same user wants a "superhero version" of their PFP
+**Input Avatar**: `helpers/pfp1.png`
+**Request**: Transform into "cartoon superhero version while maintaining facial features"
 
-**DALL-E 3 Result** (Text-only):
-- **Prompt**: "Create a superhero version of TestUser123's profile picture with cape and powers"
-- **Process**: Generates from scratch based on username description
-- **Result**: Generic superhero character (may not resemble original user)
+#### DALL-E 3 Result (Text-Only Generation)
+- **Process**: Username-based generation with transformation prompt
+- **Prompt**: `"Take this exact profile picture and create a cartoon superhero version while maintaining the person's facial features, expression, and overall appearance. Add a superhero cape flowing behind them and keep the original art style but make it more animated."`
+- **Result Characteristics**:
+  - Generic cartoon character
+  - May not match original facial features
+  - Stock superhero elements
+  - Less personalized transformation
 
-**Gemini Result** (Image-to-image with `use-existing-pfp`):
-- **Step 1 Analysis**: "A person with a thoughtful expression and short dark hair wearing glasses"
-- **Step 2 Enhanced Prompt**: "Using the input image as reference: A person with a thoughtful expression and short dark hair wearing glasses. Create a superhero version with cape and powers while maintaining facial features"
-- **Process**: Transforms existing avatar into superhero version
-- **Result**: User's actual face/features as superhero with cape and powers
+#### Gemini Result (Multimodal Image-to-Image)
+- **Step 1 - Analysis**: Detailed breakdown of original avatar features
+- **Step 2 - Direct Transformation**: Uses actual image as base for transformation
+- **Result Characteristics**:
+  - Maintains exact facial features from original
+  - Authentic superhero transformation
+  - Better preservation of original expression
+  - More convincing result
+
+**Generated Images**: See `temp/gemini-generated-*.png` files for actual test results
+
+### Example 3: Multiple Profile Picture Variations
+
+Using avatars from `helpers/pfp1.png` through `helpers/pfp5.png`, here are the transformation results:
+
+#### pfp1.png → "Cyberpunk Character"
+- **DALL-E**: Generic cyberpunk figure, may not resemble original
+- **Gemini**: Transforms the specific avatar into cyberpunk style while preserving identity
+
+#### pfp2.png → "Fantasy Warrior"
+- **DALL-E**: Stock fantasy character elements
+- **Gemini**: Uses the actual person's features as the base for the warrior transformation
+
+#### pfp3.png → "Space Explorer"
+- **DALL-E**: Generic space suit and helmet
+- **Gemini**: Incorporates the original avatar's appearance into the space explorer design
+
+#### pfp4.png → "Medieval Knight"
+- **DALL-E**: Templated knight armor
+- **Gemini**: Transforms the specific individual into a knight while maintaining their unique features
+
+#### pfp5.png → "Steampunk Inventor"
+- **DALL-E**: Stock steampunk elements
+- **Gemini**: Uses the avatar as the foundation for the inventor character
+
+### Key Differences Demonstrated
+
+| Aspect | DALL-E 3 | Gemini 2.5 Flash Image |
+|--------|----------|----------------------|
+| **Subject Consistency** | Variable - depends on prompt quality | High - uses actual image as reference |
+| **Personalization** | Text-based descriptions | Direct visual analysis |
+| **Uniqueness** | Good for generic themes | Excellent for personalized transformations |
+| **Cost** | $0.04/image | Limited free (~2/day), $0.039/image paid |
+| **Use Case** | New creations, text-to-image | Transformations, customizations |
+
+**View Generated Examples**: Check the `temp/` directory for actual generated images from integration tests. Each filename includes a timestamp showing when the image was created during testing.
 
 ## 🔧 **User Customization Options Deep Dive**
 
