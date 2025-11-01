@@ -72,7 +72,7 @@ This bot supports two image generation engines:
 - Limited free tier (~2 images/day), paid tier for higher usage
 - Requires `GEMINI_API_KEY` environment variable
 
-📖 **Detailed Flow Documentation**: [GEMINI-FLOWS.md](GEMINI-FLOWS.md) - Complete technical documentation with flowcharts showing how DALL-E and Gemini differ in production
+📖 **Detailed Flow Documentation**: [IMAGE-GENERATION-FLOWS.md](IMAGE-GENERATION-FLOWS.md) - Complete technical documentation with flowcharts showing how DALL-E and Gemini differ in production
 
 #### Gemini Features
 - **Text-to-Image**: Generate images from text prompts
@@ -109,11 +109,11 @@ This bot supports two image generation engines:
 ## Cost
 
 ### DALL-E (Default)
-Using DALL-E incurs costs based on OpenAI's API pricing. Each image generated costs approximately $0.03. Monitor your OpenAI usage dashboard to manage costs effectively.
+Using DALL-E incurs costs based on OpenAI's API pricing. Standard 1024×1024 images cost approximately **$0.04 per image**. Monitor your OpenAI usage dashboard to manage costs effectively.
 
 ### Google Gemini (Optional)
-- **Free Tier**: Limited free tier (~2 images/day) with Nano Banana model
-- **Paid Tier**: Very low cost for high-volume usage
+- **Free Tier**: Limited free tier (~2 images/day) with Gemini 2.5 Flash Image model
+- **Paid Tier**: **$0.039 per image** for 1024×1024 outputs
 - **Development**: Suitable for testing but limited for production use
 
 Choose Gemini for cost-effective image generation, especially for servers with moderate usage.

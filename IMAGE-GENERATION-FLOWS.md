@@ -1,6 +1,6 @@
-# 🎨 Gemini vs DALL-E Image Generation Flows
+# 🎨 Image Generation Flows: DALL-E vs Gemini Engines
 
-> **"Show, don't tell"** - This page demonstrates the actual differences between DALL-E and Gemini engines through real examples and flowcharts.
+> **"Show, don't tell"** - This page demonstrates the actual differences between DALL-E and Gemini image generation engines through real examples and flowcharts.
 
 The bot supports two image generation engines with fundamentally different approaches:
 
@@ -15,7 +15,7 @@ The bot supports two image generation engines with fundamentally different appro
 | **Welcome Images** | Username-based description | Avatar analysis + enhancement |
 | **Profile Pictures** | Text-to-image | Image-to-image transformation |
 | **Customization** | Override prompts | Override prompts + existing image |
-| **Cost** | ~$0.04/image | Limited free (~2/day) |
+| **Cost** | $0.04/image (1024×1024) | Limited free (~2/day), $0.039/image paid |
 | **Speed** | Fast | Slower (double analysis) |
 
 ## 🎯 Production Behavior by Default Engine
@@ -262,8 +262,8 @@ flowchart TD
 ## 📊 **Performance Comparison**
 
 ### API Costs
-- **DALL-E**: ~$0.04 per image (paid)
-- **Gemini**: Limited free tier (~2 images/day), paid for high usage
+- **DALL-E**: $0.04 per image (1024×1024 standard)
+- **Gemini**: Limited free tier (~2 images/day), $0.039 per image paid (1024×1024)
 
 ### Generation Speed
 - **DALL-E**: ~10-20 seconds
