@@ -46,7 +46,7 @@ WILDCARD=0
 POSTING_DELAY=120  # Delay in seconds before posting the image to the welcome channel
 WATERMARK_PATH=/usr/src/app/watermark.png
 
-# Optional: Google Gemini for alternative image generation (limited free tier)
+# Optional: Google Gemini for alternative image generation
 GEMINI_API_KEY=your_gemini_api_key  # Optional: Enables Gemini image generation as alternative to DALL-E
 
 STEALTH_WELCOME=false  # Optional: Set to 'true' to enable stealth mode, making welcome messages in the welcome channel silent for everyone except the new user.
@@ -67,9 +67,9 @@ This bot supports two image generation engines:
 - Requires OpenAI API key with credits
 
 ### Google Gemini (Optional)
-- Uses Google's Gemini models with "Nano Banana" (limited free tier)
+- Uses Google's Gemini models for high-accuracy avatar transformations
 - Supports both text-to-image and **image-to-image** generation
-- Limited free tier (~2 images/day), paid tier for higher usage
+- Higher cost (~$0.08/image due to double API calls) but more accurate results
 - Requires `GEMINI_API_KEY` environment variable
 
 📖 **Detailed Flow Documentation**: [IMAGE-GENERATION-FLOWS.md](IMAGE-GENERATION-FLOWS.md) - Complete technical documentation with flowcharts showing how DALL-E and Gemini differ in production
@@ -78,7 +78,7 @@ This bot supports two image generation engines:
 - **Text-to-Image**: Generate images from text prompts
 - **Image-to-Image**: Transform existing images (welcome images use actual user avatars)
 - **PFP Enhancement**: Use `use-existing-pfp` flag to transform user's current Discord avatar
-- **Cost Effective**: Limited free tier with Nano Banana model
+- **High Accuracy**: Most accurate avatar transformations using double-LLM analysis
 
 #### Gemini Commands
 ```bash
@@ -112,11 +112,11 @@ This bot supports two image generation engines:
 Using DALL-E incurs costs based on OpenAI's API pricing. Standard 1024×1024 images cost approximately **$0.04 per image**. Monitor your OpenAI usage dashboard to manage costs effectively.
 
 ### Google Gemini (Optional)
-- **Free Tier**: Limited free tier (~2 images/day) with Gemini 2.5 Flash Image model
-- **Paid Tier**: **$0.039 per image** for 1024×1024 outputs
-- **Development**: Suitable for testing but limited for production use
+- **Pricing**: ~$0.08 per image (due to double API calls: text analysis + image generation)
+- **Higher Cost**: More expensive than DALL-E but provides superior avatar transformation accuracy
+- **Best For**: When image quality and personalization are more important than cost
 
-Choose Gemini for cost-effective image generation, especially for servers with moderate usage.
+Choose Gemini when you need the most accurate results based on users' actual profile pictures.
 
 ## Debugging and Control
 

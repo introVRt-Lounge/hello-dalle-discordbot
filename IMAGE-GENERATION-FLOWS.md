@@ -16,7 +16,7 @@ The bot supports two image generation engines with fundamentally different appro
 | **Profile Pictures** | Text-to-image | Image-to-image transformation |
 | **use-existing-pfp** | Image description + generation | Direct image-to-image |
 | **Customization** | Override prompts | Override prompts + existing image |
-| **Cost** | $0.04/image (1024×1024) | Limited free (~2/day), $0.039/image paid |
+| **Cost** | $0.04/image | ~$0.08/image (2 API calls) |
 | **Speed** | Fast | Slower (double analysis) |
 
 ## Engine Comparison Grid
@@ -333,8 +333,8 @@ flowchart TD
 ## 📊 **Performance Comparison**
 
 ### API Costs
-- **DALL-E**: $0.04 per image (1024×1024 standard)
-- **Gemini**: Limited free tier (~2 images/day), $0.039 per image paid (1024×1024)
+- **DALL-E**: $0.04 per image (1024×1024 standard) - Single API call
+- **Gemini**: $0.039 per image + $0.00025 per text input (1024×1024) - **Two API calls** = ~$0.08 total
 
 ### Generation Speed
 - **DALL-E**: ~10-20 seconds
@@ -347,16 +347,16 @@ flowchart TD
 ## 🎯 **When to Choose Each Engine**
 
 ### Choose DALL-E When:
+- **You want the cheapest option** - Single API call, lowest cost per image
 - You want maximum creative freedom
-- Cost is not a concern
 - You prefer faster generation
-- You're creating something completely new
+- You're creating something completely new from scratch
 
 ### Choose Gemini When:
-- You want to transform existing images
-- Personalization is important
-- You have limited budget (free tier)
-- Subject consistency matters
+- **You want the most accurate images truly based on users' profile pictures**
+- You need the highest subject consistency and personalization
+- You're willing to pay more for better avatar transformations
+- Quality and precision matter more than cost
 
 ---
 
