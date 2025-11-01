@@ -279,3 +279,95 @@ The bot uses SHA-256 hashing to cache GPT-4 Vision image descriptions, avoiding 
 
 **Key Difference**: DALL-E converts images to text first, Gemini processes both modalities together.
 
+## 🔧 **User Customization Options Deep Dive**
+
+### DALL-E Customization Flow
+
+```mermaid
+flowchart TD
+    A[User runs command] --> B[Select engine: DALL-E]
+    B --> C[Provide optional prompt override]
+    C --> D[DALL-E generates from text only]
+    D --> E[Result: New image based on text description]
+
+    style D fill:#e1f5fe
+    style E fill:#c8e6c9
+```
+
+**Limitations**:
+- Cannot use existing images as input
+- All generation is from scratch
+- Results may vary significantly from user's appearance
+
+**Best For**: Creative freedom, when you want something completely new
+
+### Gemini Customization Flow
+
+```mermaid
+flowchart TD
+    A[User runs command] --> B[Select engine: Gemini]
+    B --> C{Use existing image?}
+    C -->|No| D[Text-to-image mode]
+    C -->|Yes| E[Image-to-image mode]
+    D --> F[Optional prompt override]
+    E --> G[Download existing avatar]
+    G --> H[Analyze with text Gemini]
+    H --> I[Create enhanced prompt]
+    F --> J[Generate with Gemini Image]
+    I --> J
+    J --> K[Result: Personalized transformation]
+
+    style H fill:#fff3e0
+    style I fill:#e8f5e8
+    style J fill:#e1f5fe
+    style K fill:#c8e6c9
+```
+
+**Advantages**:
+- Can transform existing images while preserving features
+- Double-LLM analysis creates more accurate results
+- Personalized to user's actual appearance
+
+**Best For**: When you want to modify your existing avatar, maintain consistency
+
+## 📊 **Performance Comparison**
+
+### API Costs
+- **DALL-E**: $0.04 per image (1024×1024 standard)
+- **Gemini**: Limited free tier (~2 images/day), $0.039 per image paid (1024×1024)
+
+### Generation Speed
+- **DALL-E**: ~10-20 seconds
+- **Gemini Double-LLM**: ~15-30 seconds (two API calls)
+
+### Quality Comparison
+- **DALL-E**: High consistency, creative freedom
+- **Gemini**: Better subject preservation, more personalized
+
+## 🎯 **When to Choose Each Engine**
+
+### Choose DALL-E When:
+- You want maximum creative freedom
+- Cost is not a concern
+- You prefer faster generation
+- You're creating something completely new
+
+### Choose Gemini When:
+- You want to transform existing images
+- Personalization is important
+- You have limited budget (free tier)
+- Subject consistency matters
+
+---
+
+**Ready to try it?** Set your default engine with `/engine` and experiment with `/pfp` and `/welcome` commands!
+
+## 🔗 **Quick Links**
+- [← Back to README.md](../README.md) - Main documentation
+- [🐳 Docker Deployment](../README.md#deployment) - How to run the bot
+- [⚙️ Environment Setup](../README.md#environment-variables) - Configuration guide
+
+---
+
+*This documentation shows the actual differences between engines through examples and flowcharts, helping users understand which engine best fits their needs.*
+
