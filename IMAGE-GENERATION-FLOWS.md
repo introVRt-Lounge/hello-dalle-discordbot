@@ -286,15 +286,18 @@ Using avatars from `helpers/pfp1.png` through `helpers/pfp5.png`, here are the t
 **❌ Failed Scenarios:**
 - PFP transformation scenarios (protocol mismatch issues for both engines)
 
-**📝 Notes:**
-- Images show the actual technical differences between engines
-- DALL-E uses GPT-4 Vision to analyze avatars first, then generates
-- Gemini uses avatars directly as input for multimodal generation
-- Welcome images demonstrate personalization capabilities
-- PFP transformations would show image-to-image capabilities (when fixed)
-- This grid demonstrates the superiority of multimodal AI over text-only generation
+**🔬 Technical Analysis - How Each Engine Processes Avatars:**
 
-*Generated on: 2025-11-01* | *Final Comparison Matrix: Complete*
+### DALL-E's Two-Step Process:
+1. **Step 1 (Analysis)**: GPT-4 Vision describes the avatar
+2. **Step 2 (Generation)**: DALL-E creates image using the description
+
+### Gemini's Single-Step Multimodal Process:
+1. **Single Step**: Gemini receives both avatar image + text prompt simultaneously
+
+**Key Difference**: DALL-E converts images to text first, Gemini processes both modalities together.
+
+*Generated on: 2025-11-01* | *Complete Technical Comparison*
 
 ## Engine Comparison Grid
 
@@ -302,12 +305,21 @@ Each example shows the same input processed by both engines to demonstrate the t
 
 ### 1. Ariabel - Default Welcome Image
 
-**Scenario**: Default welcome image generation. DALL-E analyzes avatar with GPT-4 Vision first, Gemini uses avatar directly.
+**Scenario**: Default welcome image generation. Same avatar, different processing approaches.
 
-| Original Avatar | DALL-E Result (Vision + Text) | Gemini Result (Multimodal) |
-|-----------------|------------------------------|---------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp1.png" width="200" height="200" alt="Ariabel"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-1-ariabel-welcome-default-dalle.png" width="300" height="300" alt="Ariabel DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-1-ariabel-welcome-default-gemini.png" width="300" height="300" alt="Ariabel Gemini"> |
-| **Input**: Ariabel's avatar | **Process**: GPT-4 Vision analysis → enhanced prompt | **Process**: Direct avatar input + double-LLM analysis |
+| Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
+|-----------------|-------------------------|---------------------------|
+| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp1.png" width="200" height="200" alt="Ariabel's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-1-ariabel-welcome-default-dalle.png" width="300" height="300" alt="Ariabel DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-1-ariabel-welcome-default-gemini.png" width="300" height="300" alt="Ariabel Gemini"> |
+
+#### 🔍 **DALL-E Processing** (Two Steps):
+**Step 1 - Avatar Analysis (GPT-4 Vision):** `<span style="color: #FF6B35; font-weight: bold;">"Multicolored iridescent butterfly wings and intricate black fantasy outfit."</span>`
+
+**Step 2 - Final Prompt Sent to DALL-E:**
+<span style="color: #4A90E2;">"Create a welcome image for Ariabel proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles.</span> <span style="color: #FF6B35; font-weight: bold;">Incorporate visual elements from this avatar description: "Multicolored iridescent butterfly wings and intricate black fantasy outfit."</span>"
+
+#### 🎯 **Gemini Processing** (Single Step):
+**Avatar Analysis + Prompt Combined:**
+<span style="color: #FF6B35; font-weight: bold;">"Using the input image as reference: Illustration of a fantastical character with black and shimmering blue butterfly wings, pointed ears, and holding a glowing sword.</span> <span style="color: #4A90E2;">Create a welcome image for Ariabel proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles."</span>
 
 ### 2. heavygee - PFP Transformation (Space Explorer)
 
@@ -329,12 +341,21 @@ Each example shows the same input processed by both engines to demonstrate the t
 
 ### 4. tokentrevor - Welcome Image (Steampunk City)
 
-**Scenario**: Welcome image with "steampunk city" theme instead of default cyberpunk.
+**Scenario**: Welcome image with custom "steampunk city" theme. Shows how different settings affect personalization.
 
-| Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Image) |
-|-----------------|-------------------------------|-----------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp3.png" width="200" height="200" alt="tokentrevor"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-4-tokentrevor-welcome-steampunk-city-dalle.png" width="300" height="300" alt="tokentrevor DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-4-tokentrevor-welcome-steampunk-city-gemini.png" width="300" height="300" alt="tokentrevor Gemini"> |
-| **Input**: tokentrevor's avatar | **Process**: GPT-4 Vision analysis → steampunk city welcome | **Process**: Direct avatar input + steampunk city theme |
+| Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
+|-----------------|-------------------------|---------------------------|
+| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp3.png" width="200" height="200" alt="tokentrevor's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-4-tokentrevor-welcome-steampunk-city-dalle.png" width="300" height="300" alt="tokentrevor DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-4-tokentrevor-welcome-steampunk-city-gemini.png" width="300" height="300" alt="tokentrevor Gemini"> |
+
+#### 🔍 **DALL-E Processing** (Two Steps):
+**Step 1 - Avatar Analysis (GPT-4 Vision):** `<span style="color: #FF6B35; font-weight: bold;">"broad smiling face with green eyes"</span>`
+
+**Step 2 - Final Prompt Sent to DALL-E:**
+<span style="color: #4A90E2;">"Create a welcome image for tokentrevor proclaimed upon and incorporated into a steampunk city billboard in Victorian-era mechanical styles.</span> <span style="color: #FF6B35; font-weight: bold;">Incorporate visual elements from this avatar description: "broad smiling face with green eyes."</span>"
+
+#### 🎯 **Gemini Processing** (Single Step):
+**Avatar Analysis + Prompt Combined:**
+<span style="color: #FF6B35; font-weight: bold;">"Using the input image as reference: broad grin with an open mouth and visible teeth.</span> <span style="color: #4A90E2;">Create a welcome image for tokentrevor proclaimed upon and incorporated into a steampunk city billboard in Victorian-era mechanical styles."</span>
 
 ### 5. wallac3 - PFP Transformation (Superhero)
 
@@ -347,12 +368,21 @@ Each example shows the same input processed by both engines to demonstrate the t
 
 ### 6. pecachu - Default Welcome Image
 
-**Scenario**: Default welcome image (same as #1, for comparison).
+**Scenario**: Default welcome image (same as #1, for comparison). Shows Pikachu-style avatar processing.
 
-| Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Image) |
-|-----------------|-------------------------------|-----------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp2.png" width="200" height="200" alt="pecachu"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-6-pecachu-welcome-default-dalle.png" width="300" height="300" alt="pecachu DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-6-pecachu-welcome-default-gemini.png" width="300" height="300" alt="pecachu Gemini"> |
-| **Input**: pecachu's avatar | **Process**: GPT-4 Vision analysis → enhanced welcome prompt | **Process**: Direct avatar input + double-LLM analysis |
+| Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
+|-----------------|-------------------------|---------------------------|
+| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp2.png" width="200" height="200" alt="pecachu's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-6-pecachu-welcome-default-dalle.png" width="300" height="300" alt="pecachu DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/comparison-6-pecachu-welcome-default-gemini.png" width="300" height="300" alt="pecachu Gemini"> |
+
+#### 🔍 **DALL-E Processing** (Two Steps):
+**Step 1 - Avatar Analysis (GPT-4 Vision):** `<span style="color: #FF6B35; font-weight: bold;">"Yellow and pink cartoon-style character with heart and star shapes, labeled 'PECACHU'"</span>`
+
+**Step 2 - Final Prompt Sent to DALL-E:**
+<span style="color: #4A90E2;">"Create a welcome image for pecachu proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles.</span> <span style="color: #FF6B35; font-weight: bold;">Incorporate visual elements from this avatar description: "Yellow and pink cartoon-style character with heart and star shapes, labeled 'PECACHU'."</span>"
+
+#### 🎯 **Gemini Processing** (Single Step):
+**Avatar Analysis + Prompt Combined:**
+<span style="color: #FF6B35; font-weight: bold;">"Using the input image as reference: 'A yellow and pink stylized pin design of Pikachu with muscular arms, featuring stars and hearts.'</span> <span style="color: #4A90E2;">Create a welcome image for pecachu proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles."</span>
 
 ---
 
