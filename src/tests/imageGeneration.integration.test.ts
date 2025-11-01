@@ -43,7 +43,7 @@ describe('Image Generation Integration Tests', () => {
             const options: ImageGenerationOptions = {
                 prompt: 'A simple test image of a red square',
                 engine: 'gemini',
-                geminiModel: 'gemini-2.0-flash-lite' // Use a model more likely to work
+                geminiModel: 'gemini-2.0-flash' // Use a model more likely to work
             };
 
             const result = await generateImageWithOptions(options);
@@ -66,7 +66,7 @@ describe('Image Generation Integration Tests', () => {
                 prompt: 'Transform this profile picture into a cartoon version with a superhero cape',
                 engine: 'gemini',
                 imageInput: testImagePath,
-                geminiModel: 'gemini-2.0-flash-lite'
+                geminiModel: 'gemini-2.0-flash'
             };
 
             const result = await generateImageWithOptions(options);
