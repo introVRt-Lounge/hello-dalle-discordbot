@@ -1,0 +1,54 @@
+---
+description: AI rules derived by SpecStory from the project AI interaction history
+globs: *
+---
+
+## <headers/>
+
+## TECH STACK
+
+*   npm
+*   Deno
+*   vite
+*   webpack
+*   esbuild
+*   tsup
+*   @google/generative-ai
+*   @octokit/rest
+*   jest
+*   jest-mock-extended
+*   PIL (Python Imaging Library)
+
+## PROJECT DOCUMENTATION & CONTEXT SYSTEM
+
+*   npm dependency updates in PRs should use the "deps:" prefix.
+*   GitHub Actions/Docker images updates in PRs should use the "chore(deps):" prefix. This will prevent the PRs from triggering a release.
+*   The Gemini API returns image data directly (not URLs like DALL-E).
+*   The Nano Banana model (Gemini 2.5 Flash Image) excels at image-to-image editing and iteration while maintaining subject consistency.
+*   Before making the generation call, you must first upload the user's PFP to the Gemini API's file service. This is a temporary step that provides the model with the necessary file reference.
+*   Call the File API endpoint (or use the helper function in the SDK) to upload the image file. You will receive a File URI (e.g., `files/abc-123`).
+*   Your main API call will use the `generateContent` endpoint, but the `contents` payload will include two parts: the uploaded image reference and your instruction text.
+
+## CODING STANDARDS & BEST PRACTICES
+
+*   When updating npm dependencies with pull requests, consistently use the "deps:" prefix in commit messages.
+*   When updating GitHub Actions or Docker images, use the "chore(deps):" prefix in commit messages to prevent triggering a release.
+*   When distinguishing between DALL-E URLs (for downloading) and Gemini file paths (for copying), use `imageResult.startsWith('http') || imageResult.startsWith('https')` for clarity and robustness.
+*   When `useExistingPfp` is true with the 'gemini' engine, ensure downloaded user avatar files are cleaned up after image generation, both in success and error scenarios. Implement file existence checks, error handling, and debug logging for cleanup operations in `pfpService.ts`. Specifically:
+    *   Clean up the downloaded avatar file (`imageInput`) after successful image generation.
+    *   Clean up the downloaded avatar file (`imageInput`) in the catch block to ensure temporary files are removed even if an error occurs.
+    *   Declare `imageInput` outside the try block to ensure it is accessible in both the try and catch scopes.
+    *   Include safe file existence checks.
+    *   Ensure proper error handling that warns if cleanup fails but doesn't throw.
+    *   Use debug logging to track cleanup operations.
+*   For Gemini, the content should be structured properly. For image generation with input images, use the inline data with a proper structure.
+*   For image generation with input images, the content should be structured properly. For Gemini, use the inline data with a proper structure. Also, be aware that the Nano Banana model (`gemini-2.5-flash-image`) is designed for image generation from text prompts, not for image-to-image editing.
+
+## DEBUGGING
+
+## TESTING
+
+## WORKFLOW & RELEASE RULES
+
+*   npm dependency updates in PRs should use the "deps:" prefix.
+*   GitHub Actions/Docker images updates in PRs should use the "chore(deps):" prefix. This will prevent the PRs from triggering a release.
