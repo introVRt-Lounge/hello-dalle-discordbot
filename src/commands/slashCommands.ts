@@ -18,7 +18,7 @@ const commands = [
       },
       {
         name: 'override',
-        description: 'Custom prompt to use instead of the default (optional)',
+        description: 'Custom theme for generation (e.g., "space explorer", "medieval knight")',
         type: 3, // STRING
         required: false,
       },
@@ -46,7 +46,7 @@ const commands = [
       },
       {
         name: 'use-existing-pfp',
-        description: 'Use the user\'s current Discord avatar as input for generation (only works with Gemini)',
+        description: 'Transform user\'s current avatar (Gemini: direct image, DALL-E: enhanced with AI analysis)',
         type: 5, // BOOLEAN
         required: false,
       },
