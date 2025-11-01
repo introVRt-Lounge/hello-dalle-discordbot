@@ -12,7 +12,7 @@ The bot supports two image generation engines with fundamentally different appro
 | Feature | DALL-E 3 | Gemini 2.5 Flash Image |
 |---------|----------|----------------------|
 | **Input Type** | Text prompts only | Text + Image inputs |
-| **Welcome Images** | Username-based description | Avatar analysis + enhancement |
+| **Welcome Images** | Avatar analysis + text generation | Avatar analysis + multimodal generation |
 | **Profile Pictures** | Text-to-image | Image-to-image transformation |
 | **use-existing-pfp** | Image description + generation | Direct image-to-image |
 | **Customization** | Override prompts | Override prompts + existing image |
@@ -27,13 +27,14 @@ The bot supports two image generation engines with fundamentally different appro
 ```mermaid
 flowchart TD
     A[New member joins] --> B[Download user's avatar]
-    B --> C[Generate prompt using WELCOME_PROMPT]
-    C --> D[DALL-E generates image from text prompt]
-    D --> E[Apply watermark]
-    E --> F[Post welcome message with image]
+    B --> C[Analyze avatar with GPT-4 Vision]
+    C --> D[Generate enhanced prompt using WELCOME_PROMPT + avatar description]
+    D --> E[DALL-E generates personalized image]
+    E --> F[Apply watermark]
+    F --> G[Post welcome message with image]
 ```
 
-**Strategy**: Creates welcome images based on username descriptions only. Avatar is downloaded but not used for generation.
+**Strategy**: Downloads user's avatar and incorporates it into personalized welcome images. Avatar is analyzed and its visual features are integrated into the generation process for more authentic results.
 
 #### Profile Pictures Flow
 ```mermaid
@@ -191,15 +192,16 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 **Username**: "TestUser123"
 **Theme**: Cyberpunk billboard welcome
 
-#### DALL-E 3 Result (Text-Only Generation)
-- **Process**: Pure text-to-image, no avatar analysis
-- **Prompt**: `"Create a welcome image for TestUser123 proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles."`
+#### DALL-E 3 Result (Vision-Enhanced Generation)
+- **Step 1 - Analysis**: `"A person with thoughtful expression and short dark hair wearing glasses"` (via GPT-4 Vision)
+- **Step 2 - Enhanced Generation**:
+  - **Prompt**: `"Create a welcome image for TestUser123 incorporating features of a person with thoughtful expression and short dark hair wearing glasses, proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles."`
+  - **Process**: Avatar analysis → enhanced prompt → personalized image generation
 - **Result Characteristics**:
-  - Generic cyberpunk aesthetic
-  - Stock imagery and patterns
-  - Username as text overlay only
-  - No incorporation of actual avatar features
-  - Predictable, templated result
+  - Cyberpunk aesthetic with avatar-inspired elements
+  - Username integrated with avatar-derived features
+  - More personalized than pure text generation
+  - Better subject consistency than generic templates
 
 #### Gemini Result (Double-LLM Multimodal)
 - **Step 1 - Analysis**: `"A person with a thoughtful expression and short dark hair wearing glasses"`
