@@ -10,8 +10,6 @@
 
 📖 **Read:** [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md) for complete deployment information
 
-📋 **CI/CD Workflows:** [BUILD-PLAN.md](BUILD-PLAN.md) for GitHub Actions and deployment workflows
-
 ---
 
 This bot uses OpenAI's DALL-E to generate welcome images for new Discord members. It describes the user's avatar and generates an image based on a prompt. Additionally, for users without a profile pic, it will generate a profile pic based on their username and suggest the user adopt it.
