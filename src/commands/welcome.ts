@@ -1,8 +1,7 @@
 import { Client, ChatInputCommandInteraction, GuildMember, PermissionsBitField } from 'discord.js';
 import { logMessage } from '../utils/log';
 import { welcomeUser } from '../services/welcomeService';
-import { BOT_USER_ROLE } from '../config';
-import { ImageEngine } from '../utils/imageUtils';
+import { BOT_USER_ROLE, ImageEngine, getDEFAULT_ENGINE } from '../config';
 
 // Check if user has permission to use welcome command
 function hasWelcomePermission(member: any): boolean {
@@ -36,7 +35,7 @@ export async function welcomeSlashCommand(client: Client, interaction: ChatInput
 
     const username = interaction.options.getString('username', true);
     const destination = interaction.options.getString('destination', true);
-    const engine = (interaction.options.getString('engine') as ImageEngine) ?? 'dalle';
+    const engine = (interaction.options.getString('engine') as ImageEngine) ?? getDEFAULT_ENGINE();
 
     try {
         // Try finding the user in the cache (case-insensitive)
@@ -81,8 +80,8 @@ export async function welcomeNewMember(client: Client, member: GuildMember): Pro
     
     try {
         // Call the service function to handle the actual welcome process
-        // For new member welcomes, default to DALL-E for backward compatibility
-        await welcomeUser(client, member, false, 'dalle');
+        // Use the default engine for new member welcomes
+        await welcomeUser(client, member, false, getDEFAULT_ENGINE());
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         await logMessage(client, guild, `Error welcoming new member ${displayName}: ${errorMessage}`);

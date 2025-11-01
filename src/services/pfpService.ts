@@ -1,7 +1,8 @@
 import { Client, GuildMember, TextChannel } from 'discord.js';
 import { DEBUG, WELCOME_CHANNEL_ID, STEALTH_WELCOME, BOTSPAM_CHANNEL_ID } from '../config';
 import { logMessage } from '../utils/log';
-import { generateImage, downloadAndSaveImage, ImageEngine } from '../utils/imageUtils'; // Utilities for generating and saving images
+import { generateImage, downloadAndSaveImage } from '../utils/imageUtils'; // Utilities for generating and saving images
+import { ImageEngine, getDEFAULT_ENGINE } from '../config';
 import path from 'path';
 import fs from 'fs';
 
@@ -23,7 +24,7 @@ export async function generateProfilePicture(
     genderSensitive: boolean = false,
     overridePrompt?: string,
     isPrivate: boolean = false,
-    engine: ImageEngine = 'dalle',
+    engine: ImageEngine = getDEFAULT_ENGINE(),
     useExistingPfp: boolean = false
 ): Promise<void> {
     const guild = member.guild;
@@ -31,6 +32,8 @@ export async function generateProfilePicture(
     const userId = member.user.id;
     const accountCreationDate = member.user.createdAt;
     const accountAgeInYears = ((Date.now() - accountCreationDate.getTime()) / (1000 * 60 * 60 * 24 * 365)).toFixed(1);
+
+    let imageInput: string | undefined;
 
     try {
         // Generate a profile picture based on the username or custom override prompt
@@ -41,7 +44,7 @@ export async function generateProfilePicture(
             promptBase += ` inspired by their name`;
         }
         const fullPrompt = `${promptBase}. Image only, no text. Circular to ease cropping.`;
-        
+
         // Log to botspam about starting the process
         let logMessageContent = `Generating profile picture for "${displayName}" - user account is ${accountAgeInYears} years old.`;
         if (overridePrompt) {
@@ -53,7 +56,6 @@ export async function generateProfilePicture(
         }
         await logMessage(client, guild, logMessageContent);
 
-        let imageInput: string | undefined;
         let finalPrompt = fullPrompt;
 
         // Handle use-existing-pfp for Gemini image-to-image generation
@@ -85,17 +87,33 @@ export async function generateProfilePicture(
         const profilePicPath = path.join(basePath, `${displayName}-profile-${timestamp}.png`);
 
         // Handle different return types: DALL-E returns URL, Gemini returns file path
-        if (imageResult.startsWith('http')) {
+        if (imageResult.startsWith('http') || imageResult.startsWith('https')) {
             // DALL-E: download from URL
             await downloadAndSaveImage(imageResult, profilePicPath);
         } else {
             // Gemini: copy from generated file path
             if (fs.existsSync(imageResult)) {
-                fs.copyFileSync(imageResult, profilePicPath);
-                // Clean up the temporary file created by Gemini
-                fs.unlinkSync(imageResult);
+                try {
+                    fs.copyFileSync(imageResult, profilePicPath);
+                    // Clean up the temporary file created by Gemini
+                    fs.unlinkSync(imageResult);
+                } catch (error) {
+                    // Clean up temp file even if copy fails
+                    fs.unlinkSync(imageResult);
+                    throw error;
+                }
             } else {
                 throw new Error('Generated image file not found');
+            }
+        }
+
+        // Clean up the downloaded avatar file if it was used for image-to-image generation
+        if (imageInput && fs.existsSync(imageInput)) {
+            try {
+                fs.unlinkSync(imageInput);
+                if (DEBUG) console.log(`DEBUG: Cleaned up temporary avatar file: ${imageInput}`);
+            } catch (cleanupError) {
+                console.warn(`Warning: Failed to clean up temporary avatar file ${imageInput}:`, cleanupError);
             }
         }
 
@@ -116,6 +134,16 @@ export async function generateProfilePicture(
         if (DEBUG) console.log(`Profile picture sent for user: ${displayName}`);
 
     } catch (error) {
+        // Clean up the downloaded avatar file if it exists and an error occurred
+        if (imageInput && fs.existsSync(imageInput)) {
+            try {
+                fs.unlinkSync(imageInput);
+                if (DEBUG) console.log(`DEBUG: Cleaned up temporary avatar file after error: ${imageInput}`);
+            } catch (cleanupError) {
+                console.warn(`Warning: Failed to clean up temporary avatar file ${imageInput} after error:`, cleanupError);
+            }
+        }
+
         const errorMessage = error instanceof Error ? error.message : String(error);
         if (DEBUG) console.error('Error during profile picture generation:', errorMessage);
 

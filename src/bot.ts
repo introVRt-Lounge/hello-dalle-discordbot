@@ -11,6 +11,7 @@ import { handlePfpSlashCommand } from './commands/pfp';
 import { pfpAnyoneSlashCommand } from './commands/pfp-anyone';
 import { welcomeSlashCommand } from './commands/welcome';
 import { handleWildcardSlashCommand } from './commands/wildcard';
+import { handleEngineSlashCommand } from './commands/engine';
 import { registerSlashCommands } from './commands/slashCommands';
 import { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID, getWILDCARD, DEBUG, WELCOME_CHANNEL_ID, PROFILE_CHANNEL_ID } from './config';
 import { logMessage } from './utils/log';
@@ -157,6 +158,9 @@ client.on('interactionCreate', async (interaction) => {
                 break;
             case 'wildcard':
                 await handleWildcardSlashCommand(client, interaction as ChatInputCommandInteraction);
+                break;
+            case 'engine':
+                await handleEngineSlashCommand(client, interaction as ChatInputCommandInteraction);
                 break;
                 default:
                     await interaction.reply({ content: 'Unknown command.', ephemeral: true });

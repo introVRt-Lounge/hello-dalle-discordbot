@@ -114,6 +114,28 @@ const commands = [
       },
     ],
   },
+  {
+    name: 'engine',
+    description: 'Set the default image generation engine',
+    options: [
+      {
+        name: 'engine',
+        description: 'The default engine to use for image generation',
+        type: 3, // STRING
+        required: true,
+        choices: [
+          {
+            name: 'DALL-E (OpenAI)',
+            value: 'dalle'
+          },
+          {
+            name: 'Gemini (Google)',
+            value: 'gemini'
+          }
+        ]
+      },
+    ],
+  },
 ];
 
 export async function registerSlashCommands(client: Client): Promise<void> {

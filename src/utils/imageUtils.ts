@@ -1,4 +1,4 @@
-import { DEBUG, OPENAI_API_KEY, WATERMARK_PATH } from '../config';
+import { DEBUG, OPENAI_API_KEY, WATERMARK_PATH, ImageEngine, getDEFAULT_ENGINE } from '../config';
 import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
@@ -23,21 +23,21 @@ if (!fs.existsSync(welcomeImagesDir)) {
 }
 
 // Types for image generation
-export type ImageEngine = 'dalle' | 'gemini';
 
 export interface ImageGenerationOptions {
   prompt: string;
   engine?: ImageEngine;
   geminiModel?: GeminiModelType;
   imageInput?: string; // For image-to-image generation
+  useAnalysis?: boolean; // Whether to use double-LLM analysis for better prompts (default: true)
 }
 
 // Function to generate image via API (DALL-E or Gemini)
-export async function generateImage(prompt: string, engine: ImageEngine = 'dalle', options?: Partial<ImageGenerationOptions>): Promise<string> {
+export async function generateImage(prompt: string, engine: ImageEngine = getDEFAULT_ENGINE(), options?: Partial<ImageGenerationOptions>): Promise<string> {
   // Support legacy function signature
   if (typeof engine === 'object') {
     options = engine;
-    engine = 'dalle';
+    engine = getDEFAULT_ENGINE();
   }
 
   const fullOptions: ImageGenerationOptions = {
@@ -51,7 +51,7 @@ export async function generateImage(prompt: string, engine: ImageEngine = 'dalle
 
 // New function with full options support
 export async function generateImageWithOptions(options: ImageGenerationOptions): Promise<string> {
-    const { prompt, engine = 'dalle', geminiModel, imageInput } = options;
+    const { prompt, engine = 'dalle', geminiModel, imageInput, useAnalysis = true } = options;
 
     console.log(`DEBUG: Generating image with engine: ${engine}, prompt: ${prompt}`);
 
@@ -59,7 +59,8 @@ export async function generateImageWithOptions(options: ImageGenerationOptions):
       return generateImageWithGemini({
         prompt,
         model: geminiModel,
-        imageInput
+        imageInput,
+        useAnalysis
       });
     }
 
@@ -233,13 +234,13 @@ export async function downloadAndSaveImage(url: string, filepath: string): Promi
 }
 
 // Function to handle welcome image generation with watermark
-export async function generateWelcomeImage(prompt: string, engine: ImageEngine = 'dalle', options?: Partial<ImageGenerationOptions>): Promise<string> {
+export async function generateWelcomeImage(prompt: string, engine: ImageEngine = getDEFAULT_ENGINE(), options?: Partial<ImageGenerationOptions>): Promise<string> {
     const imageResult = await generateImage(prompt, engine, options);
 
     // Check if result is a URL (DALL-E) or file path (Gemini)
     let imagePath: string;
 
-    if (imageResult.startsWith('http')) {
+    if (imageResult.startsWith('http') || imageResult.startsWith('https')) {
       // DALL-E returns URL, download it
       imagePath = path.join(tempDir, `welcome_image_${Date.now()}.png`);
       await downloadAndSaveImage(imageResult, imagePath);

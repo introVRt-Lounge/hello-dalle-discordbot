@@ -62,3 +62,17 @@ export const setWILDCARD = (value: number): void => {
     } else {
         throw new Error("WILDCARD value must be between 0 and 99.");
 }};
+
+// Define ImageEngine type locally to avoid circular imports
+export type ImageEngine = 'dalle' | 'gemini';
+
+// Manage DEFAULT_ENGINE as a variable with getter/setter
+let defaultEngine: ImageEngine = (process.env.DEFAULT_ENGINE as ImageEngine) || 'dalle';
+
+export const getDEFAULT_ENGINE = (): ImageEngine => defaultEngine;
+export const setDEFAULT_ENGINE = (value: ImageEngine): void => {
+    if (value === 'dalle' || value === 'gemini') {
+        defaultEngine = value;
+    } else {
+        throw new Error("DEFAULT_ENGINE must be either 'dalle' or 'gemini'.");
+}};
