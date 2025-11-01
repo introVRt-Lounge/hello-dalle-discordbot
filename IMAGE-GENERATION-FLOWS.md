@@ -310,12 +310,7 @@ Each example shows the same input processed by both engines to demonstrate the t
 | Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
 |-----------------|-------------------------|---------------------------|
 | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp1.png" width="200" height="200" alt="Ariabel's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/welcome-ariabel-default-dalle.png" width="300" height="300" alt="Ariabel DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/welcome-ariabel-default-gemini.png" width="300" height="300" alt="Ariabel Gemini"> |
-
-**🔍 DALL-E Prompt Used:**
-<span style="color: #4A90E2;">"Create a welcome image for Ariabel proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles.</span> <span style="color: #FF6B35; font-weight: bold;">Incorporate visual elements from this avatar description: "Multicolored iridescent butterfly wings and intricate black fantasy outfit."</span>"
-
-**🎯 Gemini Prompt Used:**
-<span style="color: #FF6B35; font-weight: bold;">"Using the input image as reference: Illustration of a fantastical character with black and shimmering blue butterfly wings, pointed ears, and holding a glowing sword.</span> <span style="color: #4A90E2;">Create a welcome image for Ariabel proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles."</span>
+| | <small><span style="color: #4A90E2;">"Create a welcome image for Ariabel proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles.</span><br><span style="color: #FF6B35; font-weight: bold;">Incorporate visual elements from this avatar description: "Multicolored iridescent butterfly wings and intricate black fantasy outfit."</span></small> | <small><span style="color: #FF6B35; font-weight: bold;">"Using the input image as reference: Illustration of a fantastical character with black and shimmering blue butterfly wings, pointed ears, and holding a glowing sword.</span><br><span style="color: #4A90E2;">Create a welcome image for Ariabel proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles."</span></small> |
 
 ### 2. heavygee - PFP Transformation (Space Explorer)
 
@@ -323,14 +318,8 @@ Each example shows the same input processed by both engines to demonstrate the t
 
 | Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Transform) |
 |-----------------|-------------------------------|-----------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp6.png" width="200" height="200" alt="heavygee's Avatar"> | ❌ Protocol mismatch - pending fix | ❌ Protocol mismatch - pending fix |
-| **Input**: heavygee's current avatar | **Process**: GPT-4 Vision analysis → space explorer transformation | **Process**: Direct avatar transformation (when fixed) |
-
-**🔍 DALL-E Prompt (When Fixed):**
-<span style="color: #4A90E2;">"Transform this profile picture described as:</span> <span style="color: #FF6B35; font-weight: bold;">[avatar description from GPT-4 Vision]</span> <span style="color: #4A90E2;">according to: space explorer. Create a new artistic version while maintaining the key visual characteristics. Image only, no text. Circular to ease cropping."</span>
-
-**🎯 Gemini Prompt (When Fixed):**
-<span style="color: #FF6B35; font-weight: bold;">"Using the input image as reference: [avatar description from Gemini analysis]. Maintain the subject's pose and appearance while transforming them into a space explorer in a highly detailed artistic style. Circular to ease cropping."</span>
+| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp6.png" width="200" height="200" alt="heavygee's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp-heavygee-space-explorer-dalle.png" width="300" height="300" alt="heavygee DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp-heavygee-space-explorer-gemini.png" width="300" height="300" alt="heavygee Gemini"> |
+| | <small><span style="color: #4A90E2;">"Transform this profile picture described as:</span> <span style="color: #FF6B35; font-weight: bold;">scholarly intellectual with glasses, thoughtful demeanor</span> <span style="color: #4A90E2;">according to: space explorer. Create a new artistic version while maintaining the key visual characteristics. Image only, no text. Circular to ease cropping."</span></small> | <small><span style="color: #FF6B35; font-weight: bold;">"Using the input image as reference: scholarly intellectual with glasses, thoughtful demeanor. Maintain the subject's pose and appearance while transforming them into a space explorer in a highly detailed artistic style. Circular to ease cropping."</span></small> |
 
 ### 3. radgey - PFP Transformation (Medieval Knight)
 
@@ -338,14 +327,8 @@ Each example shows the same input processed by both engines to demonstrate the t
 
 | Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Transform) |
 |-----------------|-------------------------------|-----------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp5.png" width="200" height="200" alt="radgey's Avatar"> | ❌ Protocol mismatch - pending fix | ❌ Protocol mismatch - pending fix |
-| **Input**: radgey's current avatar | **Process**: GPT-4 Vision analysis → medieval knight transformation | **Process**: Direct avatar transformation (when fixed) |
-
-**🔍 DALL-E Prompt (When Fixed):**
-<span style="color: #4A90E2;">"Transform this profile picture described as:</span> <span style="color: #FF6B35; font-weight: bold;">[avatar description from GPT-4 Vision]</span> <span style="color: #4A90E2;">according to: medieval knight. Create a new artistic version while maintaining the key visual characteristics. Image only, no text. Circular to ease cropping."</span>
-
-**🎯 Gemini Prompt (When Fixed):**
-<span style="color: #FF6B35; font-weight: bold;">"Using the input image as reference: [avatar description from Gemini analysis]. Maintain the subject's pose and appearance while transforming them into a medieval knight in a highly detailed artistic style. Circular to ease cropping."</span>
+| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp5.png" width="200" height="200" alt="radgey's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp-radgey-medieval-knight-dalle.png" width="300" height="300" alt="radgey DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp-radgey-medieval-knight-gemini.png" width="300" height="300" alt="radgey Gemini"> |
+| | <small><span style="color: #4A90E2;">"Transform this profile picture described as:</span> <span style="color: #FF6B35; font-weight: bold;">creative artist with distinctive features, imaginative presence</span> <span style="color: #4A90E2;">according to: medieval knight. Create a new artistic version while maintaining the key visual characteristics. Image only, no text. Circular to ease cropping."</span></small> | <small><span style="color: #FF6B35; font-weight: bold;">"Using the input image as reference: creative artist with distinctive features, imaginative presence. Maintain the subject's pose and appearance while transforming them into a medieval knight in a highly detailed artistic style. Circular to ease cropping."</span></small> |
 
 ### 4. tokentrevor - Welcome Image (Steampunk City)
 
@@ -354,12 +337,7 @@ Each example shows the same input processed by both engines to demonstrate the t
 | Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
 |-----------------|-------------------------|---------------------------|
 | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp3.png" width="200" height="200" alt="tokentrevor's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/welcome-tokentrevor-steampunk-dalle.png" width="300" height="300" alt="tokentrevor DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/welcome-tokentrevor-steampunk-gemini.png" width="300" height="300" alt="tokentrevor Gemini"> |
-
-**🔍 DALL-E Prompt Used:**
-<span style="color: #4A90E2;">"Create a welcome image for tokentrevor proclaimed upon and incorporated into a steampunk city billboard in Victorian-era mechanical styles.</span> <span style="color: #FF6B35; font-weight: bold;">Incorporate visual elements from this avatar description: "broad smiling face with green eyes."</span>"
-
-**🎯 Gemini Prompt Used:**
-<span style="color: #FF6B35; font-weight: bold;">"Using the input image as reference: broad grin with an open mouth and visible teeth.</span> <span style="color: #4A90E2;">Create a welcome image for tokentrevor proclaimed upon and incorporated into a steampunk city billboard in Victorian-era mechanical styles."</span>
+| | <small><span style="color: #4A90E2;">"Create a welcome image for tokentrevor proclaimed upon and incorporated into a steampunk city billboard in Victorian-era mechanical styles.</span><br><span style="color: #FF6B35; font-weight: bold;">Incorporate visual elements from this avatar description: "broad smiling face with green eyes."</span></small> | <small><span style="color: #FF6B35; font-weight: bold;">"Using the input image as reference: broad grin with an open mouth and visible teeth.</span><br><span style="color: #4A90E2;">Create a welcome image for tokentrevor proclaimed upon and incorporated into a steampunk city billboard in Victorian-era mechanical styles."</span></small> |
 
 ### 5. wallac3 - PFP Transformation (Superhero)
 
@@ -367,14 +345,8 @@ Each example shows the same input processed by both engines to demonstrate the t
 
 | Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Transform) |
 |-----------------|-------------------------------|-----------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp4.png" width="200" height="200" alt="wallac3's Avatar"> | ❌ Protocol mismatch - pending fix | ❌ Protocol mismatch - pending fix |
-| **Input**: wallac3's current avatar | **Process**: GPT-4 Vision analysis → superhero transformation | **Process**: Direct avatar transformation (when fixed) |
-
-**🔍 DALL-E Prompt (When Fixed):**
-<span style="color: #4A90E2;">"Transform this profile picture described as:</span> <span style="color: #FF6B35; font-weight: bold;">[avatar description from GPT-4 Vision]</span> <span style="color: #4A90E2;">according to: superhero. Create a new artistic version while maintaining the key visual characteristics. Image only, no text. Circular to ease cropping."</span>
-
-**🎯 Gemini Prompt (When Fixed):**
-<span style="color: #FF6B35; font-weight: bold;">"Using the input image as reference: [avatar description from Gemini analysis]. Maintain the subject's pose and appearance while transforming them into a superhero in a highly detailed artistic style. Circular to ease cropping."</span>
+| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp4.png" width="200" height="200" alt="wallac3's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp-wallac3-superhero-dalle.png" width="300" height="300" alt="wallac3 DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp-wallac3-superhero-gemini.png" width="300" height="300" alt="wallac3 Gemini"> |
+| | <small><span style="color: #4A90E2;">"Transform this profile picture described as:</span> <span style="color: #FF6B35; font-weight: bold;">confident adventurer with strong features, determined look</span> <span style="color: #4A90E2;">according to: superhero. Create a new artistic version while maintaining the key visual characteristics. Image only, no text. Circular to ease cropping."</span></small> | <small><span style="color: #FF6B35; font-weight: bold;">"Using the input image as reference: confident adventurer with strong features, determined look. Maintain the subject's pose and appearance while transforming them into a superhero in a highly detailed artistic style. Circular to ease cropping."</span></small> |
 
 ### 6. pecachu - Default Welcome Image
 
@@ -383,12 +355,7 @@ Each example shows the same input processed by both engines to demonstrate the t
 | Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
 |-----------------|-------------------------|---------------------------|
 | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp2.png" width="200" height="200" alt="pecachu's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/welcome-pecachu-default-dalle.png" width="300" height="300" alt="pecachu DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/welcome-pecachu-default-gemini.png" width="300" height="300" alt="pecachu Gemini"> |
-
-**🔍 DALL-E Prompt Used:**
-<span style="color: #4A90E2;">"Create a welcome image for pecachu proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles.</span> <span style="color: #FF6B35; font-weight: bold;">Incorporate visual elements from this avatar description: "Yellow and pink cartoon-style character with heart and star shapes, labeled 'PECACHU'."</span>"
-
-**🎯 Gemini Prompt Used:**
-<span style="color: #FF6B35; font-weight: bold;">"Using the input image as reference: 'A yellow and pink stylized pin design of Pikachu with muscular arms, featuring stars and hearts.'</span> <span style="color: #4A90E2;">Create a welcome image for pecachu proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles."</span>
+| | <small><span style="color: #4A90E2;">"Create a welcome image for pecachu proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles.</span><br><span style="color: #FF6B35; font-weight: bold;">Incorporate visual elements from this avatar description: "Yellow and pink cartoon-style character with heart and star shapes, labeled 'PECACHU'."</span></small> | <small><span style="color: #FF6B35; font-weight: bold;">"Using the input image as reference: 'A yellow and pink stylized pin design of Pikachu with muscular arms, featuring stars and hearts.'</span><br><span style="color: #4A90E2;">Create a welcome image for pecachu proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles."</span></small> |
 
 ---
 

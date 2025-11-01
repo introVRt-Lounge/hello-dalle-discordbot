@@ -218,6 +218,14 @@ export async function describeImage(imagePath: string, imageUrl: string, genderS
 
 // Function to download and save image
 export async function downloadAndSaveImage(url: string, filepath: string): Promise<string> {
+    // Handle file:// URLs by copying directly instead of downloading
+    if (url.startsWith('file://')) {
+        const sourcePath = url.replace('file://', '');
+        await fs.promises.copyFile(sourcePath, filepath);
+        return filepath;
+    }
+
+    // Handle HTTP/HTTPS URLs
     const response = await axios({
         url,
         responseType: 'stream'
