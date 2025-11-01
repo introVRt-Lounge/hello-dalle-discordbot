@@ -288,8 +288,8 @@ Using avatars from `helpers/pfp1.png` through `helpers/pfp5.png`, here are the t
 
 **🔬 Technical Analysis - How Each Engine Processes Avatars:**
 
-### DALL-E's Two-Step Process:
-1. **Step 1 (Analysis)**: GPT-4 Vision describes the avatar
+### OpenAI's Two-Step Process:
+1. **Step 1 (Analysis)**: GPT-4o Vision describes the avatar
 2. **Step 2 (Generation)**: DALL-E creates image using the description
 
 ### Gemini's Single-Step Multimodal Process:
@@ -307,14 +307,14 @@ Each example shows the same input processed by both engines to demonstrate the t
 
 **Scenario**: Default welcome image generation. Same avatar, different processing approaches.
 
-| Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
+| Original Avatar | OpenAI Result (Two-Step) | Gemini Result (Multimodal) |
 |-----------------|-------------------------|---------------------------|
 | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp1.png" width="200" height="200" alt="Ariabel's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/welcome-ariabel-default-openai.png" width="300" height="300" alt="Ariabel OpenAI"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/welcome-ariabel-default-gemini.png" width="300" height="300" alt="Ariabel Gemini"> |
 
-#### 🔍 **DALL-E Processing** (Two Steps):
-**Step 1 - Avatar Analysis (GPT-4 Vision):** `<span style="color: #FF6B35; font-weight: bold;">"Multicolored iridescent butterfly wings and intricate black fantasy outfit."</span>`
+#### 🔍 **OpenAI Processing** (Two Steps):
+**Step 1 - Avatar Analysis (GPT-4o Vision):** `<span style="color: #FF6B35; font-weight: bold;">"Multicolored iridescent butterfly wings and intricate black fantasy outfit."</span>`
 
-**Step 2 - Final Prompt Sent to DALL-E:**
+**Step 2 - Final Prompt Sent to OpenAI:**
 <span style="color: #4A90E2;">"Create a welcome image for Ariabel proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles.</span> <span style="color: #FF6B35; font-weight: bold;">Incorporate visual elements from this avatar description: "Multicolored iridescent butterfly wings and intricate black fantasy outfit."</span>"
 
 #### 🎯 **Gemini Processing** (Single Step):
@@ -343,14 +343,14 @@ Each example shows the same input processed by both engines to demonstrate the t
 
 **Scenario**: Welcome image with custom "steampunk city" theme. Shows how different settings affect personalization.
 
-| Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
+| Original Avatar | OpenAI Result (Two-Step) | Gemini Result (Multimodal) |
 |-----------------|-------------------------|---------------------------|
 | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp3.png" width="200" height="200" alt="tokentrevor's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/welcome-tokentrevor-steampunk-openai.png" width="300" height="300" alt="tokentrevor OpenAI"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/welcome-tokentrevor-steampunk-gemini.png" width="300" height="300" alt="tokentrevor Gemini"> |
 
-#### 🔍 **DALL-E Processing** (Two Steps):
-**Step 1 - Avatar Analysis (GPT-4 Vision):** `<span style="color: #FF6B35; font-weight: bold;">"broad smiling face with green eyes"</span>`
+#### 🔍 **OpenAI Processing** (Two Steps):
+**Step 1 - Avatar Analysis (GPT-4o Vision):** `<span style="color: #FF6B35; font-weight: bold;">"broad smiling face with green eyes"</span>`
 
-**Step 2 - Final Prompt Sent to DALL-E:**
+**Step 2 - Final Prompt Sent to OpenAI:**
 <span style="color: #4A90E2;">"Create a welcome image for tokentrevor proclaimed upon and incorporated into a steampunk city billboard in Victorian-era mechanical styles.</span> <span style="color: #FF6B35; font-weight: bold;">Incorporate visual elements from this avatar description: "broad smiling face with green eyes."</span>"
 
 #### 🎯 **Gemini Processing** (Single Step):
@@ -370,14 +370,14 @@ Each example shows the same input processed by both engines to demonstrate the t
 
 **Scenario**: Default welcome image (same as #1, for comparison). Shows Pikachu-style avatar processing.
 
-| Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
+| Original Avatar | OpenAI Result (Two-Step) | Gemini Result (Multimodal) |
 |-----------------|-------------------------|---------------------------|
 | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/pfp2.png" width="200" height="200" alt="pecachu's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/welcome-pecachu-default-openai.png" width="300" height="300" alt="pecachu OpenAI"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini-image-generation/docs/assets/welcome-pecachu-default-gemini.png" width="300" height="300" alt="pecachu Gemini"> |
 
-#### 🔍 **DALL-E Processing** (Two Steps):
-**Step 1 - Avatar Analysis (GPT-4 Vision):** `<span style="color: #FF6B35; font-weight: bold;">"Yellow and pink cartoon-style character with heart and star shapes, labeled 'PECACHU'"</span>`
+#### 🔍 **OpenAI Processing** (Two Steps):
+**Step 1 - Avatar Analysis (GPT-4o Vision):** `<span style="color: #FF6B35; font-weight: bold;">"Yellow and pink cartoon-style character with heart and star shapes, labeled 'PECACHU'"</span>`
 
-**Step 2 - Final Prompt Sent to DALL-E:**
+**Step 2 - Final Prompt Sent to OpenAI:**
 <span style="color: #4A90E2;">"Create a welcome image for pecachu proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles.</span> <span style="color: #FF6B35; font-weight: bold;">Incorporate visual elements from this avatar description: "Yellow and pink cartoon-style character with heart and star shapes, labeled 'PECACHU'."</span>"
 
 #### 🎯 **Gemini Processing** (Single Step):
