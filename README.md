@@ -134,7 +134,7 @@ The bot now uses modern Discord slash commands (`/`) instead of the old `!` comm
   - `username`: The username of the user to generate a profile picture for (required)
   - `override`: Custom prompt to use instead of the default username-based prompt (optional)
   - `engine`: Override the default image generation engine for this command (optional)
-  - `use-existing-pfp`: When using Gemini, transform the user's current Discord avatar instead of generating from scratch (optional, Gemini only)
+  - `use-existing-pfp`: Transform the user's current Discord avatar instead of generating from scratch (optional, works with both DALL-E and Gemini)
 
 **Note**: The old `!pfp` command is deprecated and no longer supported. Use `/pfp` instead.
 
@@ -161,6 +161,7 @@ The bot now uses modern Discord slash commands (`/`) instead of the old `!` comm
 /pfp username: JohnDoe override: a futuristic cyborg with glowing blue eyes
 /pfp username: JohnDoe engine: Gemini (Google)
 /pfp username: JohnDoe use-existing-pfp: true engine: Gemini (Google)
+/pfp username: JaneSmith use-existing-pfp: true engine: DALL-E (OpenAI)
 /pfp-anyone
 /welcome username: JaneSmith destination: Welcome Channel (Default)
 /welcome username: JaneSmith destination: Welcome Channel (Default) engine: DALL-E (OpenAI)
