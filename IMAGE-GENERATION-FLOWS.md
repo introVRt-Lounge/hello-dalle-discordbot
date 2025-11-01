@@ -166,10 +166,12 @@ flowchart TD
 |---------|----------|----------------------|
 | **Input Type** | Text only | Text + Image (multimodal) |
 | **Welcome Images** | Text prompt with avatar description | Direct avatar image + enhanced prompt |
-| **Profile Pictures** | Username-based generation | Avatar-based transformation |
-| **Customization** | Limited to text prompts | Image-to-image editing |
-| **Quality** | High consistency | Better subject preservation |
-| **Cost** | Paid API (~$0.04/image) | Limited free tier (~2 images/day) |
+| **Profile Pictures** | Username-based or avatar-enhanced generation | Avatar-based transformation |
+| **use-existing-pfp** | Avatar description + enhanced prompt | Direct image-to-image transformation |
+| **Customization** | Text prompts with optional avatar enhancement | Text prompts + direct image manipulation |
+| **Quality** | High consistency, creative freedom | Superior subject preservation & accuracy |
+| **Cost** | $0.04/image (1 API call) | ~$0.08/image (2 API calls) |
+| **Speed** | Fast (~10-20s) | Slower (~15-30s) |
 
 ## User Customization Flows
 
