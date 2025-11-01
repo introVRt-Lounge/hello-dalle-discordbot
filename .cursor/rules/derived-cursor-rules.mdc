@@ -33,6 +33,7 @@ globs: *
     *   Include safe file existence checks.
     *   Ensure proper error handling that warns if cleanup fails but doesn't throw.
     *   Use debug logging to track cleanup operations.
+*   The Gemini API returns image data directly (not URLs like DALL-E).
 
 ## DEBUGGING
 

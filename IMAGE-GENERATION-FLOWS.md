@@ -193,13 +193,13 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 ### **📸 Source Images Used in Tests**
 
 #### **pfp1.png** (Default Generation Test)
-![Source PFP1](helpers/pfp1.png)
+![Source PFP1](docs/assets/pfp1.png)
 
 #### **pfp2.png** (Custom Prompt Test)
-![Source PFP2](helpers/pfp2.png)
+![Source PFP2](docs/assets/pfp2.png)
 
 #### **pfp3.png** (Use Existing PFP Test)
-![Source PFP3](helpers/pfp3.png)
+![Source PFP3](docs/assets/pfp3.png)
 
 ---
 
@@ -207,7 +207,7 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 Both engines receive: `TestUser123` (no custom prompt, no avatar analysis)
 
 #### **DALL-E 3 Result (Text-Only Generation)**
-![DALL-E Default Generation](welcome_images/undefined-profile-2025-11-01T17-20-06-305Z.png)
+![DALL-E Default Generation](docs/assets/dalle-default-generation.png)
 *Prompt used: "To the best of your ability, create a discord profile picture for the user "TestUser123" inspired by their name. Image only, no text. Circular to ease cropping."*
 
 #### **Gemini Result (Text-Only Generation)**
@@ -219,7 +219,7 @@ Both engines receive: `TestUser123` (no custom prompt, no avatar analysis)
 Both engines receive: `"a cyberpunk hacker with neon green hair and glowing tattoos"`
 
 #### **DALL-E 3 Result (Custom Prompt)**
-![DALL-E Custom Prompt](welcome_images/undefined-profile-2025-11-01T17-20-24-352Z.png)
+![DALL-E Custom Prompt](docs/assets/dalle-custom-prompt.png)
 *Prompt used: "To the best of your ability, create a discord profile picture for the user "TestUser123" based on this description: a cyberpunk hacker with neon green hair and glowing tattoos. Image only, no text. Circular to ease cropping."*
 
 #### **Gemini Result (Custom Prompt)**
