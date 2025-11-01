@@ -73,8 +73,8 @@ export async function generateProfilePicture(
 
                     // Modify prompt to indicate we're using their existing avatar
                     finalPrompt = overridePrompt
-                        ? `Transform this user's existing profile picture according to: ${overridePrompt}. Keep the core visual elements but modify the style and appearance.`
-                        : `Transform this user's existing profile picture into a new creative version. Maintain the overall appearance but add artistic enhancements.`;
+                        ? `Using the input image as reference: Maintain the subject's pose and appearance while transforming them into a ${overridePrompt} in a highly detailed artistic style. Circular to ease cropping.`
+                        : `Using the input image as reference: Transform this user's existing profile picture into a new creative version. Maintain the overall appearance but add artistic enhancements. Circular to ease cropping.`;
 
                     if (DEBUG) console.log(`DEBUG: Using existing avatar for Gemini image-to-image generation: ${avatarPath}`);
                 } else if (engine === 'dalle') {
@@ -110,7 +110,8 @@ export async function generateProfilePicture(
             }
         }
 
-        const imageResult = await generateImage(finalPrompt, engine, { imageInput });
+        // Only pass imageInput for Gemini (DALL-E doesn't support image-to-image)
+        const imageResult = await generateImage(finalPrompt, engine, engine === 'gemini' ? { imageInput } : undefined);
 
         if (DEBUG) console.log(`DEBUG: Generated profile picture for ${displayName} using ${engine} engine`);
 
