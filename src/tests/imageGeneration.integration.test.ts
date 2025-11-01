@@ -55,18 +55,18 @@ describe('Image Generation Integration Tests', () => {
 
             console.log('✅ Gemini generated image file:', result);
 
-            // Clean up
-            if (fs.existsSync(result)) {
-                fs.unlinkSync(result);
-            }
+            // Clean up (disabled for demonstration)
+            // if (fs.existsSync(result)) {
+            //     fs.unlinkSync(result);
+            // }
         }, 60000); // 60 second timeout for Gemini
 
         test('should generate image-to-image with Gemini using pfp6.png', async () => {
             const options: ImageGenerationOptions = {
-                prompt: 'Transform this profile picture into a cartoon version with a superhero cape',
+                prompt: 'Take this exact profile picture and create a cartoon superhero version while maintaining the person\'s facial features, expression, and overall appearance. Add a superhero cape flowing behind them and keep the original art style but make it more animated.',
                 engine: 'gemini',
                 imageInput: testImagePath,
-                geminiModel: 'gemini-2.0-flash'
+                geminiModel: 'nano-banana'
             };
 
             const result = await generateImageWithOptions(options);
@@ -82,10 +82,10 @@ describe('Image Generation Integration Tests', () => {
             const stats = fs.statSync(result);
             expect(stats.size).toBeGreaterThan(1000); // At least 1KB
 
-            // Clean up
-            if (fs.existsSync(result)) {
-                fs.unlinkSync(result);
-            }
+            // Clean up (disabled for demonstration)
+            // if (fs.existsSync(result)) {
+            //     fs.unlinkSync(result);
+            // }
         }, 60000); // 60 second timeout
 
         test('should handle Gemini quota exceeded gracefully', async () => {
@@ -126,14 +126,14 @@ describe('Image Generation Integration Tests', () => {
     });
 
     afterAll(() => {
-        // Clean up any remaining test files
-        if (fs.existsSync(outputDir)) {
-            const files = fs.readdirSync(outputDir);
-            files.forEach(file => {
-                if (file.startsWith('test-') || file.includes('gemini-generated')) {
-                    fs.unlinkSync(path.join(outputDir, file));
-                }
-            });
-        }
+        // Clean up any remaining test files (disabled for demonstration)
+        // if (fs.existsSync(outputDir)) {
+        //     const files = fs.readdirSync(outputDir);
+        //     files.forEach(file => {
+        //         if (file.startsWith('test-') || file.includes('gemini-generated')) {
+        //             fs.unlinkSync(path.join(outputDir, file));
+        //         }
+        //     });
+        // }
     });
 });

@@ -1,0 +1,46 @@
+---
+description: AI rules derived by SpecStory from the project AI interaction history
+globs: *
+---
+
+## <headers/>
+
+## TECH STACK
+
+*   npm
+*   Deno
+*   vite
+*   webpack
+*   esbuild
+*   tsup
+*   @google/generative-ai
+*   @octokit/rest
+
+## PROJECT DOCUMENTATION & CONTEXT SYSTEM
+
+*   npm dependency updates in PRs should use the "deps:" prefix.
+*   GitHub Actions/Docker images updates in PRs should use the "chore(deps):" prefix. This will prevent the PRs from triggering a release.
+
+## CODING STANDARDS & BEST PRACTICES
+
+*   When updating npm dependencies with pull requests, consistently use the "deps:" prefix in commit messages.
+*   When updating GitHub Actions or Docker images, use the "chore(deps):" prefix in commit messages to prevent triggering a release.
+*   When distinguishing between DALL-E URLs (for downloading) and Gemini file paths (for copying), use `imageResult.startsWith('http') || imageResult.startsWith('https')` for clarity and robustness.
+*   When `useExistingPfp` is true with the 'gemini' engine, ensure downloaded user avatar files are cleaned up after image generation, both in success and error scenarios. Implement file existence checks, error handling, and debug logging for cleanup operations in `pfpService.ts`. Specifically:
+    *   Clean up the downloaded avatar file (`imageInput`) after successful image generation.
+    *   Clean up the downloaded avatar file (`imageInput`) in the catch block to ensure temporary files are removed even if an error occurs.
+    *   Declare `imageInput` outside the try block to ensure it is accessible in both the try and catch scopes.
+    *   Include safe file existence checks.
+    *   Ensure proper error handling that warns if cleanup fails but doesn't throw.
+    *   Use debug logging to track cleanup operations.
+
+## DEBUGGING
+
+## TESTING
+*   jest
+*   jest-mock-extended
+
+## WORKFLOW & RELEASE RULES
+
+*   npm dependency updates in PRs should use the "deps:" prefix.
+*   GitHub Actions/Docker images updates in PRs should use the "chore(deps):" prefix. This will prevent the PRs from triggering a release.

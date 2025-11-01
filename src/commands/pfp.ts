@@ -2,8 +2,7 @@ import { Client, CommandInteraction, PermissionsBitField, ChatInputCommandIntera
 import { generateProfilePicture } from '../services/pfpService';
 import { cooldownService } from '../services/cooldownService';
 import { logMessage } from '../utils/log';
-import { DEBUG, GENDER_SENSITIVITY, BOT_USER_ROLE } from '../config';
-import { ImageEngine } from '../utils/imageUtils';
+import { DEBUG, GENDER_SENSITIVITY, BOT_USER_ROLE, ImageEngine, getDEFAULT_ENGINE } from '../config';
 
 // Check if user has permission to use pfp command
 function hasPfpPermission(member: any, pfpAnyoneEnabled: boolean): boolean {
@@ -55,7 +54,7 @@ export async function handlePfpSlashCommand(client: Client, interaction: ChatInp
     const username = interaction.options.getString('username', true)?.toLowerCase();
     const overridePrompt = interaction.options.getString('override');
     const isPrivate = interaction.options.getBoolean('private') ?? false;
-    const engine = (interaction.options.getString('engine') as ImageEngine) ?? 'dalle';
+    const engine = (interaction.options.getString('engine') as ImageEngine) ?? getDEFAULT_ENGINE();
     const useExistingPfp = interaction.options.getBoolean('use-existing-pfp') ?? false;
 
     try {
