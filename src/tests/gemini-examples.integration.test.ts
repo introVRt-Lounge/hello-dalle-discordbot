@@ -4,6 +4,12 @@ import fs from 'fs';
 import path from 'path';
 
 describe('Gemini Image Generation Examples', () => {
+    const hasGeminiKey = !!process.env.GEMINI_API_KEY;
+
+    // Skip all tests if GEMINI_API_KEY is not available
+    const testFn = hasGeminiKey ? test : test.skip;
+    const describeFn = hasGeminiKey ? describe : describe.skip;
+
     const helpersDir = path.join(__dirname, '../../helpers');
 
     // Temporarily disable cleanup for demonstration
@@ -39,8 +45,8 @@ describe('Gemini Image Generation Examples', () => {
         'Create a holographic welcome display in a high-tech city with this person as the focus'
     ];
 
-    describe('Profile Picture Transformations', () => {
-        test.each(testImages)('should analyze and transform %s with various user prompts', async (imageName) => {
+    describeFn('Profile Picture Transformations', () => {
+        testFn.each(testImages)('should analyze and transform %s with various user prompts', async (imageName) => {
             const imagePath = path.join(helpersDir, imageName);
 
             // First, analyze the image to see what we're working with
@@ -76,8 +82,8 @@ describe('Gemini Image Generation Examples', () => {
         }, 120000); // 2 minute timeout per image
     });
 
-    describe('Welcome Image Generation', () => {
-        test.each(testImages.slice(0, 3))('should create welcome images for %s using cyberpunk theme', async (imageName) => {
+    describeFn('Welcome Image Generation', () => {
+        testFn.each(testImages.slice(0, 3))('should create welcome images for %s using cyberpunk theme', async (imageName) => {
             const imagePath = path.join(helpersDir, imageName);
 
             // Analyze the image first
@@ -110,7 +116,7 @@ describe('Gemini Image Generation Examples', () => {
         }, 120000); // 2 minute timeout per image
     });
 
-    describe('Direct Gemini Service Testing', () => {
+    describeFn('Direct Gemini Service Testing', () => {
         test('should demonstrate the double-LLM workflow step by step', async () => {
             const testImage = path.join(helpersDir, 'pfp3.png');
 
@@ -150,7 +156,7 @@ describe('Gemini Image Generation Examples', () => {
         }, 60000);
     });
 
-    describe('Default Welcome Prompt Testing', () => {
+    describeFn('Default Welcome Prompt Testing', () => {
         test('should test the actual WELCOME_PROMPT from config with double-LLM', async () => {
             const testImage = path.join(helpersDir, 'pfp1.png');
             const username = 'TestUser123';
@@ -186,7 +192,7 @@ describe('Gemini Image Generation Examples', () => {
         }, 60000);
     });
 
-    describe('Performance Analysis', () => {
+    describeFn('Performance Analysis', () => {
         test('should compare analysis vs direct generation performance', async () => {
             const testImage = path.join(helpersDir, 'pfp2.png');
             const prompt = 'Make this person look like a futuristic robot';
