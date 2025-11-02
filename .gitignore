@@ -40,3 +40,6 @@ docker-compose.prod-DEPRECATED.yml
 version.txt
 .specstory/history/*
 .specstory/ai_rules_backups/*
+
+# Integration test outputs (dated directories with generated images)
+integration-test-outputs/

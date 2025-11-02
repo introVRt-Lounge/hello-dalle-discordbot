@@ -1,4 +1,4 @@
-import { generateImageWithOptions, ImageGenerationOptions } from '../utils/imageUtils';
+import { generateImageWithOptions, ImageGenerationOptions, downloadAndSaveImage } from '../utils/imageUtils';
 import fs from 'fs';
 import path from 'path';
 
@@ -6,7 +6,10 @@ import path from 'path';
 // These tests require valid API keys and will be skipped in CI unless explicitly enabled
 describe('Image Generation Integration Tests', () => {
     const testImagePath = path.join(__dirname, '../../helpers/pfp6.png');
-    const outputDir = path.join(__dirname, 'temp');
+
+    // Create dated output directory for this test run
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5); // YYYY-MM-DDTHH-MM-SS format
+    const outputDir = path.join(__dirname, '../../integration-test-outputs', timestamp);
 
     beforeAll(() => {
         // Ensure test image exists
@@ -14,9 +17,10 @@ describe('Image Generation Integration Tests', () => {
             throw new Error(`Test image not found: ${testImagePath}`);
         }
 
-        // Ensure output directory exists
+        // Ensure dated output directory exists
         if (!fs.existsSync(outputDir)) {
             fs.mkdirSync(outputDir, { recursive: true });
+            console.log(`📁 Created integration test output directory: ${outputDir}`);
         }
     });
 
@@ -32,13 +36,24 @@ describe('Image Generation Integration Tests', () => {
                 engine: 'dalle'
             };
 
-            const result = await generateImageWithOptions(options);
+            const imageUrl = await generateImageWithOptions(options);
 
             // Should return a URL for DALL-E
-            expect(typeof result).toBe('string');
-            expect(result.startsWith('http')).toBe(true);
+            expect(typeof imageUrl).toBe('string');
+            expect(imageUrl.startsWith('http')).toBe(true);
 
-            console.log('✅ DALL-E generated image URL:', result);
+            // Download and save the image to dated output directory
+            const filename = `dalle-blue-circle-${Date.now()}.png`;
+            const outputPath = path.join(outputDir, filename);
+            await downloadAndSaveImage(imageUrl, outputPath);
+
+            // Verify the downloaded file exists
+            expect(fs.existsSync(outputPath)).toBe(true);
+            const stats = fs.statSync(outputPath);
+            expect(stats.size).toBeGreaterThan(1000); // At least 1KB
+
+            console.log('✅ DALL-E generated image URL:', imageUrl);
+            console.log('📁 Preserved in output directory:', path.relative(process.cwd(), outputPath));
         }, 30000); // 30 second timeout
 
         test('should generate image with Gemini text-to-image', async () => {
@@ -55,12 +70,18 @@ describe('Image Generation Integration Tests', () => {
             expect(result.startsWith('http')).toBe(false);
             expect(fs.existsSync(result)).toBe(true);
 
-            console.log('✅ Gemini generated image file:', result);
+            // Copy to dated output directory for preservation
+            const filename = `gemini-text-to-image-${Date.now()}.png`;
+            const outputPath = path.join(outputDir, filename);
+            await fs.promises.copyFile(result, outputPath);
 
-            // Clean up (disabled for demonstration)
-            // if (fs.existsSync(result)) {
-            //     fs.unlinkSync(result);
-            // }
+            console.log('✅ Gemini generated image file:', result);
+            console.log('📁 Preserved in output directory:', path.relative(process.cwd(), outputPath));
+
+            // Clean up temp file
+            if (fs.existsSync(result)) {
+                fs.unlinkSync(result);
+            }
         }, 60000); // 60 second timeout for Gemini
 
         test('should generate image-to-image with Gemini using pfp6.png', async () => {
@@ -78,16 +99,22 @@ describe('Image Generation Integration Tests', () => {
             expect(result.startsWith('http')).toBe(false);
             expect(fs.existsSync(result)).toBe(true);
 
+            // Copy to dated output directory for preservation
+            const filename = `gemini-image-to-image-superhero-${Date.now()}.png`;
+            const outputPath = path.join(outputDir, filename);
+            await fs.promises.copyFile(result, outputPath);
+
             console.log('✅ Gemini image-to-image generated file:', result);
+            console.log('📁 Preserved in output directory:', path.relative(process.cwd(), outputPath));
 
             // Verify the file is a valid image by checking file size
             const stats = fs.statSync(result);
             expect(stats.size).toBeGreaterThan(1000); // At least 1KB
 
-            // Clean up (disabled for demonstration)
-            // if (fs.existsSync(result)) {
-            //     fs.unlinkSync(result);
-            // }
+            // Clean up temp file
+            if (fs.existsSync(result)) {
+                fs.unlinkSync(result);
+            }
         }, 60000); // 60 second timeout
 
         test('should handle Gemini quota exceeded gracefully', async () => {
@@ -128,14 +155,9 @@ describe('Image Generation Integration Tests', () => {
     });
 
     afterAll(() => {
-        // Clean up any remaining test files (disabled for demonstration)
-        // if (fs.existsSync(outputDir)) {
-        //     const files = fs.readdirSync(outputDir);
-        //     files.forEach(file => {
-        //         if (file.startsWith('test-') || file.includes('gemini-generated')) {
-        //             fs.unlinkSync(path.join(outputDir, file));
-        //         }
-        //     });
-        // }
+        // Integration test outputs are preserved in dated directories for inspection
+        // Files are stored in: integration-test-outputs/YYYY-MM-DDTHH-MM-SS/
+        // These directories are gitignored to avoid committing generated images
+        console.log(`📁 Integration test outputs preserved in: ${path.relative(process.cwd(), outputDir)}`);
     });
 });
