@@ -44,7 +44,11 @@ BOT_USER_ROLE=your_bot_user_role_id  # Required: Role ID that allows users to us
 WELCOME_PROMPT=Create a welcome image for a new Discord user with the username '{username}'. Incorporate the user's avatar into the image, its described as: {avatar}
 WILDCARD=0
 POSTING_DELAY=120  # Delay in seconds before posting the image to the welcome channel
-WATERMARK_PATH=/usr/src/app/watermark.png  # Optional: path for a watermark image that will be added to welcome images. If not set, no watermark will be added. Add as a docker bind path to store the watermark image on your host.
+WATERMARK_PATH=/usr/src/app/watermark.png
+
+# Optional: Google Gemini for alternative image generation
+GEMINI_API_KEY=your_gemini_api_key  # Optional: Enables Gemini image generation as alternative to DALL-E
+
 STEALTH_WELCOME=false  # Optional: Set to 'true' to enable stealth mode, making welcome messages in the welcome channel silent for everyone except the new user.
 GENDER_SENSITIVITY=false # Optional: Set to 'true' to enable personalized touches for generated images based on gender-sensitive characteristics.
 ```
@@ -52,6 +56,41 @@ GENDER_SENSITIVITY=false # Optional: Set to 'true' to enable personalized touche
 ### Running with Docker
 
 For details on running this project with Docker, visit the [Docker Hub page](https://hub.docker.com/r/heavygee/hello-dalle-discordbot).
+
+## Image Generation Engines
+
+This bot supports two image generation engines:
+
+### DALL-E (Default)
+- Uses OpenAI's DALL-E 3 model
+- High-quality, consistent results
+- Requires OpenAI API key with credits
+
+### Google Gemini (Optional)
+- Uses Google's Gemini models for high-accuracy avatar transformations
+- Supports both text-to-image and **image-to-image** generation
+- Higher cost (~$0.08/image due to double API calls) but more accurate results
+- Requires `GEMINI_API_KEY` environment variable
+
+📖 **Detailed Flow Documentation**: [IMAGE-GENERATION-FLOWS.md](IMAGE-GENERATION-FLOWS.md) - Complete technical documentation with flowcharts showing how DALL-E and Gemini differ in production
+
+#### Gemini Features
+- **Text-to-Image**: Generate images from text prompts
+- **Image-to-Image**: Transform existing images (welcome images use actual user avatars)
+- **PFP Enhancement**: Use `use-existing-pfp` flag to transform user's current Discord avatar
+- **High Accuracy**: Most accurate avatar transformations using double-LLM analysis
+
+#### Gemini Commands
+```bash
+# Use Gemini for text-to-image
+/pfp Make me look like a cyberpunk hacker engine:gemini
+
+# Use Gemini with existing avatar transformation
+/pfp Transform my avatar into something magical use-existing-pfp engine:gemini
+
+# Welcome command with Gemini (uses actual user avatar)
+/welcome username:testuser engine:gemini
+```
 
 ## Examples of Output
 
@@ -69,7 +108,15 @@ For details on running this project with Docker, visit the [Docker Hub page](htt
 
 ## Cost
 
-Using the bot incurs costs based on the usage of OpenAI's DALL-E APIs. Each welcome image generated costs approximately $0.03. Ensure you monitor your usage to manage costs effectively.
+### DALL-E (Default)
+Using DALL-E incurs costs based on OpenAI's API pricing. Standard 1024×1024 images cost approximately **$0.04 per image**. Monitor your OpenAI usage dashboard to manage costs effectively.
+
+### Google Gemini (Optional)
+- **Pricing**: ~$0.08 per image (due to double API calls: text analysis + image generation)
+- **Higher Cost**: More expensive than DALL-E but provides superior avatar transformation accuracy
+- **Best For**: When image quality and personalization are more important than cost
+
+Choose Gemini when you need the most accurate results based on users' actual profile pictures.
 
 ## Debugging and Control
 
@@ -83,9 +130,11 @@ The bot now uses modern Discord slash commands (`/`) instead of the old `!` comm
 
 #### Profile Picture Commands
 
-- `/pfp username:<username> [override:<custom_prompt>]`: Generates a profile picture suggestion for a specific user. Can be used in `#botspam`, `#welcome`, or `#general` channels. Requires admin privileges or the designated role ID (set in `BOT_USER_ROLE`) unless `/pfp-anyone` is enabled. **Username field has autocomplete support.**
+- `/pfp username:<username> [override:<custom_prompt>] [engine:<engine_choice>] [use-existing-pfp:<true/false>]`: Generates a profile picture suggestion for a specific user. Can be used in `#botspam`, `#welcome`, or `#general` channels. Requires admin privileges or the designated role ID (set in `BOT_USER_ROLE`) unless `/pfp-anyone` is enabled. **Username field has autocomplete support.**
   - `username`: The username of the user to generate a profile picture for (required)
   - `override`: Custom prompt to use instead of the default username-based prompt (optional)
+  - `engine`: Override the default image generation engine for this command (optional)
+  - `use-existing-pfp`: Transform the user's current Discord avatar instead of generating from scratch (optional, works with both DALL-E and Gemini)
 
 **Note**: The old `!pfp` command is deprecated and no longer supported. Use `/pfp` instead.
 
@@ -93,24 +142,31 @@ The bot now uses modern Discord slash commands (`/`) instead of the old `!` comm
 
 #### Welcome Commands
 
-- `/welcome username:<username> destination:<channel>`: Manually trigger a welcome message for a specific user. Requires admin privileges or the designated role ID (set in `BOT_USER_ROLE`). **Username field has autocomplete support.**
+- `/welcome username:<username> destination:<channel> [engine:<engine_choice>]`: Manually trigger a welcome message for a specific user. Requires admin privileges or the designated role ID (set in `BOT_USER_ROLE`). **Username field has autocomplete support.**
   - `username`: The username of the user to welcome (required)
   - `destination`: Where to send the welcome message (required)
     - `Welcome Channel (Default)`: Posts to the configured welcome channel
     - `Botspam Channel (Debug/Test)`: Posts to botspam channel for testing/debugging
+  - `engine`: Override the default image generation engine for this command (optional)
 
 #### Configuration Commands
 
 - `/wildcard value:<number>`: Set the wildcard chance to a specific value between 0 and 99. This command allows you to control the variability in the welcome prompts. Only works in the `#botspam` channel.
+- `/engine engine:<choice>`: Set the default image generation engine to either "DALL-E (OpenAI)" or "Gemini (Google)". This affects all image generation when no specific engine is specified in commands. Only works in the `#botspam` channel.
 
 ### Example Usage
 
 ```plaintext
 /pfp username: JohnDoe
 /pfp username: JohnDoe override: a futuristic cyborg with glowing blue eyes
+/pfp username: JohnDoe engine: Gemini (Google)
+/pfp username: JohnDoe use-existing-pfp: true engine: Gemini (Google)
+/pfp username: JaneSmith use-existing-pfp: true engine: DALL-E (OpenAI)
 /pfp-anyone
 /welcome username: JaneSmith destination: Welcome Channel (Default)
+/welcome username: JaneSmith destination: Welcome Channel (Default) engine: DALL-E (OpenAI)
 /wildcard value: 25
+/engine engine: Gemini (Google)
 ```
 
 ### Autocomplete Feature
@@ -135,13 +191,3 @@ This project is licensed under the MIT License. See the [LICENSE](https://github
 ## Support
 
 For issues, please open an issue on the [GitHub repository](https://github.com/heavygee/hello-dalle-discordbot).
-
-### CI/CD Workflow Activation
-This line is to re-activate the GitHub Actions workflow after history cleanup.
-# Token permissions updated - testing workflow
-# Test commit to trigger workflow and Discord announcements
-# Add feature documentation
-# Testing Discord announcement fix
-test
-test post-commit
-test pre-commit hook

@@ -28,6 +28,7 @@ export const BOT_USER_ROLE = checkEnvVar('BOT_USER_ROLE', process.env.BOT_USER_R
 // Optional variables with default values
 export const WILDCARD = parseInt(process.env.WILDCARD ?? '0', 10);
 export const DEBUG = process.env.DEBUG === 'true' || false; // Default DEBUG to false
+export const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // Optional: for Gemini image generation
 
 // Get version from version.txt - no fallback, must exist
 const versionPath = path.resolve(__dirname, '../version.txt');
@@ -60,4 +61,18 @@ export const setWILDCARD = (value: number): void => {
         wildcard = value;
     } else {
         throw new Error("WILDCARD value must be between 0 and 99.");
+}};
+
+// Define ImageEngine type locally to avoid circular imports
+export type ImageEngine = 'dalle' | 'gemini';
+
+// Manage DEFAULT_ENGINE as a variable with getter/setter
+let defaultEngine: ImageEngine = (process.env.DEFAULT_ENGINE as ImageEngine) || 'dalle';
+
+export const getDEFAULT_ENGINE = (): ImageEngine => defaultEngine;
+export const setDEFAULT_ENGINE = (value: ImageEngine): void => {
+    if (value === 'dalle' || value === 'gemini') {
+        defaultEngine = value;
+    } else {
+        throw new Error("DEFAULT_ENGINE must be either 'dalle' or 'gemini'.");
 }};
