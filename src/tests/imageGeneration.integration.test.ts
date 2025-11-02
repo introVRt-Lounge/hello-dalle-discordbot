@@ -20,8 +20,10 @@ describe('Image Generation Integration Tests', () => {
         }
     });
 
-    // Skip these tests unless explicitly enabled (require real API keys)
-    const runIntegrationTests = process.env.RUN_INTEGRATION_TESTS === 'true';
+    // Skip these tests unless explicitly enabled AND API keys are available (require real API keys)
+    const runIntegrationTests = process.env.RUN_INTEGRATION_TESTS === 'true' &&
+                               !!process.env.OPENAI_API_KEY &&
+                               !!process.env.GEMINI_API_KEY;
 
     (runIntegrationTests ? describe : describe.skip)('Real Image Generation', () => {
         test('should generate image with DALL-E', async () => {
