@@ -1,7 +1,7 @@
 import { Client, GuildMember, TextChannel } from 'discord.js';
-import { DEBUG, WELCOME_CHANNEL_ID, STEALTH_WELCOME, BOTSPAM_CHANNEL_ID } from '../config';
+import { DEBUG, WELCOME_CHANNEL_ID, STEALTH_WELCOME, BOTSPAM_CHANNEL_ID, WATERMARK_PATH } from '../config';
 import { logMessage } from '../utils/log';
-import { generateImage, downloadAndSaveImage, describeImage } from '../utils/imageUtils'; // Utilities for generating and saving images
+import { generateImage, downloadAndSaveImage, describeImage, addPfpWatermark } from '../utils/imageUtils'; // Utilities for generating and saving images
 import { ImageEngine, getDEFAULT_ENGINE } from '../config';
 import { calculateImageHash, getCachedImageDescription, setCachedImageDescription } from '../utils/appUtils';
 import path from 'path';
@@ -151,17 +151,20 @@ export async function generateProfilePicture(
 
         if (DEBUG) console.log(`Profile picture generated and saved to path: ${profilePicPath}`);
 
+        // Add watermark to PFP if configured
+        const watermarkedProfilePicPath = WATERMARK_PATH ? await addPfpWatermark(profilePicPath, WATERMARK_PATH) : profilePicPath;
+
         // Log the generated image to botspam
         const botspamChannel = guild.channels.cache.get(BOTSPAM_CHANNEL_ID) as TextChannel;
         if (botspamChannel?.isTextBased()) {
             await botspamChannel.send({
                 content: `Profile picture generated for "${displayName}":`,
-                files: [profilePicPath]
+                files: [watermarkedProfilePicPath]
             });
         }
 
         // Post to welcome channel for users without a profile pic
-        await postToProfileChannel(client, member, profilePicPath);
+        await postToProfileChannel(client, member, watermarkedProfilePicPath);
 
         if (DEBUG) console.log(`Profile picture sent for user: ${displayName}`);
 
