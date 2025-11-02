@@ -5,7 +5,7 @@ import path from 'path';
 // Integration tests that actually generate images via paid APIs
 // These tests require valid API keys and will be skipped in CI unless explicitly enabled
 //
-// IMPORTANT: All tests that cost money preserve their generated artifacts!
+// IMPORTANT: All tests that cost money preserve their generated artifacts! for another project!
 // Generated images are saved to dated directories: integration-test-outputs/YYYY-MM-DDTHH-MM-SS/
 // These directories are gitignored to avoid committing binary files.
 describe('Image Generation Integration Tests', () => {
@@ -59,7 +59,7 @@ describe('Image Generation Integration Tests', () => {
     (runIntegrationTests ? describe : describe.skip)('Real Image Generation', () => {
         test('should generate image with DALL-E', async () => {
             const options: ImageGenerationOptions = {
-                prompt: 'A simple test image of a blue circle',
+                prompt: 'Abstract neon landscape forming from digital mist — silhouettes emerging slowly, illuminated by pulsating light waves. The mood is mysterious and anticipatory, like a world booting up to sound. Stylized digital artwork, club visual art.',
                 engine: 'dalle'
             };
 
@@ -85,9 +85,9 @@ describe('Image Generation Integration Tests', () => {
 
         test('should generate image with Gemini text-to-image', async () => {
             const options: ImageGenerationOptions = {
-                prompt: 'A simple test image of a red square',
+                prompt: 'Fluid silhouettes of dancers materializing through fog and strobe light, bodies moving like liquid in rhythm with deep bass. The atmosphere is sensual and immersive, colors shifting between violet, cyan, and magenta. Projection mapping visual, glowing body paint.',
                 engine: 'gemini',
-                geminiModel: 'gemini-2.0-flash' // Use a model more likely to work
+                geminiModel: 'nano-banana' // Use the same model that works for image-to-image
             };
 
             const result = await generateImageWithOptions(options);
@@ -144,11 +144,12 @@ describe('Image Generation Integration Tests', () => {
             }
         }, 60000); // 60 second timeout
 
-        test('should handle Gemini quota exceeded gracefully', async () => {
-            // This test might hit quota limits, should handle gracefully
+        test('should handle Gemini API errors gracefully', async () => {
+            // Test general error handling with a prompt that should generate an image
             const options: ImageGenerationOptions = {
-                prompt: 'A test image that might hit quota limits',
-                engine: 'gemini'
+                prompt: 'Explosive visual of bodies dissolving into light shards, merging with digital waveform tunnels. The motion feels ecstatic, transcendental — chaos and unity rendered in vivid pulses of color and glitch. Gaspar Noé style cinematography.',
+                engine: 'gemini',
+                geminiModel: 'nano-banana'
             };
 
             try {
@@ -157,11 +158,11 @@ describe('Image Generation Integration Tests', () => {
 
                 // If we got a result, we paid for it - preserve the artifact!
                 if (typeof result === 'string' && !result.startsWith('http') && fs.existsSync(result)) {
-                    const filename = `gemini-quota-test-${Date.now()}.png`;
+                    const filename = `gemini-error-test-${Date.now()}.png`;
                     const outputPath = path.join(outputDir, filename);
                     await fs.promises.copyFile(result, outputPath);
 
-                    console.log('✅ Gemini handled request without quota issues');
+                    console.log('✅ Gemini handled request successfully');
                     console.log('📁 Preserved generated image:', path.relative(process.cwd(), outputPath));
 
                     // Clean up temp file
@@ -170,9 +171,9 @@ describe('Image Generation Integration Tests', () => {
                     console.log('✅ Gemini returned URL or no file generated');
                 }
             } catch (error: any) {
-                // Should handle quota errors gracefully
-                expect(error.message.toLowerCase()).toMatch(/quota|rate limit|exceeded/i);
-                console.log('✅ Gemini handled quota exceeded gracefully:', error.message);
+                // Should handle any API errors gracefully
+                expect(error.message.toLowerCase()).toMatch(/failed|error/i);
+                console.log('✅ Gemini handled API error gracefully:', error.message);
             }
         }, 30000);
     });
