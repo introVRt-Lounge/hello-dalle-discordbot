@@ -1,8 +1,9 @@
-import { DEBUG, OPENAI_API_KEY, WATERMARK_PATH } from '../config';
+import { DEBUG, OPENAI_API_KEY, WATERMARK_PATH, ImageEngine, getDEFAULT_ENGINE } from '../config';
 import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
+import { generateImageWithGemini, GeminiModelType } from '../services/geminiService';
 
 // Ensure the temp directory exists
 const tempDir = path.join(__dirname, '../../temp');
@@ -21,9 +22,49 @@ if (!fs.existsSync(welcomeImagesDir)) {
     fs.mkdirSync(welcomeImagesDir, { recursive: true });
 }
 
-// Function to generate image via API (DALL-E or other)
-export async function generateImage(prompt: string): Promise<string> {
-    console.log(`DEBUG: Generating image with prompt: ${prompt}`);
+// Types for image generation
+
+export interface ImageGenerationOptions {
+  prompt: string;
+  engine?: ImageEngine;
+  geminiModel?: GeminiModelType;
+  imageInput?: string; // For image-to-image generation
+  useAnalysis?: boolean; // Whether to use double-LLM analysis for better prompts (default: true)
+}
+
+// Function to generate image via API (DALL-E or Gemini)
+export async function generateImage(prompt: string, engine: ImageEngine = getDEFAULT_ENGINE(), options?: Partial<ImageGenerationOptions>): Promise<string> {
+  // Support legacy function signature
+  if (typeof engine === 'object') {
+    options = engine;
+    engine = getDEFAULT_ENGINE();
+  }
+
+  const fullOptions: ImageGenerationOptions = {
+    prompt,
+    engine,
+    ...options
+  };
+
+  return generateImageWithOptions(fullOptions);
+}
+
+// New function with full options support
+export async function generateImageWithOptions(options: ImageGenerationOptions): Promise<string> {
+    const { prompt, engine = 'dalle', geminiModel, imageInput, useAnalysis = true } = options;
+
+    console.log(`DEBUG: Generating image with engine: ${engine}, prompt: ${prompt}`);
+
+    if (engine === 'gemini') {
+      return generateImageWithGemini({
+        prompt,
+        model: geminiModel,
+        imageInput,
+        useAnalysis
+      });
+    }
+
+    // Default to DALL-E
     try {
         const response = await axios.post('https://api.openai.com/v1/images/generations', {
             model: 'dall-e-3',
@@ -177,6 +218,14 @@ export async function describeImage(imagePath: string, imageUrl: string, genderS
 
 // Function to download and save image
 export async function downloadAndSaveImage(url: string, filepath: string): Promise<string> {
+    // Handle file:// URLs by copying directly instead of downloading
+    if (url.startsWith('file://')) {
+        const sourcePath = url.replace('file://', '');
+        await fs.promises.copyFile(sourcePath, filepath);
+        return filepath;
+    }
+
+    // Handle HTTP/HTTPS URLs
     const response = await axios({
         url,
         responseType: 'stream'
@@ -193,11 +242,20 @@ export async function downloadAndSaveImage(url: string, filepath: string): Promi
 }
 
 // Function to handle welcome image generation with watermark
-export async function generateWelcomeImage(prompt: string): Promise<string> {
-    const imageUrl = await generateImage(prompt);
-    const imagePath = path.join(tempDir, `welcome_image_${Date.now()}.png`);
+export async function generateWelcomeImage(prompt: string, engine: ImageEngine = getDEFAULT_ENGINE(), options?: Partial<ImageGenerationOptions>): Promise<string> {
+    const imageResult = await generateImage(prompt, engine, options);
 
-    await downloadAndSaveImage(imageUrl, imagePath);
+    // Check if result is a URL (DALL-E) or file path (Gemini)
+    let imagePath: string;
+
+    if (imageResult.startsWith('http') || imageResult.startsWith('https')) {
+      // DALL-E returns URL, download it
+      imagePath = path.join(tempDir, `welcome_image_${Date.now()}.png`);
+      await downloadAndSaveImage(imageResult, imagePath);
+    } else {
+      // Gemini returns file path directly
+      imagePath = imageResult;
+    }
 
     const watermarkedImagePath = WATERMARK_PATH ? await addWatermark(imagePath, WATERMARK_PATH) : imagePath;
 
