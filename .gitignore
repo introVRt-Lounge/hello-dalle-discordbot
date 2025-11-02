@@ -39,3 +39,4 @@ symlinked.docker-compose.yml
 docker-compose.prod-DEPRECATED.yml
 version.txt
 .specstory/history/*
+.specstory/ai_rules_backups/*
