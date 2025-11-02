@@ -75,7 +75,7 @@ describe('Gemini Service Tests', () => {
     });
 
     describe('Image-to-Image Generation', () => {
-        const testImagePath = path.join(__dirname, '../../helpers/pfp6.png');
+        const testImagePath = path.join(process.cwd(), 'helpers', 'pfp6.png');
 
         beforeAll(() => {
             // Ensure test image exists

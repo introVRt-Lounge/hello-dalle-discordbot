@@ -9,11 +9,11 @@ import path from 'path';
 // Generated images are saved to dated directories: integration-test-outputs/YYYY-MM-DDTHH-MM-SS/
 // These directories are gitignored to avoid committing binary files.
 describe('Image Generation Integration Tests', () => {
-    const testImagePath = path.join(__dirname, '../../helpers/pfp6.png');
+    const testImagePath = path.join(process.cwd(), 'helpers', 'pfp6.png');
 
     // Create dated output directory for this test run
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5); // YYYY-MM-DDTHH-MM-SS format
-    const outputDir = path.join(__dirname, '../../integration-test-outputs', timestamp);
+    const outputDir = path.join(process.cwd(), 'integration-test-outputs', timestamp);
 
     beforeAll(() => {
         // Ensure test image exists
