@@ -18,13 +18,35 @@ const commands = [
       },
       {
         name: 'override',
-        description: 'Custom prompt to use instead of the default (optional)',
+        description: 'Custom theme for generation (e.g., "space explorer", "medieval knight")',
         type: 3, // STRING
         required: false,
       },
       {
         name: 'private',
         description: 'Whether to reveal the override prompt used (default: false)',
+        type: 5, // BOOLEAN
+        required: false,
+      },
+      {
+        name: 'engine',
+        description: 'Image generation engine to use (default: dalle)',
+        type: 3, // STRING
+        required: false,
+        choices: [
+          {
+            name: 'DALL-E (OpenAI)',
+            value: 'dalle'
+          },
+          {
+            name: 'Gemini (Google)',
+            value: 'gemini'
+          }
+        ]
+      },
+      {
+        name: 'use-existing-pfp',
+        description: 'Use current avatar as base for transformation (Gemini only - true image-to-image)',
         type: 5, // BOOLEAN
         required: false,
       },
@@ -62,6 +84,22 @@ const commands = [
           }
         ]
       },
+      {
+        name: 'engine',
+        description: 'Image generation engine to use (default: dalle)',
+        type: 3, // STRING
+        required: false,
+        choices: [
+          {
+            name: 'DALL-E (OpenAI)',
+            value: 'dalle'
+          },
+          {
+            name: 'Gemini (Google)',
+            value: 'gemini'
+          }
+        ]
+      },
     ],
   },
   {
@@ -73,6 +111,28 @@ const commands = [
         description: 'The wildcard percentage (0-99)',
         type: 4, // INTEGER
         required: true,
+      },
+    ],
+  },
+  {
+    name: 'engine',
+    description: 'Set the default image generation engine',
+    options: [
+      {
+        name: 'engine',
+        description: 'The default engine to use for image generation',
+        type: 3, // STRING
+        required: true,
+        choices: [
+          {
+            name: 'DALL-E (OpenAI)',
+            value: 'dalle'
+          },
+          {
+            name: 'Gemini (Google)',
+            value: 'gemini'
+          }
+        ]
       },
     ],
   },
