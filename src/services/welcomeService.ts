@@ -57,7 +57,18 @@ export async function welcomeUser(client: Client, member: GuildMember, debugMode
         let avatarDescription = '';
 
         // Check if the user has a custom profile picture or is using a default Discord logo
-        if (avatarUrl && !avatarUrl.includes('https://discord.com/assets/') && !avatarUrl.includes('https://cdn.discordapp.com/embed/avatars/')) {
+        // Parse URL to safely check hostname instead of using includes() which can be bypassed
+        let isDefaultAvatar = false;
+        try {
+            const urlObj = new URL(avatarUrl);
+            isDefaultAvatar = urlObj.hostname === 'discord.com' && urlObj.pathname.startsWith('/assets/') ||
+                             urlObj.hostname === 'cdn.discordapp.com' && urlObj.pathname.includes('/embed/avatars/');
+        } catch (error) {
+            // If URL parsing fails, assume it's custom to be safe
+            isDefaultAvatar = false;
+        }
+
+        if (avatarUrl && !isDefaultAvatar) {
             // User has a custom profile picture, download and describe it
             avatarPath = path.join(__dirname, '../../temp', `downloaded_avatar_${Date.now()}.png`);
             await downloadAndSaveImage(avatarUrl, avatarPath);
