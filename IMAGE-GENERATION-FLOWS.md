@@ -11,13 +11,16 @@ The bot supports two image generation engines with fundamentally different appro
 
 | Feature | DALL-E 3 | Gemini 2.5 Flash Image |
 |---------|----------|----------------------|
-| **Input Type** | Text prompts only | Text + Image inputs |
-| **Welcome Images** | Avatar analysis + text generation | Avatar analysis + multimodal generation |
-| **Profile Pictures** | Text-to-image | Image-to-image transformation |
-| **use-existing-pfp** | ❌ Not supported | Direct image-to-image |
-| **Customization** | Override prompts | Override prompts + existing image |
-| **Cost** | $0.04/image | ~$0.08/image (2 API calls) |
-| **Speed** | Fast | Slower (double analysis) |
+| **Input Type** | Text prompts only | Text + Image (multimodal) |
+| **Welcome Images** | Avatar analysis + text generation | Direct avatar image + enhanced prompt |
+| **Profile Pictures** | Username-based or avatar-enhanced generation | Avatar-based transformation |
+| **use-existing-pfp** | ❌ Not available | Direct image-to-image transformation |
+| **Customization** | Text prompts with optional avatar enhancement | Text prompts + direct image manipulation |
+| **Quality** | High consistency, creative freedom | Superior subject preservation & accuracy |
+| **Cost** | $0.04/image (1 API call) | ~$0.08/image (2 API calls) |
+| **Speed** | Fast (~10-20s) | Slower (~15-30s) |
+
+> **ℹ️ Note on `use-existing-pfp`**: This option provides true avatar transformation and is only available with Gemini engine. DALL-E cannot perform image-to-image transformations but automatically includes avatar analysis in welcome images for enhanced personalization.
 
 ## Engine Comparison Grid
 
@@ -159,21 +162,6 @@ flowchart TD
 **Double-LLM Strategy**:
 1. **Analysis Phase**: `gemini-2.0-flash` analyzes the user's current avatar
 2. **Generation Phase**: `gemini-2.5-flash-image` creates a new PFP based on the original avatar + user's custom prompt
-
-## Engine Comparison Matrix
-
-| Feature | DALL-E 3 | Gemini 2.5 Flash Image |
-|---------|----------|----------------------|
-| **Input Type** | Text only | Text + Image (multimodal) |
-| **Welcome Images** | Text prompt with avatar description | Direct avatar image + enhanced prompt |
-| **Profile Pictures** | Username-based or avatar-enhanced generation | Avatar-based transformation |
-| **use-existing-pfp** | ❌ Not available | Direct image-to-image transformation |
-| **Customization** | Text prompts with optional avatar enhancement | Text prompts + direct image manipulation |
-| **Quality** | High consistency, creative freedom | Superior subject preservation & accuracy |
-| **Cost** | $0.04/image (1 API call) | ~$0.08/image (2 API calls) |
-| **Speed** | Fast (~10-20s) | Slower (~15-30s) |
-
-> **ℹ️ Note on `use-existing-pfp`**: This option provides true avatar transformation and is only available with Gemini engine. DALL-E cannot perform image-to-image transformations but automatically includes avatar analysis in welcome images for enhanced personalization.
 
 ## User Customization Flows
 
