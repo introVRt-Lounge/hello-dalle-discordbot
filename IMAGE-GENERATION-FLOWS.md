@@ -1,11 +1,9 @@
 # 🎨 Image Generation Flows: DALL-E vs Gemini Engines
 
-> **"Show, don't tell"** - This page demonstrates the actual differences between DALL-E and Gemini image generation engines through real examples and flowcharts.
-
 The bot supports two image generation engines with fundamentally different approaches:
 
-- **DALL-E 3** (OpenAI): Traditional text-to-image generation
-- **Gemini 2.5 Flash Image** (Google): Advanced multimodal image-to-image with double-LLM analysis
+- **DALL-E 3** (OpenAI): Traditional image-to-text and text-to-image generation
+- **Gemini 2.5 Flash Image** (Google): As above but adds advanced multimodal image-to-image with double-LLM analysis
 
 ## ⚡ Engine Comparison Overview
 
@@ -28,12 +26,10 @@ The bot supports two image generation engines with fundamentally different appro
 - **You want the cheapest option** - Single API call, lowest cost per image
 - You want maximum creative freedom
 - You prefer faster generation
-- You're creating something completely new from scratch
 
 ### Choose Gemini When:
 - **You want the most accurate images truly based on users' profile pictures**
 - You need the highest subject consistency and personalization
-- You're willing to pay more for better avatar transformations
 - Quality and precision matter more than cost
 
 ## Engine Comparison Grid
@@ -342,8 +338,3 @@ flowchart TD
 - [← Back to README.md](../README.md) - Main documentation
 - [🐳 Docker Deployment](../README.md#deployment) - How to run the bot
 - [⚙️ Environment Setup](../README.md#environment-variables) - Configuration guide
-
----
-
-*This documentation shows the actual differences between engines through examples and flowcharts, helping users understand which engine best fits their needs.*
-
