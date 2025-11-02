@@ -46,7 +46,7 @@ const commands = [
       },
       {
         name: 'use-existing-pfp',
-        description: 'Transform user\'s current avatar (Gemini: direct image, DALL-E: enhanced with AI analysis)',
+        description: 'Use current avatar as base for transformation (Gemini only - true image-to-image)',
         type: 5, // BOOLEAN
         required: false,
       },

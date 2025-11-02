@@ -57,6 +57,15 @@ export async function handlePfpSlashCommand(client: Client, interaction: ChatInp
     const engine = (interaction.options.getString('engine') as ImageEngine) ?? getDEFAULT_ENGINE();
     const useExistingPfp = interaction.options.getBoolean('use-existing-pfp') ?? false;
 
+    // Validate use-existing-pfp option
+    if (useExistingPfp && engine !== 'gemini') {
+        await interaction.reply({
+            content: '❌ The `use-existing-pfp` option is only available with Gemini engine, which provides true image-to-image transformation. For DALL-E, avatar analysis is automatically included in welcome images but not available for profile picture generation.',
+            ephemeral: true
+        });
+        return;
+    }
+
     try {
         // Fetch all members of the guild to ensure a complete search
         const members = await guild.members.fetch();
