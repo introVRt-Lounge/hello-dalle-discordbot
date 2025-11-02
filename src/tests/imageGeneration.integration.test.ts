@@ -2,8 +2,12 @@ import { generateImageWithOptions, ImageGenerationOptions, downloadAndSaveImage 
 import fs from 'fs';
 import path from 'path';
 
-// Integration tests that actually generate images
+// Integration tests that actually generate images via paid APIs
 // These tests require valid API keys and will be skipped in CI unless explicitly enabled
+//
+// IMPORTANT: All tests that cost money preserve their generated artifacts!
+// Generated images are saved to dated directories: integration-test-outputs/YYYY-MM-DDTHH-MM-SS/
+// These directories are gitignored to avoid committing binary files.
 describe('Image Generation Integration Tests', () => {
     const testImagePath = path.join(__dirname, '../../helpers/pfp6.png');
 
@@ -127,7 +131,21 @@ describe('Image Generation Integration Tests', () => {
             try {
                 const result = await generateImageWithOptions(options);
                 expect(result).toBeDefined();
-                console.log('✅ Gemini handled request without quota issues');
+
+                // If we got a result, we paid for it - preserve the artifact!
+                if (typeof result === 'string' && !result.startsWith('http') && fs.existsSync(result)) {
+                    const filename = `gemini-quota-test-${Date.now()}.png`;
+                    const outputPath = path.join(outputDir, filename);
+                    await fs.promises.copyFile(result, outputPath);
+
+                    console.log('✅ Gemini handled request without quota issues');
+                    console.log('📁 Preserved generated image:', path.relative(process.cwd(), outputPath));
+
+                    // Clean up temp file
+                    fs.unlinkSync(result);
+                } else {
+                    console.log('✅ Gemini returned URL or no file generated');
+                }
             } catch (error: any) {
                 // Should handle quota errors gracefully
                 expect(error.message.toLowerCase()).toMatch(/quota|rate limit|exceeded/i);
