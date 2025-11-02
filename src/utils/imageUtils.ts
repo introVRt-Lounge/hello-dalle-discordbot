@@ -136,42 +136,6 @@ export async function addWatermark(imagePath: string, watermarkPath: string | un
     }
 }
 
-// Function to add watermark to PFP images with custom positioning (bottom center)
-export async function addPfpWatermark(imagePath: string, watermarkPath: string | undefined): Promise<string> {
-    try {
-        const outputImagePath = path.join(welcomeImagesDir, `pfp_watermarked_${Date.now()}.png`);
-
-        if (!watermarkPath) {
-            return imagePath;
-        }
-
-        // Get image metadata to calculate positioning
-        const imageMetadata = await sharp(imagePath).metadata();
-        const imageWidth = imageMetadata.width || 1024;
-        const imageHeight = imageMetadata.height || 1024;
-
-        // Position watermark at 90% vertical (10% from bottom), centered horizontally
-        const watermarkVerticalPos = Math.floor(imageHeight * 0.9); // 90% down
-        const watermark = await sharp(watermarkPath).resize({ width: 200 }).toBuffer();
-        const watermarkMetadata = await sharp(watermark).metadata();
-        const watermarkWidth = watermarkMetadata.width || 200;
-        const watermarkHorizontalPos = Math.floor((imageWidth - watermarkWidth) / 2); // Center horizontally
-
-        await sharp(imagePath)
-            .composite([{
-                input: watermark,
-                left: watermarkHorizontalPos,
-                top: watermarkVerticalPos
-            }])
-            .toFile(outputImagePath);
-
-        return outputImagePath;
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        throw new Error(`Failed to add PFP watermark: ${errorMessage}`);
-    }
-}
-
 // Function to describe the image using GPT-4 Vision API
 export async function describeImage(imagePath: string, imageUrl: string, genderSensitive: boolean): Promise<string> {
     if (DEBUG) console.log(`DEBUG: Describing image from URL: ${imageUrl}`);
