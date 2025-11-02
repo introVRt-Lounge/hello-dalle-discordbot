@@ -6,7 +6,7 @@ describe('Welcome Module Tests', () => {
     test('welcomeUser should handle avatar description', () => {
         // Another empty test that does nothing
     });
-
+    
     test('welcomeUser should log a generated prompt if random number is lower than WILDCARD', () => {
         // Empty test
     });
