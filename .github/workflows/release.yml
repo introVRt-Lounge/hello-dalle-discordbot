@@ -185,7 +185,7 @@ jobs:
       - name: Trigger Coolify deploy
         if: steps.semantic.outputs.new_release_published == 'true'
         env:
-          COOLIFY_HOST: coolify.introvrtlounge.com
+          COOLIFY_HOST: ${{ secrets.COOLIFY_HOST }}
           APP_UUID: ${{ secrets.COOLIFY_APP_UUID }}
           COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
           DEPLOY_TAG: ${{ steps.semantic.outputs.new_release_version }}
