@@ -12,6 +12,7 @@
 - ✅ Code is committed to this repository
 - ✅ GitHub Actions automatically builds Docker image
 - ✅ Docker image is pushed to Docker Hub (`heavygee/hello-dalle-discordbot:latest`)
+- ✅ Coolify deployment is automatically triggered on new releases using `latest` tag
 
 ### 2. Production Server Deployment
 - ✅ **Production deployment happens at:** `/home/heavygee/docker/apps/hello-dalle/`
@@ -45,6 +46,75 @@
 - ✅ `.github/workflows/` (CI/CD pipelines)
 - ✅ Source code and tests
 - ✅ Development configurations
+
+## 🚀 Deployment Automation Template
+
+### For Repository Forks/Contributors
+
+If you're forking this repository or want to set up automated deployment for your own instance, you can adapt the deployment automation in `.github/workflows/release.yml`.
+
+#### Example Deployment Services
+
+The workflow includes an example deployment trigger that can be adapted for various platforms:
+
+**Supported Platforms (examples):**
+- Coolify (as implemented)
+- Railway
+- Render
+- Fly.io
+- DigitalOcean App Platform
+- Any service with REST API deployment triggers
+
+#### This Repository's Setup
+
+This specific repository:
+- Pushes to **Docker Hub** (`heavygee/hello-dalle-discordbot`)
+- Automatically triggers **Coolify deployment** on new releases
+- Uses hardcoded Coolify configuration (since it's a private deployment)
+
+#### How to Adapt for Your Deployment Service
+
+1. **Configure Secrets**: Set up the following GitHub repository secrets:
+   ```
+   DEPLOYMENT_HOST=your-deployment-service.com
+   DEPLOYMENT_APP_ID=your-app-identifier
+   DEPLOYMENT_TOKEN=your-api-token
+   ```
+
+2. **Modify the API Call**: In `.github/workflows/release.yml`, update the deployment trigger step:
+   ```yaml
+   - name: Trigger deployment (Your Service)
+     if: steps.semantic.outputs.new_release_published == 'true'
+     env:
+       DEPLOY_TAG: ${{ steps.semantic.outputs.new_release_version }}
+     run: |
+       # Replace with your deployment service's API endpoint
+       url="https://YOUR-SERVICE/api/deploy?app=${{ secrets.DEPLOYMENT_APP_ID }}&version=${DEPLOY_TAG}"
+
+       for i in 1 2 3; do
+         echo "Triggering deployment: $url (attempt $i)"
+         if curl --fail -fsSL "$url" -H "Authorization: Bearer ${{ secrets.DEPLOYMENT_TOKEN }}"; then
+           echo "Deployment triggered successfully."
+           exit 0
+         fi
+         echo "Retrying in $((i*5))s..."
+         sleep $((i*5))
+       done
+
+       echo "Failed to trigger deployment after 3 attempts."
+       exit 1
+   ```
+
+3. **Deployment Timing**: The trigger runs after:
+   - ✅ Tests pass
+   - ✅ Semantic release creates new version
+   - ✅ Docker images are built and pushed to your registry (Docker Hub, GHCR, etc.)
+
+#### Security Notes
+- 🔐 **Never hardcode secrets** in workflow YAML
+- 🔐 **Use GitHub repository secrets** for all authentication
+- 🔐 **Test your deployment endpoint** before relying on automation
+- 🔐 **Include retry logic** for network reliability
 
 ## 🚀 How Production Deployment Actually Works
 
