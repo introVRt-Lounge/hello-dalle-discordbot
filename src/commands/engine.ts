@@ -1,7 +1,5 @@
 import { Client, ChatInputCommandInteraction, PermissionsBitField } from 'discord.js';
-import { getDEFAULT_ENGINE, setDEFAULT_ENGINE, ImageEngine } from '../config';
-import { logMessage } from '../utils/log';
-import { BOT_USER_ROLE } from '../config';
+import { getDEFAULT_ENGINE, setDEFAULT_ENGINE, ImageEngine, BOT_USER_ROLE } from '../config';
 
 // Check if user has permission to use engine command
 function hasEnginePermission(member: any): boolean {
@@ -40,9 +38,6 @@ export async function handleEngineSlashCommand(client: Client, interaction: Chat
     if (engine === 'dalle' || engine === 'gemini') {
         setDEFAULT_ENGINE(engine); // Set the new default engine
         await interaction.reply({ content: `Default image generation engine set to ${engine.toUpperCase()}`, ephemeral: true });
-
-        // Also log to the botspam channel
-        await logMessage(client, guild, `/engine command: Default engine set to ${engine.toUpperCase()}`);
     } else {
         await interaction.reply({ content: 'Engine must be either "dalle" or "gemini".', ephemeral: true });
     }
