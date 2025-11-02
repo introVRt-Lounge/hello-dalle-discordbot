@@ -1,0 +1,85 @@
+---
+description: AI rules derived by SpecStory from the project AI interaction history
+globs: *
+---
+
+## AI Coding Assistant Rules File
+
+This file defines the rules, coding standards, workflow guidelines, references, documentation structure, and best practices for the project. It is a living document, evolving with each user-AI interaction.
+
+## PROJECT RULES
+
+- **Do not generate code that violates security best practices.** This includes but is not limited to:
+  - Avoiding SQL injection vulnerabilities.
+  - Properly sanitizing user inputs to prevent XSS attacks.
+  - Never hardcoding API keys or credentials directly in the code.
+  - Implementing robust authentication and authorization mechanisms.
+- **Always ensure code is well-documented and follows established coding standards.**
+- **Must adhere to the project's defined tech stack and architectural patterns.**
+- **When modifying existing code, don't introduce regressions or break existing functionality.**
+- **All code changes should be thoroughly tested before being committed.**
+- **When addressing a bug, provide a clear explanation of the root cause and the steps taken to resolve it.**
+- **Never expose internal system details or vulnerabilities to external users.**
+- **Always prioritize user privacy and data protection.**
+- **When using the `use-existing-pfp` option, it is only available with the Gemini engine.**
+
+## TECH STACK
+
+- **Programming Languages:** JavaScript, TypeScript
+- **Frameworks/Libraries:** Node.js, Discord.js, Jest
+- **AI Models:**
+  - OpenAI DALL-E 3
+  - Google Gemini 2.5 Flash Image
+- **Data Storage:** JSON (for image description cache)
+
+## CODING STANDARDS
+
+- **Language:** Use ES6+ syntax in JavaScript/TypeScript.
+- **Modularity:** Break code into reusable modules and components.
+- **Comments:** Add clear and concise comments to explain code functionality.
+- **Error Handling:** Implement robust error handling with try-catch blocks.
+- **Asynchronous Code:** Use async/await for asynchronous operations.
+- **Naming Conventions:** Follow consistent naming conventions for variables, functions, and classes.
+- **Linting:** Adhere to linting rules (e.g., ESLint) for code style and consistency.
+- **Types:** Utilize TypeScript's type system extensively for code safety and maintainability.
+
+## DEBUGGING
+
+- Use `console.log` statements strategically to trace code execution.
+- Examine error messages carefully for clues about the root cause.
+- Use a debugger (e.g., VS Code debugger) to step through code execution.
+- Check network requests and responses for API-related issues.
+- Verify environment variables and configuration settings.
+
+## TESTING
+
+- **Unit Tests:** Write unit tests to verify individual functions and components.
+- **Integration Tests:** Create integration tests to ensure different parts of the system work together correctly.
+- **Test-Driven Development (TDD):** Consider writing tests before implementing the actual code.
+- **Mocking:** Use mocking libraries to isolate units under test.
+- **Continuous Integration (CI):** Set up CI pipelines to automatically run tests on every commit.
+- For testing Gemini, ensure that you have set the GEMINI_API_KEY in your environment.
+
+## PROJECT DOCUMENTATION & CONTEXT SYSTEM
+
+- **README.md:** Project overview, setup instructions, usage examples.
+- **IMAGE-GENERATION-FLOWS.md:** Detailed explanation of image generation workflows, engine comparisons, and technical details.
+- **Commit Messages:** Use clear and descriptive commit messages.
+- **Code Comments:** Add JSDoc-style comments to functions and classes.
+- **Data Structures:** Document important data structures and their purpose.
+
+## WORKFLOW & RELEASE RULES
+
+- **Branching Strategy:** Use feature branches for new features or bug fixes.
+- **Pull Requests:** Submit pull requests for code review before merging into the main branch.
+- **Code Review:** Conduct thorough code reviews to ensure code quality and adherence to standards.
+- **Semantic Versioning:** Follow semantic versioning for releases.
+- **Continuous Integration (CI):** Use CI pipelines to automate testing and deployment.
+- **Release Process:** Use a well-defined release process to ensure smooth and reliable releases.
+- **Github Actions:** Workflows should contain explicit permissions to restrict the scope of the default GITHUB_TOKEN.
+
+## REFERENCES
+
+- **Discord.js Documentation:** [https://discord.js.org/#/docs/main/stable/general/welcome](https://discord.js.org/#/docs/main/stable/general/welcome)
+- **OpenAI API Documentation:** [https://platform.openai.com/docs/api-reference](https://platform.openai.com/docs/api-reference)
+- **Semantic Release:**  Use semantic-release to automate version management.
