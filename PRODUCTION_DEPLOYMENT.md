@@ -12,7 +12,7 @@
 - ✅ Code is committed to this repository
 - ✅ GitHub Actions automatically builds Docker image
 - ✅ Docker image is pushed to Docker Hub (`heavygee/hello-dalle-discordbot:latest`)
-- ✅ Coolify deployment is automatically triggered on new releases
+- ✅ Coolify deployment is automatically triggered on new releases using `latest` tag
 
 ### 2. Production Server Deployment
 - ✅ **Production deployment happens at:** `/home/heavygee/docker/apps/hello-dalle/`
