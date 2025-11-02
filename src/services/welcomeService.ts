@@ -1,7 +1,9 @@
 import { Client, GuildMember, TextChannel } from 'discord.js';
 import { generateProfilePicture } from './pfpService';
 import { generateWelcomeImage, downloadAndSaveImage, describeImage } from '../utils/imageUtils';
+import { ImageEngine, getDEFAULT_ENGINE } from '../config';
 import { WELCOME_CHANNEL_ID, WELCOME_PROMPT, POSTING_DELAY, BOTSPAM_CHANNEL_ID, STEALTH_WELCOME, getWILDCARD, DEBUG, GENDER_SENSITIVITY } from '../config';
+import { analyzeImageContent } from './geminiService';
 import path from 'path';
 import fs from 'fs';
 import { logMessage } from '../utils/log';
@@ -41,7 +43,7 @@ async function postToUser(client: Client, guild: GuildMember['guild'], userId: s
     }, postDelayInMs);
 }
 
-export async function welcomeUser(client: Client, member: GuildMember, debugMode: boolean = false): Promise<void> {
+export async function welcomeUser(client: Client, member: GuildMember, debugMode: boolean = false, engine: ImageEngine = getDEFAULT_ENGINE()): Promise<void> {
     const guild = member.guild;
     const displayName = member.displayName;
     const userId = member.user.id;
@@ -55,7 +57,18 @@ export async function welcomeUser(client: Client, member: GuildMember, debugMode
         let avatarDescription = '';
 
         // Check if the user has a custom profile picture or is using a default Discord logo
-        if (avatarUrl && !avatarUrl.includes('https://discord.com/assets/') && !avatarUrl.includes('https://cdn.discordapp.com/embed/avatars/')) {
+        // Parse URL to safely check hostname instead of using includes() which can be bypassed
+        let isDefaultAvatar = false;
+        try {
+            const urlObj = new URL(avatarUrl);
+            isDefaultAvatar = urlObj.hostname === 'discord.com' && urlObj.pathname.startsWith('/assets/') ||
+                             urlObj.hostname === 'cdn.discordapp.com' && urlObj.pathname.includes('/embed/avatars/');
+        } catch (error) {
+            // If URL parsing fails, assume it's custom to be safe
+            isDefaultAvatar = false;
+        }
+
+        if (avatarUrl && !isDefaultAvatar) {
             // User has a custom profile picture, download and describe it
             avatarPath = path.join(__dirname, '../../temp', `downloaded_avatar_${Date.now()}.png`);
             await downloadAndSaveImage(avatarUrl, avatarPath);
@@ -86,7 +99,34 @@ export async function welcomeUser(client: Client, member: GuildMember, debugMode
         await logMessage(client, guild, `Generated prompt: ${prompt}`);
 
         // Generate the welcome image with watermark
-        const welcomeImagePath = await generateWelcomeImage(prompt);
+        // For Gemini, use double-LLM strategy: analyze avatar then generate with enhanced prompt
+        let imageInput: string | undefined;
+        let finalPrompt = prompt;
+
+        if (engine === 'gemini' && avatarPath) {
+            // Use the actual avatar image for image-to-image generation
+            imageInput = avatarPath;
+
+            try {
+                // Step 1: Analyze the avatar image using Gemini 2.0 Flash
+                if (DEBUG) console.log(`DEBUG: Analyzing avatar for double-LLM welcome generation: ${avatarPath}`);
+                const analysisResult = await analyzeImageContent(avatarPath);
+                if (DEBUG) console.log(`DEBUG: Avatar analysis result: ${analysisResult}`);
+
+                // Step 2: Construct enhanced prompt using analysis
+                finalPrompt = `Using the input image as reference: ${analysisResult}. Create a welcome image for ${displayName} proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles.`;
+
+                if (DEBUG) console.log(`DEBUG: Enhanced Gemini welcome prompt: ${finalPrompt}`);
+            } catch (analysisError) {
+                // Fallback to simpler approach if analysis fails
+                if (DEBUG) console.error('DEBUG: Avatar analysis failed, using fallback prompt:', analysisError);
+                finalPrompt = `Create a welcome image featuring this user's avatar. ${prompt.replace('{avatar}', 'the provided avatar image')}`;
+            }
+
+            if (DEBUG) console.log(`DEBUG: Using avatar image for image-to-image welcome generation: ${avatarPath}`);
+        }
+
+        const welcomeImagePath = await generateWelcomeImage(finalPrompt, engine, { imageInput });
         if (DEBUG) console.log(`DEBUG: Generated and watermarked image path: ${welcomeImagePath}`);
 
         // Notify admins about welcome image generation
