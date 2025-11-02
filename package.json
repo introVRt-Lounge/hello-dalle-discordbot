@@ -7,6 +7,7 @@
     "clean": "rm -rf dist",
     "build": "npm run clean && npx tsc",
     "test": "jest --config jest.config.ts",
+    "test:integration": "RUN_INTEGRATION_TESTS=true npm test -- --testPathPatterns=imageGeneration.integration.test.ts",
     "start": "node dist/bot.js",
     "start:dev": "ts-node src/bot.ts",
     "semantic-release": "semantic-release"
@@ -15,6 +16,7 @@
   "author": "HeavyGee and ChatGPT",
   "license": "ISC",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@octokit/rest": "^22.0.0",
     "axios": "^1.12.2",
     "discord.js": "^14.15.3",
@@ -23,9 +25,9 @@
     "sharp": "^0.33.5"
   },
   "devDependencies": {
+    "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/github": "^10.1.7",
     "@semantic-release/release-notes-generator": "^14.1.0",
-    "@semantic-release/commit-analyzer": "^13.0.1",
     "@types/jest": "^30.0.0",
     "@types/jimp": "^0.2.28",
     "@types/node": "^24.9.2",
