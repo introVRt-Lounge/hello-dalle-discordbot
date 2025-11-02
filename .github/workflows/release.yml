@@ -182,30 +182,40 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Trigger Coolify deploy
+      - name: Trigger deployment (Coolify example)
         if: steps.semantic.outputs.new_release_published == 'true'
         env:
-          COOLIFY_HOST: ${{ secrets.COOLIFY_HOST }}
-          APP_UUID: ${{ secrets.COOLIFY_APP_UUID }}
-          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
           DEPLOY_TAG: ${{ steps.semantic.outputs.new_release_version }}
         run: |
+          # NOTE: This step is an example for Coolify deployment
+          # To use this in your own repository:
+          # 1. Set up your deployment service (Coolify, Railway, Render, etc.)
+          # 2. Configure secrets: DEPLOYMENT_HOST, DEPLOYMENT_APP_ID, DEPLOYMENT_TOKEN
+          # 3. Modify the API call below to match your deployment service's API
+          # 4. Remove or adapt this step for your specific deployment needs
+
           set -euo pipefail
 
-          url="https://${COOLIFY_HOST}/api/v1/deploy?uuid=${APP_UUID}&tag=${DEPLOY_TAG}&force=false"
+          # Example Coolify deployment (modify for your deployment service)
+          if [ -n "${{ secrets.COOLIFY_HOST }}" ] && [ -n "${{ secrets.COOLIFY_APP_UUID }}" ] && [ -n "${{ secrets.COOLIFY_TOKEN }}" ]; then
+            url="https://${{ secrets.COOLIFY_HOST }}/api/v1/deploy?uuid=${{ secrets.COOLIFY_APP_UUID }}&tag=${DEPLOY_TAG}&force=false"
 
-          for i in 1 2 3; do
-            echo "Calling: $url (attempt $i)"
-            if curl --fail -fsSL "$url" -H "Authorization: Bearer ${COOLIFY_TOKEN}"; then
-              echo "Coolify deploy triggered."
-              exit 0
-            fi
-            echo "Retrying in $((i*5))s..."
-            sleep $((i*5))
-          done
+            for i in 1 2 3; do
+              echo "Calling deployment service: $url (attempt $i)"
+              if curl --fail -fsSL "$url" -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"; then
+                echo "Deployment triggered successfully."
+                exit 0
+              fi
+              echo "Retrying in $((i*5))s..."
+              sleep $((i*5))
+            done
 
-          echo "Failed to trigger Coolify deploy after 3 attempts."
-          exit 1
+            echo "Failed to trigger deployment after 3 attempts."
+            exit 1
+          else
+            echo "Deployment secrets not configured. Skipping deployment trigger."
+            echo "To enable automated deployment, configure your deployment service secrets."
+          fi
 
       - name: Update deployment status (in progress)
         if: steps.semantic.outputs.new_release_published == 'true'
