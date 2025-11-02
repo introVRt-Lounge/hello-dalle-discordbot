@@ -161,19 +161,15 @@ jobs:
       - name: Trigger Coolify deploy
         if: steps.semantic.outputs.new_release_published == 'true'
         env:
-          COOLIFY_HOST: coolify.introvrtlounge.com
-          APP_UUID: scgg88wckwcckwgcock008gs
+          COOLIFY_WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK }}
           COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
-          DEPLOY_TAG: ${{ steps.semantic.outputs.new_release_version }}
         run: |
           set -euo pipefail
 
-          url="https://${COOLIFY_HOST}/api/v1/deploy?uuid=${APP_UUID}&tag=latest&force=false"
-
           for i in 1 2 3; do
-            echo "Calling: $url (attempt $i)"
-            if curl --fail -fsSL "$url" -H "Authorization: Bearer ${COOLIFY_TOKEN}"; then
-              echo "Coolify deploy triggered."
+            echo "Calling webhook: $COOLIFY_WEBHOOK (attempt $i)"
+            if curl --fail -fsSL "$COOLIFY_WEBHOOK" -H "Authorization: Bearer ${COOLIFY_TOKEN}"; then
+              echo "Coolify deploy triggered via webhook."
               exit 0
             fi
             echo "Retrying in $((i*5))s..."
