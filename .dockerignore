@@ -15,5 +15,6 @@ vrchat-jellyfin-logs.txt
 watermark_noback.png
 watermark.png
 output.log
-pfp*.png
+avatar.png
+dalle_image.png
 .github/

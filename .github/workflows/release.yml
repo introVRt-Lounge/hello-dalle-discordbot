@@ -44,8 +44,8 @@ jobs:
           NODE_ENV=test
           EOF
 
-          # Clean up any existing test container
-          docker rm -f test-run || true
+          # Clean up any existing test container (ignore errors if it doesn't exist)
+          docker rm -f test-run 2>/dev/null || echo "No existing test-run container to clean up"
 
           # Create and run test container
           docker run --rm --name test-run -v ${{ github.workspace }}/.env.test:/usr/src/app/.env.test hello-dalle-test npm test
