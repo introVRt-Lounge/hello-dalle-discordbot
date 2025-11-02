@@ -168,7 +168,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          url="https://${COOLIFY_HOST}/api/v1/deploy?uuid=${APP_UUID}&tag=${DEPLOY_TAG}&force=false"
+          url="https://${COOLIFY_HOST}/api/v1/deploy?uuid=${APP_UUID}&tag=latest&force=false"
 
           for i in 1 2 3; do
             echo "Calling: $url (attempt $i)"
