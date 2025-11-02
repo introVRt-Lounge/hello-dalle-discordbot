@@ -12,6 +12,7 @@
 - ✅ Code is committed to this repository
 - ✅ GitHub Actions automatically builds Docker image
 - ✅ Docker image is pushed to Docker Hub (`heavygee/hello-dalle-discordbot:latest`)
+- ✅ Coolify deployment is automatically triggered on new releases
 
 ### 2. Production Server Deployment
 - ✅ **Production deployment happens at:** `/home/heavygee/docker/apps/hello-dalle/`
@@ -64,6 +65,13 @@ The workflow includes an example deployment trigger that can be adapted for vari
 - DigitalOcean App Platform
 - Any service with REST API deployment triggers
 
+#### This Repository's Setup
+
+This specific repository:
+- Pushes to **Docker Hub** (`heavygee/hello-dalle-discordbot`)
+- Automatically triggers **Coolify deployment** on new releases
+- Uses hardcoded Coolify configuration (since it's a private deployment)
+
 #### How to Adapt for Your Deployment Service
 
 1. **Configure Secrets**: Set up the following GitHub repository secrets:
@@ -100,7 +108,7 @@ The workflow includes an example deployment trigger that can be adapted for vari
 3. **Deployment Timing**: The trigger runs after:
    - ✅ Tests pass
    - ✅ Semantic release creates new version
-   - ✅ Docker images are built and pushed (Docker Hub + GHCR)
+   - ✅ Docker images are built and pushed to your registry (Docker Hub, GHCR, etc.)
 
 #### Security Notes
 - 🔐 **Never hardcode secrets** in workflow YAML
