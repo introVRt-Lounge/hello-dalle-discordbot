@@ -22,6 +22,20 @@ The bot supports two image generation engines with fundamentally different appro
 
 > **ℹ️ Note on `use-existing-pfp`**: This option provides true avatar transformation and is only available with Gemini engine. DALL-E cannot perform image-to-image transformations but automatically includes avatar analysis in welcome images for enhanced personalization.
 
+## 🎯 **When to Choose Each Engine**
+
+### Choose DALL-E When:
+- **You want the cheapest option** - Single API call, lowest cost per image
+- You want maximum creative freedom
+- You prefer faster generation
+- You're creating something completely new from scratch
+
+### Choose Gemini When:
+- **You want the most accurate images truly based on users' profile pictures**
+- You need the highest subject consistency and personalization
+- You're willing to pay more for better avatar transformations
+- Quality and precision matter more than cost
+
 ## Engine Comparison Grid
 
 Each example shows the same input processed by both engines to demonstrate the technical differences.
@@ -321,36 +335,6 @@ flowchart TD
 - Personalized to user's actual appearance
 
 **Best For**: When you want to modify your existing avatar, maintain consistency
-
-## 📊 **Performance Comparison**
-
-### API Costs
-- **DALL-E**: $0.04 per image (1024×1024 standard) - Single API call
-- **Gemini**: $0.039 per image + $0.00025 per text input (1024×1024) - **Two API calls** = ~$0.08 total
-
-### Generation Speed
-- **DALL-E**: ~10-20 seconds
-- **Gemini Double-LLM**: ~15-30 seconds (two API calls)
-
-### Quality Comparison
-- **DALL-E**: High consistency, creative freedom
-- **Gemini**: Better subject preservation, more personalized
-
-## 🎯 **When to Choose Each Engine**
-
-### Choose DALL-E When:
-- **You want the cheapest option** - Single API call, lowest cost per image
-- You want maximum creative freedom
-- You prefer faster generation
-- You're creating something completely new from scratch
-
-### Choose Gemini When:
-- **You want the most accurate images truly based on users' profile pictures**
-- You need the highest subject consistency and personalization
-- You're willing to pay more for better avatar transformations
-- Quality and precision matter more than cost
-
----
 
 **Ready to try it?** Set your default engine with `/engine` and experiment with `/pfp` and `/welcome` commands!
 
