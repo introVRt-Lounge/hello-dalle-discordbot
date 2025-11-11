@@ -115,12 +115,40 @@ client.on('interactionCreate', async (interaction) => {
                     if (!guild) return;
 
                     try {
-                        // Fetch all members
-                        const members = await guild.members.fetch();
                         const userInput = focusedOption.value.toLowerCase();
 
+                        // First, try to use cached members for immediate response
+                        let allMembers = guild.members.cache;
+
+                        // If user input is not empty and we have few cached results, try to fetch more
+                        // But implement a timeout to avoid hanging
+                        if (userInput.length > 0) {
+                            const cachedFiltered = allMembers.filter(member =>
+                                member.user.username.toLowerCase().includes(userInput) ||
+                                (member.displayName && member.displayName.toLowerCase().includes(userInput))
+                            );
+
+                            // If we have less than 10 cached results, try to fetch more members
+                            if (cachedFiltered.size < 10) {
+                                try {
+                                    // Create a promise that rejects after 2 seconds
+                                    const timeoutPromise = new Promise((_, reject) =>
+                                        setTimeout(() => reject(new Error('GuildMembersTimeout')), 2000)
+                                    );
+
+                                    // Race between fetching members and timeout
+                                    const fetchPromise = guild.members.fetch();
+                                    allMembers = await Promise.race([fetchPromise, timeoutPromise]) as typeof allMembers;
+                                } catch (fetchError) {
+                                    // If fetch times out, use cached members only
+                                    console.error('Error fetching members for autocomplete:', fetchError);
+                                    allMembers = guild.members.cache;
+                                }
+                            }
+                        }
+
                         // Filter members based on user input
-                        const filteredMembers = members
+                        const filteredMembers = allMembers
                             .filter(member =>
                                 member.user.username.toLowerCase().includes(userInput) ||
                                 (member.displayName && member.displayName.toLowerCase().includes(userInput))
@@ -137,8 +165,14 @@ client.on('interactionCreate', async (interaction) => {
 
                         await interaction.respond(choices);
                     } catch (error) {
-                        console.error('Error fetching members for autocomplete:', error);
-                        await interaction.respond([]);
+                        console.error('Error handling autocomplete:', error);
+                        // Always try to respond with empty array as fallback
+                        try {
+                            await interaction.respond([]);
+                        } catch (respondError) {
+                            // Ignore respond errors in catch block to avoid infinite loops
+                            console.error('Error responding to autocomplete:', respondError);
+                        }
                     }
                 }
             }
