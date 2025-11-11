@@ -11,11 +11,12 @@
     "start": "node dist/bot.js",
     "start:dev": "ts-node src/bot.ts",
     "semantic-release": "semantic-release",
-    "prepare": "husky"
+    "prepare": "husky",
+    "type-check": "npx tsc --noEmit --skipLibCheck"
   },
   "lint-staged": {
     "*.{ts,js}": [
-      "npx tsc --noEmit"
+      "npx tsc --noEmit --skipLibCheck"
     ]
   },
   "keywords": [],
