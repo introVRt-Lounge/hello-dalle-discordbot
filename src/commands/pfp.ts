@@ -1,4 +1,4 @@
-import { Client, CommandInteraction, PermissionsBitField, ChatInputCommandInteraction } from 'discord.js';
+import { Client, CommandInteraction, PermissionsBitField, ChatInputCommandInteraction, GuildMember } from 'discord.js';
 import { generateProfilePicture } from '../services/pfpService';
 import { cooldownService } from '../services/cooldownService';
 import { logMessage } from '../utils/log';
@@ -67,11 +67,27 @@ export async function handlePfpSlashCommand(client: Client, interaction: ChatInp
     }
 
     try {
-        // Fetch all members of the guild to ensure a complete search
-        const members = await guild.members.fetch();
-        const targetMember = members.find(
-            m => m.user.username.toLowerCase() === username || m.displayName.toLowerCase() === username
+        // First try to find member in cache for speed
+        let targetMember = guild.members.cache.find(
+            m => m.user.username.toLowerCase() === username || (m.displayName && m.displayName.toLowerCase() === username)
         );
+
+        // If not found in cache, do a targeted fetch with timeout protection
+        if (!targetMember) {
+            try {
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('MemberFetchTimeout')), 3000)
+                );
+                const fetchPromise = guild.members.fetch({ query: username, limit: 10 });
+                const fetchedMembers = await Promise.race([fetchPromise, timeoutPromise]) as typeof guild.members.cache;
+                targetMember = fetchedMembers.find(
+                    (m: GuildMember) => m.user.username.toLowerCase() === username || (m.displayName && m.displayName.toLowerCase() === username)
+                );
+            } catch (fetchError) {
+                console.error('Error fetching member for pfp command:', fetchError);
+                // Continue with targetMember = null, will show error below
+            }
+        }
 
         if (targetMember) {
             // Generate unique request ID for tracking

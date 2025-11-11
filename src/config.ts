@@ -1,5 +1,5 @@
 import { config as loadEnv } from 'dotenv';
-import path from 'path';
+import * as path from 'path';
 import * as fs from 'fs';
 
 // Load environment variables from .env file, if present and not in CI/test environment
