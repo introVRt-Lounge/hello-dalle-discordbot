@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "npm run clean && npx tsc",
-    "test": "jest --config jest.config.ts",
+    "test": "npm run build && jest --config jest.config.ts",
     "test:integration": "RUN_INTEGRATION_TESTS=true npm test -- --testPathPatterns=imageGeneration.integration.test.ts",
     "start": "node dist/bot.js",
     "start:dev": "ts-node src/bot.ts",
