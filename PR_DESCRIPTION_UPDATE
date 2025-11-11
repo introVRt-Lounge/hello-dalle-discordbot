@@ -1,0 +1,55 @@
+## Features & Fixes
+
+### 🔧 Discord Bot Improvements
+- **Fix autocomplete timeout issues**: Resolve GuildMembersTimeout and Unknown interaction errors
+- Use cached guild members first for instant responses
+- Implement 2-second timeout protection with graceful fallback
+- Prevent interaction token expiration and failed responses
+
+- **Optimize pfp command member fetching**: Use same smart pattern as welcome command
+- Check cache first, then targeted fetch with 3-second timeout
+- Prevent timeouts when finding users not in autocomplete cache
+
+### 🚀 Deployment Automation (Currently Disabled)
+- **Temporarily disabled**: Coolify webhook deployment trigger commented out due to IP restrictions
+- **Preserved for future**: Code ready to re-enable once IP restrictions are resolved
+- **Webhook approach**: Uses Coolify native webhooks instead of direct API calls
+- **Secrets configured**: COOLIFY_WEBHOOK and COOLIFY_TOKEN ready for use
+
+### 🛡️ Development Workflow Improvements
+- **Pre-commit hooks**: Set up husky + lint-staged for automatic TypeScript validation
+- **Enhanced CI/CD**: npm test now includes TypeScript compilation to catch errors early
+- **TypeScript fixes**: Updated tsconfig.json and fixed import issues for better compatibility
+- **Quality gates**: Automated checks prevent broken commits
+
+### 📋 Workflow Changes
+- Docker Hub push only (removed GHCR)
+- Uses `latest` tag for deployment tracking
+- Generic deployment template for repository forks
+- Retry logic with exponential backoff (preserved)
+
+## Status
+- ✅ **Autocomplete fixes**: Ready to merge
+- ✅ **Pfp command optimization**: Ready to merge  
+- ✅ **Pre-commit hooks**: Ready to merge
+- ✅ **TypeScript validation**: Ready to merge
+- ⏸️ **Deployment automation**: Disabled until IP restrictions resolved
+
+## Testing
+- All existing tests pass
+- TypeScript compilation successful
+- Pre-commit hooks validated
+- No linting errors
+- Maintains backward compatibility
+
+## Development Workflow
+```bash
+# Now with pre-commit validation:
+git add file.ts
+git commit -m "feat: add feature"
+# → Automatically runs TypeScript compilation on staged files
+# → Blocks commit if errors found
+# → Ensures CI always passes
+```
+
+Fixes production timeout issues and prevents future TypeScript compilation errors.
