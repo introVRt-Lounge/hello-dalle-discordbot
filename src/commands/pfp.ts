@@ -1,4 +1,4 @@
-import { Client, CommandInteraction, PermissionsBitField, ChatInputCommandInteraction } from 'discord.js';
+import { Client, CommandInteraction, PermissionsBitField, ChatInputCommandInteraction, GuildMember } from 'discord.js';
 import { generateProfilePicture } from '../services/pfpService';
 import { cooldownService } from '../services/cooldownService';
 import { logMessage } from '../utils/log';
@@ -79,9 +79,9 @@ export async function handlePfpSlashCommand(client: Client, interaction: ChatInp
                     setTimeout(() => reject(new Error('MemberFetchTimeout')), 3000)
                 );
                 const fetchPromise = guild.members.fetch({ query: username, limit: 10 });
-                const fetchedMembers = await Promise.race([fetchPromise, timeoutPromise]) as any;
+                const fetchedMembers = await Promise.race([fetchPromise, timeoutPromise]) as typeof guild.members.cache;
                 targetMember = fetchedMembers.find(
-                    m => m.user.username.toLowerCase() === username || (m.displayName && m.displayName.toLowerCase() === username)
+                    (m: GuildMember) => m.user.username.toLowerCase() === username || (m.displayName && m.displayName.toLowerCase() === username)
                 );
             } catch (fetchError) {
                 console.error('Error fetching member for pfp command:', fetchError);
