@@ -158,26 +158,26 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Trigger Coolify deploy
-        if: steps.semantic.outputs.new_release_published == 'true'
-        env:
-          COOLIFY_WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK }}
-          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
-        run: |
-          set -euo pipefail
-
-          for i in 1 2 3; do
-            echo "Calling webhook: $COOLIFY_WEBHOOK (attempt $i)"
-            if curl --fail -fsSL "$COOLIFY_WEBHOOK" -H "Authorization: Bearer ${COOLIFY_TOKEN}"; then
-              echo "Coolify deploy triggered via webhook."
-              exit 0
-            fi
-            echo "Retrying in $((i*5))s..."
-            sleep $((i*5))
-          done
-
-          echo "Failed to trigger Coolify deploy after 3 attempts."
-          exit 1
+      # - name: Trigger Coolify deploy
+      #   if: steps.semantic.outputs.new_release_published == 'true'
+      #   env:
+      #     COOLIFY_WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK }}
+      #     COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+      #   run: |
+      #     set -euo pipefail
+      #
+      #     for i in 1 2 3; do
+      #       echo "Calling webhook: $COOLIFY_WEBHOOK (attempt $i)"
+      #       if curl --fail -fsSL "$COOLIFY_WEBHOOK" -H "Authorization: Bearer ${COOLIFY_TOKEN}"; then
+      #         echo "Coolify deploy triggered via webhook."
+      #         exit 0
+      #       fi
+      #       echo "Retrying in $((i*5))s..."
+      #       sleep $((i*5))
+      #     done
+      #
+      #     echo "Failed to trigger Coolify deploy after 3 attempts."
+      #     exit 1
 
       - name: Update deployment status (in progress)
         if: steps.semantic.outputs.new_release_published == 'true'
