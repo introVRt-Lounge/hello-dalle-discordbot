@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    // TypeScript config for DEVELOPMENT TYPE CHECKING (noEmit for fast checks)
     "rootDir": "./src",          // Root directory for your source files
     "outDir": "./dist",          // Output directory for compiled files
     "baseUrl": ".",              // Base URL for module resolution (relative to project root)
@@ -16,7 +17,7 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "declaration": false,        // Don't generate .d.ts files for pre-commit checks
-    "noEmit": false              // Emit compiled JavaScript files
+    "noEmit": true               // Don't emit files, just check types (fast)
   },
   "include": [
     "src/**/*.ts"                // Include all TypeScript files in the src directory
