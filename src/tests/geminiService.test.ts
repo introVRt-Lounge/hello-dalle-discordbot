@@ -214,13 +214,13 @@ describe('Gemini Service Tests', () => {
             });
         });
 
-        test('should default to nano-banana model', async () => {
+        test('should default to gemini-2.0-flash model', async () => {
             mockGenerateImageWithGeminiFn.mockResolvedValue('/path/to/image.png');
 
             const options: ImageGenerationOptions = {
                 prompt: 'Test prompt',
                 engine: 'gemini'
-                // No model specified, should default to nano-banana
+                // No model specified, should default to gemini-2.0-flash
             };
 
             const result = await generateImageWithOptions(options);
@@ -229,7 +229,7 @@ describe('Gemini Service Tests', () => {
             expect(mockGenerateImageWithGeminiFn).toHaveBeenCalledWith({
                 prompt: 'Test prompt',
                 useAnalysis: true
-                // model should default to nano-banana
+                // model should default to gemini-2.0-flash
             });
         });
     });
