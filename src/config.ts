@@ -74,22 +74,37 @@ export type ImageEngine = 'dalle' | 'gemini';
 // Manage DEFAULT_ENGINE as a variable with getter/setter
 let defaultEngine: ImageEngine = (process.env.DEFAULT_ENGINE as ImageEngine) || 'dalle';
 
-// Validate that the default engine has required API keys
+// Validate and auto-switch default engine based on available API keys
 if (defaultEngine === 'dalle' && !OPENAI_API_KEY) {
     console.warn('⚠️  WARNING: DEFAULT_ENGINE is set to "dalle" but OPENAI_API_KEY is not configured.');
-    console.warn('⚠️  Switching default engine to "gemini" for image generation.');
-    console.warn('💡 To use DALL-E as default, set OPENAI_API_KEY environment variable.');
-    defaultEngine = 'gemini';
+    if (GEMINI_API_KEY) {
+        console.warn('⚠️  Switching default engine to "gemini" for image generation.');
+        console.warn('💡 To use DALL-E as default, set OPENAI_API_KEY environment variable.');
+        defaultEngine = 'gemini';
+    } else {
+        console.error('❌ ERROR: DEFAULT_ENGINE is "dalle" but OPENAI_API_KEY is missing, and GEMINI_API_KEY is also missing!');
+        console.error('❌ Please set at least one of GEMINI_API_KEY or OPENAI_API_KEY environment variables.');
+        process.exit(1);
+    }
 } else if (defaultEngine === 'gemini' && !GEMINI_API_KEY) {
     console.warn('⚠️  WARNING: DEFAULT_ENGINE is set to "gemini" but GEMINI_API_KEY is not configured.');
     if (OPENAI_API_KEY) {
         console.warn('⚠️  Switching default engine to "dalle" for image generation.');
+        console.warn('💡 To use Gemini as default, set GEMINI_API_KEY environment variable.');
         defaultEngine = 'dalle';
     } else {
-        console.error('❌ ERROR: Neither GEMINI_API_KEY nor OPENAI_API_KEY are configured!');
+        console.error('❌ ERROR: DEFAULT_ENGINE is "gemini" but GEMINI_API_KEY is missing, and OPENAI_API_KEY is also missing!');
         console.error('❌ Please set at least one of GEMINI_API_KEY or OPENAI_API_KEY environment variables.');
         process.exit(1);
     }
+}
+
+// Final validation: ensure we ended up with a working configuration
+if ((defaultEngine === 'dalle' && !OPENAI_API_KEY) || (defaultEngine === 'gemini' && !GEMINI_API_KEY)) {
+    console.error('❌ ERROR: Final engine validation failed!');
+    console.error(`❌ Engine: ${defaultEngine}, OPENAI_API_KEY: ${OPENAI_API_KEY ? 'present' : 'missing'}, GEMINI_API_KEY: ${GEMINI_API_KEY ? 'present' : 'missing'}`);
+    console.error('❌ This should not happen - please check environment variables.');
+    process.exit(1);
 }
 
 export const getDEFAULT_ENGINE = (): ImageEngine => defaultEngine;
