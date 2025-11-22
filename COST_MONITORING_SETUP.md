@@ -77,10 +77,11 @@ curl -H "Authorization: Bearer $OPENAI_API_KEY" \
 ```
 
 ### OpenAI Cost Access
-Currently, OpenAI's cost monitoring requires:
-- Usage API access (may require special permissions)
-- Organization-level billing access
-- API endpoints for cost data (not fully implemented yet)
+OpenAI cost monitoring is implemented but requires special permissions:
+- **Usage API**: Requires API key with billing read permissions (not all keys have this)
+- **Subscription API**: Fallback endpoint for basic subscription info
+- **Cost Estimation**: Calculates approximate costs from usage data when available
+- **Permission Gating**: Many OpenAI API keys cannot access cost/usage data
 
 ## Environment Variables
 
@@ -138,12 +139,14 @@ OpenAI API:
 ### OpenAI Issues
 
 **"API key lacks permissions"**
-- Ensure API key has billing read access
-- Check organization settings
+- Most OpenAI API keys don't have billing access by default
+- Requires special permissions from OpenAI/org admin
+- This is normal - OpenAI restricts billing API access
 
 **"Cost data not available"**
-- OpenAI cost monitoring not fully implemented yet
-- Will show "not available" in bot startup
+- OpenAI intentionally limits cost API access
+- Only works if your API key has billing permissions
+- Bot gracefully handles missing OpenAI cost data
 
 ## Security Considerations
 
