@@ -208,7 +208,7 @@ export class CostMonitoringService {
           // DALL-E 3: ~$0.08-0.12 per image
           // GPT models: variable based on tokens
           if (usage.model?.includes('dall-e')) {
-            monthlyCost += usage.n * 0.10; // Estimate $0.10 per DALL-E image
+            monthlyCost += (usage.n || 0) * 0.10; // Estimate $0.10 per DALL-E image
           } else if (usage.model?.includes('gpt')) {
             // Rough estimate for GPT usage
             monthlyCost += (usage.total_tokens || 0) * 0.000002; // ~$0.002 per 1000 tokens
