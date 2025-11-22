@@ -2,7 +2,7 @@
 
 This guide explains how to set up cost monitoring for the hello-dalle Discord bot, allowing it to display API usage costs at startup.
 
-**Current Account Status:** Gemini cost monitoring is fully functional. OpenAI cost monitoring is accessible but returns $0.00 (no billing data available with current account permissions).
+**Current Implementation:** Only Gemini API costs are monitored. OpenAI cost monitoring has been removed because OpenAI does not provide actual billing/cost data via API - only usage data which requires manual cost calculation and maintenance.
 
 ## Overview
 
@@ -89,9 +89,6 @@ Add these to your `.env` file:
 # Gemini Cost Monitoring (BigQuery)
 GEMINI_API_KEY=your_gemini_api_key_here
 GOOGLE_CLOUD_PROJECT_ID=your_google_cloud_project_id
-
-# OpenAI Cost Monitoring (optional - requires special permissions)
-OPENAI_API_KEY=your_openai_api_key_here
 ```
 
 ## Bot Behavior
@@ -106,20 +103,13 @@ Gemini API:
 • This Month: $4.20 USD
 • Lifetime: $12.80 USD
 
-OpenAI API:
-• This Month: $2.50 USD
-• Lifetime: $8.90 USD
-
 *Cost monitoring powered by hello-dalle* 🤖
 ```
 
 ### Cost Display Logic
-- Only shows services with available cost data
-- Shows "This Month" and "Lifetime" costs
-- **Gemini Lifetime**: Shows actual lifetime costs from BigQuery billing export
-- **OpenAI Lifetime**: Shows $0.00 since we currently only query current month data (API supports historical data but not implemented)
-- If OpenAI cost monitoring fails, it gracefully falls back and doesn't show OpenAI costs
-- Handles missing data gracefully
+- Only shows Gemini API costs (OpenAI cost monitoring removed)
+- Shows "This Month" and "Lifetime" costs from BigQuery billing export
+- Handles missing data gracefully (shows no message if BigQuery unavailable)
 - Non-blocking (won't delay bot startup)
 
 ## Troubleshooting
@@ -138,24 +128,14 @@ OpenAI API:
 - Billing export may still be populating
 - Check date range in queries
 
-### OpenAI Cost Monitoring
+### Why Only Gemini?
 
-**⚠️ OpenAI Cost Monitoring Limitations:**
-- **99% of OpenAI accounts** cannot access billing data via API
-- This is **intentional by OpenAI** for security/privacy reasons
-- Usage API accessible but returns empty billing data
-- Billing Subscription API requires browser authentication (session cookies)
-- Only **enterprise/organization accounts** with special approval get actual cost data
-- **Current implementation shows $0.00** which is accurate for most users
-
-**"OpenAI cost monitoring shows $0.00"**
-- This is the **expected behavior** for standard OpenAI accounts
-- Cost monitoring will still work for Gemini API if configured
-
-**"OpenAI cost monitoring not available"**
-- This indicates API permission issues or network problems
-- Check your OPENAI_API_KEY is valid and has basic API access
-- Verify network connectivity to OpenAI services
+**OpenAI Cost Monitoring Removed:**
+- OpenAI does **not provide actual billing/cost data** via API
+- Only usage statistics are available, requiring manual cost calculations
+- This approach is unreliable and requires constant maintenance of pricing tables
+- **Gemini provides real billing data** through Google Cloud Billing export
+- Cost monitoring is now focused on what actually works reliably
 
 ## Security Considerations
 
