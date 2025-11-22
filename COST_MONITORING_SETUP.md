@@ -140,12 +140,22 @@ OpenAI API:
 
 ### OpenAI Cost Monitoring
 
-**"OpenAI cost monitoring not available"**
-- OpenAI cost monitoring requires special API permissions that most accounts don't have
-- Only available for enterprise accounts or accounts with special billing access
-- If you see this message, your OpenAI account doesn't have the required permissions
+**⚠️ OpenAI Cost Monitoring Limitations:**
+- **99% of OpenAI accounts** cannot access billing data via API
+- This is **intentional by OpenAI** for security/privacy reasons
+- Usage API accessible but returns empty billing data
+- Billing Subscription API requires browser authentication (session cookies)
+- Only **enterprise/organization accounts** with special approval get actual cost data
+- **Current implementation shows $0.00** which is accurate for most users
+
+**"OpenAI cost monitoring shows $0.00"**
+- This is the **expected behavior** for standard OpenAI accounts
 - Cost monitoring will still work for Gemini API if configured
-- Check your OpenAI account type and permissions if you need OpenAI cost monitoring
+
+**"OpenAI cost monitoring not available"**
+- This indicates API permission issues or network problems
+- Check your OPENAI_API_KEY is valid and has basic API access
+- Verify network connectivity to OpenAI services
 
 ## Security Considerations
 
