@@ -215,8 +215,9 @@ export class CostMonitoringService {
           }
         }
 
-        // Note: OpenAI API only provides current month usage data
-        // Lifetime data would require historical API calls or billing exports
+        // Note: OpenAI API supports historical data via date parameters,
+        // but we currently only query current month for simplicity and rate limiting
+        // Lifetime data could be implemented by querying from account creation date
         // For now, we only report current month costs
 
         return {

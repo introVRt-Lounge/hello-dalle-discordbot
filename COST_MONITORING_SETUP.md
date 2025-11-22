@@ -118,7 +118,7 @@ OpenAI API:
 ### Cost Display Logic
 - Only shows services with available cost data
 - Shows "This Month" and "Lifetime" costs
-- **OpenAI Lifetime**: Shows $0.00 since the API only provides current month data
+- **OpenAI Lifetime**: Shows $0.00 since we currently only query current month data (API supports historical data but not implemented)
 - **Gemini Lifetime**: Shows actual lifetime costs from BigQuery billing export
 - Handles missing data gracefully
 - Non-blocking (won't delay bot startup)
