@@ -207,10 +207,10 @@ describe('Gemini Service Tests', () => {
 
     describe('Model Selection', () => {
         test('should accept different Gemini model types', () => {
-            const models: GeminiModelType[] = ['nano-banana', 'gemini-2.0-flash', 'gemini-2.5-pro'];
+            const models: GeminiModelType[] = ['gemini-2.0-flash', 'gemini-2.5-pro'];
 
             models.forEach(model => {
-                expect(['nano-banana', 'gemini-2.0-flash', 'gemini-2.5-pro']).toContain(model);
+                expect(['gemini-2.0-flash', 'gemini-2.5-pro']).toContain(model);
             });
         });
 
