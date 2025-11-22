@@ -18,7 +18,6 @@ function checkEnvVar(name: string, value: string | undefined): string {
 // Export constants with checks for required variables
 export const POSTING_DELAY = parseInt(process.env.POSTING_DELAY || '120', 10); // Default to 120 seconds (2 minutes)
 export const DISCORD_BOT_TOKEN = checkEnvVar('DISCORD_BOT_TOKEN', process.env.DISCORD_BOT_TOKEN);
-export const OPENAI_API_KEY = checkEnvVar('OPENAI_API_KEY', process.env.OPENAI_API_KEY);
 export const BOTSPAM_CHANNEL_ID = checkEnvVar('BOTSPAM_CHANNEL_ID', process.env.BOTSPAM_CHANNEL_ID);
 export const WELCOME_CHANNEL_ID = checkEnvVar('WELCOME_CHANNEL_ID', process.env.WELCOME_CHANNEL_ID);
 export const PROFILE_CHANNEL_ID = checkEnvVar('PROFILE_CHANNEL_ID', process.env.PROFILE_CHANNEL_ID);
@@ -29,6 +28,8 @@ export const BOT_USER_ROLE = checkEnvVar('BOT_USER_ROLE', process.env.BOT_USER_R
 export const WILDCARD = parseInt(process.env.WILDCARD ?? '0', 10);
 export const DEBUG = process.env.DEBUG === 'true' || false; // Default DEBUG to false
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // Optional: for Gemini image generation
+export const OPENAI_API_KEY = process.env.OPENAI_API_KEY; // For DALL-E image generation (cost monitoring not available via API)
+export const GOOGLE_CLOUD_PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT_ID; // Optional: for Gemini cost monitoring
 
 // Get version from version.txt - no fallback, must exist
 const versionPath = path.resolve(__dirname, '../version.txt');
@@ -68,6 +69,24 @@ export type ImageEngine = 'dalle' | 'gemini';
 
 // Manage DEFAULT_ENGINE as a variable with getter/setter
 let defaultEngine: ImageEngine = (process.env.DEFAULT_ENGINE as ImageEngine) || 'dalle';
+
+// Validate that the default engine has required API keys
+if (defaultEngine === 'dalle' && !OPENAI_API_KEY) {
+    console.warn('⚠️  WARNING: DEFAULT_ENGINE is set to "dalle" but OPENAI_API_KEY is not configured.');
+    console.warn('⚠️  Switching default engine to "gemini" for image generation.');
+    console.warn('💡 To use DALL-E as default, set OPENAI_API_KEY environment variable.');
+    defaultEngine = 'gemini';
+} else if (defaultEngine === 'gemini' && !GEMINI_API_KEY) {
+    console.warn('⚠️  WARNING: DEFAULT_ENGINE is set to "gemini" but GEMINI_API_KEY is not configured.');
+    if (OPENAI_API_KEY) {
+        console.warn('⚠️  Switching default engine to "dalle" for image generation.');
+        defaultEngine = 'dalle';
+    } else {
+        console.error('❌ ERROR: Neither GEMINI_API_KEY nor OPENAI_API_KEY are configured!');
+        console.error('❌ Please set at least one of GEMINI_API_KEY or OPENAI_API_KEY environment variables.');
+        process.exit(1);
+    }
+}
 
 export const getDEFAULT_ENGINE = (): ImageEngine => defaultEngine;
 export const setDEFAULT_ENGINE = (value: ImageEngine): void => {
