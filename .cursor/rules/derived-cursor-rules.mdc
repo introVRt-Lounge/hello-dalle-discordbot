@@ -84,7 +84,6 @@ globs: *
 - "fix: Resolve issue with rate limiting"
 - "docs: Update README with deployment instructions"
 - "refactor: Improve code structure for better readability"
-- Ensure commit messages and code are suggestive but plausibly deniable, especially in public repositories.
 
 ## PROJECT DOCUMENTATION & CONTEXT SYSTEM
 
@@ -177,6 +176,28 @@ globs: *
 -   Consistently monitor API usage to prevent unexpected costs.
 -   Implement budget alerts in the Google Cloud Console.
 -   Regularly audit API key permissions and usage.
+
+---
+
+## 🎯 **DEVELOPMENT WORKFLOW**
+
+### PRE-COMMIT HOOKS
+- TypeScript type checking (fast, catches compilation errors)
+
+### PRE-PUSH HOOKS
+- Runs full test suite (comprehensive, catches logic bugs)
+
+### COMMIT STYLE
+- Use conventional commit format (https://www.conventionalcommits.org/en/v1.0.0/)
+
+### BRANCH PROTECTION
+- Require pull requests before merging
+- Require approvals (1+ reviewer)
+- Require status checks (CI must pass)
+- Require linear history (no merge commits)
+- Include administrators (rules apply to everyone)
+- Restrict pushes (only allow PR merges)
+- Block force pushes
 
 ---
 

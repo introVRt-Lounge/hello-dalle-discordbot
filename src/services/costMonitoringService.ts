@@ -98,7 +98,7 @@ export class CostMonitoringService {
       const query = `
         SELECT
           SUM(cost) as total_cost,
-          EXTRACT(MONTH FROM DATE(_PARTITIONTIME)) = EXTRACT(MONTH FROM CURRENT_DATE()) as is_current_month
+          EXTRACT(YEAR FROM DATE(_PARTITIONTIME)) = EXTRACT(YEAR FROM CURRENT_DATE()) AND EXTRACT(MONTH FROM DATE(_PARTITIONTIME)) = EXTRACT(MONTH FROM CURRENT_DATE()) as is_current_month
         FROM \`${GOOGLE_CLOUD_PROJECT_ID}.billing_data.gcp_billing_export_v1_*\`
         WHERE
           service.description LIKE '%Generative%'
