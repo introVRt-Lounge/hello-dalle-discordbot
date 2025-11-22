@@ -48,9 +48,10 @@ export async function welcomeUser(client: Client, member: GuildMember, debugMode
     const displayName = member.displayName;
     const userId = member.user.id;
 
-    // 🎉 MILESTONE CHECK: Is this the 463rd welcome (approximating 500th member)?
-    // Note: We use welcomeCount because it's deterministic - memberCount fluctuates as users join/leave
-    const isMilestoneWelcome = (welcomeCount + 1) === 463;
+    // 🎉 MILESTONE CHECK: Has the server just reached 500 members?
+    // Note: guild.memberCount is the authoritative source - it reflects current server state
+    // When a new member joins, memberCount includes them, so === 500 means this join made it 500
+    const isMilestoneWelcome = guild.memberCount === 500;
 
     try {
         // Log the avatar URL
