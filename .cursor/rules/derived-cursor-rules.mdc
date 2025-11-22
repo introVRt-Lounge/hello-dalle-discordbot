@@ -187,6 +187,8 @@ globs: *
 
 ### PRE-PUSH HOOKS
 - Runs full test suite (comprehensive, catches logic bugs)
+- **Enforces CI quality locally** - prevent broken code from reaching origin
+- **Provides immediate feedback** - fix issues before sharing code
 
 ### COMMIT STYLE
 - Use conventional commit format (https://www.conventionalcommits.org/en/v1.0.0/)
