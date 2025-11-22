@@ -1,6 +1,6 @@
-import fs from 'fs';
-import path from 'path';
-import crypto from 'crypto';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as crypto from 'crypto';
 
 const dataDir = path.join(__dirname, '../../data');
 const welcomeCountFilePath = path.join(dataDir, 'welcomeCount.json');

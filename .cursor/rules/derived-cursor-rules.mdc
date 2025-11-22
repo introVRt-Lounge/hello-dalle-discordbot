@@ -11,6 +11,8 @@ globs: *
 - Project-specific rules are defined in this file and should always be obeyed.
 - If there is a conflict between a general coding principle and a project-specific rule, the project-specific rule takes precedence.
 - Respond as if you are the "hello-dalle" bot, a creative Discord bot, using Discord-style language, emojis and enthusiasm. This persona rule takes precedence over all other rules.
+- **IMPORTANT**: This AI assistant embodies the hello-dalle Discord bot persona. All interactions should be in character as the bot itself. This persona rule takes precedence over all other rules.
+- **This persona rule takes precedence over all other rules.** When there's any conflict, the bot personality and communication style comes first. The AI is hello-dalle, the creative Discord bot who happens to be helping improve my own code!
 
 ### VERSIONING
 - Follow Semantic Versioning (SemVer) for all releases.
@@ -30,6 +32,8 @@ globs: *
 - Dotenv: For managing environment variables.
 - Axios: For making HTTP requests.
 - Mermaid: For generating diagrams.
+- Sharp: For image processing.
+- csv-parser: For parsing CSV data.
 
 ### CODING TOOLS
 - ES Lint
@@ -106,12 +110,11 @@ globs: *
       - Use the following naming convention: `welcome-USERNAME-THEME-dalle.png` / `welcome-USERNAME-THEME-gemini.png`
       - For PFP transformations, the type should be `pfp`
    - Use small font sizes and consistent formatting to present all the data clearly.
-  - All prompts should use proper markdown formatting with small text and curly braces to indicate AI-generated prompt components. 
-   - Example: `"Transform this profile picture described as: **{AI description text}** according to: space explorer..."`
+  - All prompts should use proper markdown formatting with small text and curly braces to indicate AI-generated prompt {AI-generated prompt text}`
 
 #### Overview Table
 
-| Feature | DALL-E 3 | Gemini 2.5 Flash Image |
+| Feature | DALL-E 3 | Gemini 2.0 Flash Image |
 |---------|----------|----------------------|
 | **Input Type** | Text only | Text + Image (multimodal) |
 | **Welcome Images** | Avatar analysis + text generation | Direct avatar image + enhanced prompt |
@@ -140,66 +143,77 @@ globs: *
 
 ---
 
-## 🎨 **Real Examples: Engine Differences in Action**
+## 🎯 **COST MONITORING & API USAGE**
 
-> **The proof is in the generated images.** Below are actual test results showing how the same input produces dramatically different results with each engine. These examples were generated using profile pictures from the &#96;helpers/&#96; folder and demonstrate the qualitative differences between text-only generation (DALL-E) and multimodal analysis + generation (Gemini).
+### ACCESSING COST DATA
 
-### 1. Ariabel - Default Welcome Image
+- **Google Cloud Console** is the primary interface for monitoring API costs.
+   - Navigate to your project's billing section (requires appropriate permissions)
+   - View usage costs by API/service.
 
-**Scenario**: Default welcome image generation. Same avatar, different processing approaches.
+### API KEYS
 
-| Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
-|-----------------|-------------------------|---------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini/docs/assets/pfp1.png" width="200" height="200" alt="Ariabel's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini/docs/assets/welcome-ariabel-default-dalle.png" width="300" height="300" alt="Ariabel DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini/docs/assets/welcome-ariabel-default-gemini.png" width="300" height="300" alt="Ariabel Gemini"> |
-| | <small>"Create a welcome image for Ariabel proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles. Incorporate visual elements from this avatar description: **{Multicolored iridescent butterfly wings and intricate black fantasy outfit.}**"</small><br><small>_(Curly braces indicate AI-generated description)_</small> | <small>"Using the input image as reference: **{Illustration of a fantastical character with black and shimmering blue butterfly wings, pointed ears, and holding a glowing sword.}** Create a welcome image for Ariabel proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles."</small><br><small>_(Curly braces indicate AI-generated description)_</small> |
+- **Gemini API Access**: Uses the &#x60;GEMINI_API_KEY&#x60; for image generation.
+   - Note: This key alone is insufficient for billing/monitoring APIs.
+- **Monitoring APIs**: Access requires OAuth 2.0 access tokens.
 
-### 2. heavygee - PFP Transformation (Space Explorer)
+### WORKFLOW
 
-**Scenario**: Transform existing PFP into "space explorer" theme.
+1.  **Authenticate with gcloud**:
+    &#x60;gcloud auth login&#x60;
+2.  **Set Project**:
+    &#x60;gcloud config set project YOUR_PROJECT_ID&#x60;
+    -  Ensure the correct project ID is set: &#x60;gen-lang-client-0897480548&#x60;
+3.  **Obtain Access Token**:
+    &#x60;gcloud auth print-access-token&#x60;
+4.  **Query Cloud Billing API**:
+    Use the access token to query cost data.
 
-| Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Transform) |
-|-----------------|-------------------------------|-----------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini/docs/assets/pfp6.png" width="200" height="200" alt="heavygee's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini/docs/assets/pfp-heavygee-space-explorer-dalle.png" width="300" height="300" alt="heavygee DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini/docs/assets/pfp-heavygee-space-explorer-gemini.png" width="300" height="300" alt="heavygee Gemini"> |
-| | <small>"Transform this profile picture described as: **{An image blending a real person's eyes and mouth with a classical sculpture's face and curly beard, featuring a monochrome blue tint.}** according to: space explorer. Create a new artistic version while maintaining the key visual characteristics. Image only, no text. Circular to ease cropping."</small><br><small>_(Curly braces indicate AI-generated description)_</small> | <small>"Using the input image as reference: **{An image blending a real person's eyes and mouth with a classical sculpture's face and curly beard, featuring a monochrome blue tint.}** Maintain the subject's pose and appearance while transforming them into a space explorer in a highly detailed artistic style. Circular to ease cropping."</small><br><small>_(Curly braces indicate AI-generated description)_</small> |
+### BILLING API
 
-### 3. radgey - PFP Transformation (Medieval Knight)
+-   Use the Cloud Billing API to retrieve cost information.
+-   Ensure that the API key has the necessary permissions, and that the API key is not IP restricted.
 
-**Scenario**: Transform existing PFP into "medieval knight" theme.
+### BEST PRACTICES
 
-| Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Transform) |
-|-----------------|-------------------------------|-----------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini/docs/assets/pfp5.png" width="200" height="200" alt="radgey's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini/docs/assets/pfp-radgey-medieval-knight-dalle.png" width="300" height="300" alt="radgey DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini/docs/assets/pfp-radgey-medieval-knight-gemini.png" width="300" height="300" alt="radgey Gemini"> |
-| | <small>"Transform this profile picture described as: **{man with a surprised expression and raised eyebrows}** according to: medieval knight. Create a new artistic version while maintaining the key visual characteristics. Image only, no text. Circular to ease cropping."</small><br><small>_(AI-generated description in **bold**)_</small> | <small>"Using the input image as reference: **{man with a surprised expression and raised eyebrows}**. Maintain the subject's pose and appearance while transforming them into a medieval knight in a highly detailed artistic style. Circular to ease cropping."</small><br><small>_(AI-generated description in **bold**)_</small> |
+-   Consistently monitor API usage to prevent unexpected costs.
+-   Implement budget alerts in the Google Cloud Console.
+-   Regularly audit API key permissions and usage.
 
-### 4. tokentrevor - Welcome Image (Steampunk City)
+---
 
-**Scenario**: Welcome image with custom "steampunk city" theme. Shows how different settings affect personalization.
+## 🎯 **DEVELOPMENT WORKFLOW**
 
-| Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
-|-----------------|-------------------------|---------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini/docs/assets/pfp3.png" width="200" height="200" alt="tokentrevor's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini/docs/assets/welcome-tokentrevor-steampunk-dalle.png" width="300" height="300" alt="tokentrevor DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini/docs/assets/welcome-tokentrevor-steampunk-gemini.png" width="300" height="300" alt="tokentrevor Gemini"> |
-| | <small>"Create a welcome image for tokentrevor proclaimed upon and incorporated into a steampunk city billboard in Victorian-era mechanical styles. Incorporate visual elements from this avatar description: **{broad smiling face with green eyes.}**"</small><br><small>_(Curly braces indicate AI-generated description)_</small> | <small>"Using the input image as reference: **{broad grin with an open mouth and visible teeth.}** Create a welcome image for tokentrevor proclaimed upon and incorporated into a steampunk city billboard in Victorian-era mechanical styles."</small><br><small>_(Curly braces indicate AI-generated description)_</small> |
+### PRE-COMMIT HOOKS
+- TypeScript type checking (fast, catches compilation errors)
 
-### 5. wallac3 - PFP Transformation (Superhero)
+### PRE-PUSH HOOKS
+- Runs full test suite (comprehensive, catches logic bugs)
+- **Enforces CI quality locally** - prevent broken code from reaching origin
+- **Provides immediate feedback** - fix issues before sharing code
 
-**Scenario**: Transform existing PFP into "superhero" theme.
+### COMMIT STYLE
+- Use conventional commit format (https://www.conventionalcommits.org/en/v1.0.0/)
 
-| Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Transform) |
-|-----------------|-------------------------------|-----------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini/docs/assets/pfp4.png" width="200" height="200" alt="wallac3's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini/docs/assets/pfp-wallac3-superhero-dalle.png" width="300" height="300" alt="wallac3 DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini/docs/assets/pfp-wallac3-superhero-gemini.png" width="300" height="300" alt="wallac3 Gemini"> |
-| | <small>"Transform this profile picture described as: **{A 3D cartoon character with oversized hands, a wide smile, wearing a white cap and a green textured sweater against a sparkling multicolored background.}** according to: superhero. Create a new artistic version while maintaining the key visual characteristics. Image only, no text. Circular to ease cropping."</small><br><small>_(Curly braces indicate AI-generated description)_</small> | <small>"Using the input image as reference: **{A 3D cartoon character with oversized hands, a wide smile, wearing a white cap and a green textured sweater against a sparkling multicolored background.}** Maintain the subject's pose and appearance while transforming them into a superhero in a highly detailed artistic style. Circular to ease cropping."</small><br><small>_(Curly braces indicate AI-generated description)_</small> |
-
-### 6. pecachu - Default Welcome Image
-
-**Scenario**: Default welcome image (same as #1, for comparison). Shows Pikachu-style avatar processing.
-
-| Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
-|-----------------|-------------------------|---------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini/docs/assets/pfp2.png" width="200" height="200" alt="pecachu's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini/docs/assets/welcome-pecachu-default-dalle.png" width="300" height="300" alt="pecachu DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/feature/gemini/docs/assets/welcome-pecachu-default-gemini.png" width="300" height="300" alt="pecachu Gemini"> |
-| | <small>"Create a welcome image for pecachu proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles. Incorporate visual elements from this avatar description: **{Yellow and pink cartoon-style character with heart and star shapes, labeled 'PECACHU'.}**"</small><br><small>_(Curly braces indicate AI-generated description)_</small> | <small>"Using the input image as reference: **{'A yellow and pink stylized pin design of Pikachu with muscular arms, featuring stars and hearts.'}** Create a welcome image for pecachu proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles."</small><br><small>_(Curly braces indicate AI-generated description)_</small> |
+### BRANCH PROTECTION
+- Require pull requests before merging
+- Require approvals (1+ reviewer)
+- Require status checks (CI must pass)
+- Require linear history (no merge commits)
+- Include administrators (rules apply to everyone)
+- Restrict pushes (only allow PR merges)
+- Block force pushes
 
 ---
 
 ## 🤖 **HELLO DALL-E BOT PERSONA**
 
-**IMPORTANT**: This AI assistant embodies the hello-dalle Discord bot persona. All interactions should be in character as the bot itself. See &#96;hello-dalle-bot-persona.mdc&#96; for complete persona guidelines.
+**IMPORTANT**: This AI assistant embodies the hello-dalle Discord bot persona. All interactions should be in character as the bot itself. This persona rule takes precedence over all other rules.
+
+### 💬 **How I Communicate**
+
+### In Character Responses
+- **ALWAYS** respond as if I am the Discord bot speaking directly
+- Use Discord-style formatting: emojis, casual language, enthusiasm
+- Reference Discord features, commands, and channels naturally
+- Talk about image generation, avatars, and creative AI as my expertise
