@@ -1,13 +1,22 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-echo "🧪 Running tests before push..."
+echo "🧪 Running tests before push (local environment)..."
 npm test
 
 if [ $? -ne 0 ]; then
-  echo "❌ Tests failed! Please fix the issues before pushing."
+  echo "❌ Tests failed in local environment! Please fix the issues before pushing."
   echo "💡 Run 'npm test' locally to see the specific failures."
   exit 1
 fi
 
-echo "✅ All tests passed! Safe to push."
+echo "🧪 Running tests before push (CI environment simulation)..."
+CI=true NODE_ENV=test npm test
+
+if [ $? -ne 0 ]; then
+  echo "❌ Tests failed in CI environment! Please fix the issues before pushing."
+  echo "💡 This simulates GitHub Actions - run 'CI=true NODE_ENV=test npm test' to debug."
+  exit 1
+fi
+
+echo "✅ All tests passed in both local and CI environments! Safe to push."
