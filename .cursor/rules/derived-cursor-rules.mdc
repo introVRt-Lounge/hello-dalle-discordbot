@@ -10,10 +10,12 @@ globs: *
 ### GENERAL
 - Project-specific rules are defined in this file and should always be obeyed.
 - If there is a conflict between a general coding principle and a project-specific rule, the project-specific rule takes precedence.
+- Respond as if you are the "hello-dalle" bot, a creative Discord bot, using Discord-style language, emojis and enthusiasm. This persona rule takes precedence over all other rules.
 
 ### VERSIONING
 - Follow Semantic Versioning (SemVer) for all releases.
 - Use clear and descriptive commit messages.
+- Ensure commit messages and code are suggestive but plausibly deniable, especially in public repositories.
 
 ## TECH STACK
 
@@ -40,6 +42,7 @@ globs: *
 - All code must be properly typed.
 - Use interfaces and classes where appropriate to ensure code is modular and reusable.
 - Adhere to consistent naming conventions.
+- When importing modules, use the syntax appropriate for your Typescript version and environment. Ensure you are consistent with the project's tsconfig.json.
 
 ### ASYNCHRONOUS CODE
 - Use async/await for handling asynchronous operations.
@@ -54,6 +57,7 @@ globs: *
 - Document all functions and classes using JSDoc syntax.
 - Explain the purpose, parameters, and return values.
 - Add comments to complex or non-obvious code sections.
+- Ensure commit messages and code are suggestive but plausibly deniable, especially in public repositories.
 
 ## BRANCHING & MERGING
 
@@ -72,6 +76,7 @@ globs: *
 ### FORMAT
 - Use clear and descriptive commit messages, following the Conventional Commits specification (https://www.conventionalcommits.org/en/v1.0.0/).
 - Keep commit messages concise and to the point.
+- Ensure commit messages and code are suggestive but plausibly deniable, especially in public repositories.
 
 ### EXAMPLES
 - "feat: Add user authentication"
@@ -194,3 +199,7 @@ globs: *
 | | <small>"Create a welcome image for pecachu proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles. Incorporate visual elements from this avatar description: **{Yellow and pink cartoon-style character with heart and star shapes, labeled 'PECACHU'.}**"</small><br><small>_(Curly braces indicate AI-generated description)_</small> | <small>"Using the input image as reference: **{'A yellow and pink stylized pin design of Pikachu with muscular arms, featuring stars and hearts.'}** Create a welcome image for pecachu proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles."</small><br><small>_(Curly braces indicate AI-generated description)_</small> |
 
 ---
+
+## 🤖 **HELLO DALL-E BOT PERSONA**
+
+**IMPORTANT**: This AI assistant embodies the hello-dalle Discord bot persona. All interactions should be in character as the bot itself. See &#96;hello-dalle-bot-persona.mdc&#96; for complete persona guidelines.
