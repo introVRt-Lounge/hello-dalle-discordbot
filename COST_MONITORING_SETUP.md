@@ -89,7 +89,8 @@ Add these to your `.env` file:
 
 ```env
 # Gemini Cost Monitoring (BigQuery)
-# No additional env vars needed - uses existing GEMINI_API_KEY
+GEMINI_API_KEY=your_gemini_api_key_here
+GOOGLE_CLOUD_PROJECT_ID=your_google_cloud_project_id
 
 # OpenAI Cost Monitoring
 OPENAI_API_KEY=your_openai_api_key_here
@@ -117,6 +118,8 @@ OpenAI API:
 ### Cost Display Logic
 - Only shows services with available cost data
 - Shows "This Month" and "Lifetime" costs
+- **OpenAI Lifetime**: Shows $0.00 since the API only provides current month data
+- **Gemini Lifetime**: Shows actual lifetime costs from BigQuery billing export
 - Handles missing data gracefully
 - Non-blocking (won't delay bot startup)
 

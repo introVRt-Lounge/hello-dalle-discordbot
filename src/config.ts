@@ -29,6 +29,7 @@ export const WILDCARD = parseInt(process.env.WILDCARD ?? '0', 10);
 export const DEBUG = process.env.DEBUG === 'true' || false; // Default DEBUG to false
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // Optional: for Gemini image generation
 export const OPENAI_API_KEY = process.env.OPENAI_API_KEY; // Optional: for OpenAI cost monitoring
+export const GOOGLE_CLOUD_PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT_ID; // Optional: for Gemini cost monitoring
 
 // Get version from version.txt - no fallback, must exist
 const versionPath = path.resolve(__dirname, '../version.txt');
