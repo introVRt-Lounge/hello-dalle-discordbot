@@ -2,7 +2,7 @@ import { DEBUG, OPENAI_API_KEY, WATERMARK_PATH, ImageEngine, getDEFAULT_ENGINE }
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as sharp from 'sharp';
+import sharp from 'sharp';
 import { generateImageWithGemini, GeminiModelType } from '../services/geminiService';
 
 // Ensure the temp directory exists
