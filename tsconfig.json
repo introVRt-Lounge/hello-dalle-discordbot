@@ -16,7 +16,7 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "declaration": false,        // Don't generate .d.ts files for pre-commit checks
-    "noEmit": true               // Don't emit files, just check
+    "noEmit": false              // Emit compiled JavaScript files
   },
   "include": [
     "src/**/*.ts"                // Include all TypeScript files in the src directory
