@@ -11,7 +11,7 @@
     "start": "node dist/bot.js",
     "start:dev": "ts-node src/bot.ts",
     "semantic-release": "semantic-release",
-    "prepare": "husky",
+    "prepare": "npx --no-install husky || echo 'husky not available in production'",
     "type-check": "npx tsc --noEmit --skipLibCheck"
   },
   "lint-staged": {
