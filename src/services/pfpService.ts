@@ -4,8 +4,8 @@ import { logMessage } from '../utils/log';
 import { generateImage, downloadAndSaveImage, describeImage, addPfpWatermark } from '../utils/imageUtils'; // Utilities for generating and saving images
 import { ImageEngine, getDEFAULT_ENGINE } from '../config';
 import { calculateImageHash, getCachedImageDescription, setCachedImageDescription } from '../utils/appUtils';
-import path from 'path';
-import fs from 'fs';
+import * as path from 'path';
+import * as fs from 'fs';
 
 // Use the mounted welcome_images directory (from docker volume)
 // In container: /usr/src/app/welcome_images (mounted from docker volume)
