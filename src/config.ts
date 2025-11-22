@@ -2,8 +2,12 @@ import { config as loadEnv } from 'dotenv';
 import * as path from 'path';
 import * as fs from 'fs';
 
-// Load environment variables from .env file, if present and not in CI/test environment
-if (!process.env.CI && !process.env.NODE_ENV?.includes('test') && fs.existsSync(path.resolve(__dirname, '../.env'))) {
+// Load environment variables
+if (process.env.NODE_ENV?.includes('test')) {
+    // In test environment, load test-specific env vars
+    loadEnv({ path: path.resolve(__dirname, '../.env.test') });
+} else if (!process.env.CI && fs.existsSync(path.resolve(__dirname, '../.env'))) {
+    // In development, load .env file if present
     loadEnv();
 }
 
