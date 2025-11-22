@@ -114,14 +114,14 @@ jobs:
             echo "Python or OpenAI API key not available, using original release notes"
           fi
 
-      - name: Create GitHub deployment
-        if: steps.semantic.outputs.new_release_published == 'true'
-        id: deployment
-        uses: chrnorm/deployment-action@v2
-        with:
-          token: '${{ secrets.GH_TOKEN }}'
-          environment-url: https://discord.com/channels/816371255539138620/1164501234271653918
-          environment: production
+      # - name: Create GitHub deployment
+      #   if: steps.semantic.outputs.new_release_published == 'true'
+      #   id: deployment
+      #   uses: chrnorm/deployment-action@v2
+      #   with:
+      #     token: '${{ secrets.GH_TOKEN }}'
+      #     environment-url: https://discord.com/channels/816371255539138620/1164501234271653918
+      #     environment: production
 
       - name: Generate version files
         if: steps.semantic.outputs.new_release_published == 'true'
@@ -183,32 +183,32 @@ jobs:
       #     echo "Failed to trigger Coolify deploy after 3 attempts."
       #     exit 1
 
-      - name: Update deployment status (in progress)
-        if: steps.semantic.outputs.new_release_published == 'true'
-        uses: chrnorm/deployment-status@v2
-        with:
-          token: "${{ secrets.GH_TOKEN }}"
-          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
-          state: "in_progress"
-          environment-url: "https://discord.com/channels/816371255539138620/1164501234271653918"
+      # - name: Update deployment status (in progress)
+      #   if: steps.semantic.outputs.new_release_published == 'true'
+      #   uses: chrnorm/deployment-status@v2
+      #   with:
+      #     token: "${{ secrets.GH_TOKEN }}"
+      #     deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+      #     state: "in_progress"
+      #     environment-url: "https://discord.com/channels/816371255539138620/1164501234271653918"
 
-      - name: Update deployment status (success)
-        if: steps.semantic.outputs.new_release_published == 'true'
-        uses: chrnorm/deployment-status@v2
-        with:
-          token: "${{ secrets.GH_TOKEN }}"
-          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
-          state: "success"
-          environment-url: "https://discord.com/channels/816371255539138620/1164501234271653918"
+      # - name: Update deployment status (success)
+      #   if: steps.semantic.outputs.new_release_published == 'true'
+      #   uses: chrnorm/deployment-status@v2
+      #   with:
+      #     token: "${{ secrets.GH_TOKEN }}"
+      #     deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+      #     state: "success"
+      #     environment-url: "https://discord.com/channels/816371255539138620/1164501234271653918"
 
-      - name: Update deployment status (failure)
-        if: failure() && steps.semantic.outputs.new_release_published == 'true'
-        uses: chrnorm/deployment-status@v2
-        with:
-          token: "${{ secrets.GH_TOKEN }}"
-          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
-          state: "failure"
-          environment-url: "https://discord.com/channels/816371255539138620/1164501234271653918"
+      # - name: Update deployment status (failure)
+      #   if: failure() && steps.semantic.outputs.new_release_published == 'true'
+      #   uses: chrnorm/deployment-status@v2
+      #   with:
+      #     token: "${{ secrets.GH_TOKEN }}"
+      #     deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+      #     state: "failure"
+      #     environment-url: "https://discord.com/channels/816371255539138620/1164501234271653918"
 
       - name: Announce release to Discord
         if: steps.semantic.outputs.new_release_published == 'true'
