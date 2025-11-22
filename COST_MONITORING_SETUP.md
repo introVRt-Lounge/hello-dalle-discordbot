@@ -2,6 +2,8 @@
 
 This guide explains how to set up cost monitoring for the hello-dalle Discord bot, allowing it to display API usage costs at startup.
 
+**Current Account Status:** Gemini cost monitoring is fully functional. OpenAI cost monitoring is accessible but returns $0.00 (no billing data available with current account permissions).
+
 ## Overview
 
 The bot can monitor costs for both Gemini (Google AI) and OpenAI APIs, displaying lifetime and monthly costs in the #botspam channel at startup.
@@ -58,9 +60,15 @@ The bot queries for services matching:
 OpenAI provides usage and cost monitoring through their API, but availability depends on your account type and permissions:
 
 ### Available Endpoints
-- `GET /v1/usage` - Usage data over date ranges
-- `GET /v1/dashboard/billing/subscription` - Subscription info
-- `GET /v1/dashboard/billing/credit_grants` - Credit balance info
+- `GET /v1/usage` - Usage data over date ranges (accessible but may return empty data)
+- `GET /v1/dashboard/billing/subscription` - Subscription info (requires browser session, not API key)
+- `GET /v1/dashboard/billing/credit_grants` - Credit balance info (may require special permissions)
+
+### Current Account Status
+Based on testing with the current OpenAI account:
+- ✅ **Usage API accessible** but returns empty data (no billing information)
+- ❌ **Billing Subscription API** requires browser authentication (401 Unauthorized)
+- ✅ **Basic API connectivity** works (models, chat completions, etc.)
 
 ### Requirements
 - API key with appropriate billing/usage permissions
@@ -68,12 +76,10 @@ OpenAI provides usage and cost monitoring through their API, but availability de
 - May require enterprise or special account configurations
 
 ### Limitations
-- Not available for all OpenAI accounts
-- May require special permissions or enterprise accounts
-- Cost data may be approximate (usage × pricing calculations)
-- Rate limits and access restrictions may apply
-
-If the bot reports "OpenAI cost monitoring not available", your account may not have the required permissions.
+- Most OpenAI accounts cannot access billing data via API
+- Usage API may return empty data even when accessible
+- Billing endpoints often require browser-based authentication
+- Cost monitoring may show $0.00 even with working API access
 
 ## Environment Variables
 
