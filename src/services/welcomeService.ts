@@ -168,7 +168,7 @@ Make this the most spectacular welcome image ever created - fit for royalty! ✨
 
         // Notify admins about welcome image generation (with milestone celebration!)
         const adminMessage = isMilestoneWelcome
-            ? `🎉 **MILESTONE WELCOME GENERATED!** 🎉\n\nGolden VIP welcome image created for our **500th Discord member** "${displayName}" using Gemini engine! ✨🏆\n\nThis is welcome #463 - what a spectacular achievement!`
+            ? `🎉 **MILESTONE WELCOME GENERATED!** 🎉\n\nGolden VIP welcome image created for our **500th Discord member** "${displayName}" using Gemini engine! ✨🏆\n\nThis is welcome #500 - what a spectacular achievement!`
             : `Welcome image generated for user "${displayName}".`;
 
         await notifyAdmins(client, guild, adminMessage, avatarPath ? [avatarPath, welcomeImagePath] : [welcomeImagePath]);
