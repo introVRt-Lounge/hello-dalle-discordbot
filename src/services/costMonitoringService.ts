@@ -1,5 +1,5 @@
 import { Client, TextChannel } from 'discord.js';
-import { BOTSPAM_CHANNEL_ID, OPENAI_API_KEY, GEMINI_API_KEY } from '../config';
+import { BOTSPAM_CHANNEL_ID, OPENAI_API_KEY, GEMINI_API_KEY, GOOGLE_CLOUD_PROJECT_ID } from '../config';
 import { execSync } from 'child_process';
 import axios from 'axios';
 import * as fs from 'fs';
@@ -89,7 +89,7 @@ export class CostMonitoringService {
    * Get Gemini API costs from BigQuery billing export
    */
   private async getGeminiCosts(): Promise<CostData | null> {
-    if (!GEMINI_API_KEY) {
+    if (!GEMINI_API_KEY || !GOOGLE_CLOUD_PROJECT_ID) {
       return null;
     }
 
@@ -99,7 +99,7 @@ export class CostMonitoringService {
         SELECT
           SUM(cost) as total_cost,
           EXTRACT(MONTH FROM DATE(_PARTITIONTIME)) = EXTRACT(MONTH FROM CURRENT_DATE()) as is_current_month
-        FROM \`gen-lang-client-0897480548.billing_data.gcp_billing_export_v1_*\`
+        FROM \`${GOOGLE_CLOUD_PROJECT_ID}.billing_data.gcp_billing_export_v1_*\`
         WHERE
           service.description LIKE '%Generative%'
           OR service.description LIKE '%Vertex AI%'
@@ -107,7 +107,7 @@ export class CostMonitoringService {
         ORDER BY is_current_month DESC
       `;
 
-      const result = execSync(`bq --project_id=gen-lang-client-0897480548 query --use_legacy_sql=false "${query}" --format=csv`, {
+      const result = execSync(`bq --project_id=${GOOGLE_CLOUD_PROJECT_ID} query --use_legacy_sql=false "${query}" --format=csv`, {
         encoding: 'utf8',
         timeout: 30000
       });
@@ -215,12 +215,13 @@ export class CostMonitoringService {
           }
         }
 
-        // For lifetime, we'd need historical data - for now, just return monthly
-        lifetimeCost = monthlyCost; // Approximation
+        // Note: OpenAI API only provides current month usage data
+        // Lifetime data would require historical API calls or billing exports
+        // For now, we only report current month costs
 
         return {
           service: 'openai',
-          lifetime: Math.abs(lifetimeCost),
+          lifetime: 0, // We don't have lifetime data available
           thisMonth: Math.abs(monthlyCost),
           currency: 'USD'
         };

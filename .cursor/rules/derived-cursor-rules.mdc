@@ -31,7 +31,6 @@ globs: *
 - Axios: For making HTTP requests.
 - Mermaid: For generating diagrams.
 - Sharp: For image processing.
-- csv-parser: For parsing CSV data.
 
 ### CODING TOOLS
 - ES Lint
