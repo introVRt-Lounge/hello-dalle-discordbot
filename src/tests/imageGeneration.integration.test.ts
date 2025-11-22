@@ -116,7 +116,7 @@ describe('Image Generation Integration Tests', () => {
                 prompt: 'Take this exact profile picture and create a cartoon superhero version while maintaining the person\'s facial features, expression, and overall appearance. Add a superhero cape flowing behind them and keep the original art style but make it more animated.',
                 engine: 'gemini',
                 imageInput: testImagePath,
-                geminiModel: 'nano-banana'
+                geminiModel: 'gemini-2.0-flash'
             };
 
             const result = await generateImageWithOptions(options);
@@ -149,7 +149,7 @@ describe('Image Generation Integration Tests', () => {
             const options: ImageGenerationOptions = {
                 prompt: 'Explosive visual of bodies dissolving into light shards, merging with digital waveform tunnels. The motion feels ecstatic, transcendental — chaos and unity rendered in vivid pulses of color and glitch. Gaspar Noé style cinematography.',
                 engine: 'gemini',
-                geminiModel: 'nano-banana'
+                geminiModel: 'gemini-2.0-flash'
             };
 
             try {
