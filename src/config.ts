@@ -106,7 +106,6 @@ if ((defaultEngine === 'dalle' && !OPENAI_API_KEY) || (defaultEngine === 'gemini
     console.error('❌ This should not happen - please check environment variables.');
     process.exit(1);
 }
-
 export const getDEFAULT_ENGINE = (): ImageEngine => defaultEngine;
 export const setDEFAULT_ENGINE = (value: ImageEngine): void => {
     if (value === 'dalle' || value === 'gemini') {
