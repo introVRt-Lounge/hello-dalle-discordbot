@@ -28,7 +28,7 @@ export const BOT_USER_ROLE = checkEnvVar('BOT_USER_ROLE', process.env.BOT_USER_R
 export const WILDCARD = parseInt(process.env.WILDCARD ?? '0', 10);
 export const DEBUG = process.env.DEBUG === 'true' || false; // Default DEBUG to false
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // Optional: for Gemini image generation
-export const OPENAI_API_KEY = process.env.OPENAI_API_KEY; // Optional: for OpenAI cost monitoring
+export const OPENAI_API_KEY = process.env.OPENAI_API_KEY; // For DALL-E image generation (cost monitoring not available via API)
 export const GOOGLE_CLOUD_PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT_ID; // Optional: for Gemini cost monitoring
 
 // Get version from version.txt - no fallback, must exist

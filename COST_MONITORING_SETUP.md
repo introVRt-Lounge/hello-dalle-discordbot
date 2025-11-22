@@ -53,35 +53,14 @@ The bot queries for services matching:
 
 ## OpenAI API Cost Monitoring
 
-### Prerequisites
-- OpenAI API key with billing access
-- OpenAI organization with billing enabled
+**⚠️ NOT AVAILABLE**
 
-### Setup Steps
+OpenAI removed their public usage API endpoints in 2023. Cost monitoring for OpenAI is **not possible** through the public API. OpenAI only provides usage data through:
+- Enterprise API (for enterprise customers)
+- Dashboard web interface
+- Monthly invoices
 
-#### 1. Get API Key
-- Go to [OpenAI API Keys](https://platform.openai.com/api-keys)
-- Create a new API key or use existing one
-- **Important**: The API key must have billing/usage read permissions
-
-#### 2. Set Environment Variable
-```bash
-export OPENAI_API_KEY=your_openai_api_key_here
-```
-
-#### 3. Verify Access
-```bash
-# Test API access (will implement cost checking)
-curl -H "Authorization: Bearer $OPENAI_API_KEY" \
-     "https://api.openai.com/v1/models"
-```
-
-### OpenAI Cost Access
-OpenAI cost monitoring is implemented but requires special permissions:
-- **Usage API**: Requires API key with billing read permissions (not all keys have this)
-- **Subscription API**: Fallback endpoint for basic subscription info
-- **Cost Estimation**: Calculates approximate costs from usage data when available
-- **Permission Gating**: Many OpenAI API keys cannot access cost/usage data
+The bot cannot monitor OpenAI API costs due to these API limitations.
 
 ## Environment Variables
 
@@ -92,8 +71,8 @@ Add these to your `.env` file:
 GEMINI_API_KEY=your_gemini_api_key_here
 GOOGLE_CLOUD_PROJECT_ID=your_google_cloud_project_id
 
-# OpenAI Cost Monitoring
-OPENAI_API_KEY=your_openai_api_key_here
+# OpenAI Cost Monitoring - NOT AVAILABLE
+# OPENAI_API_KEY is only needed for DALL-E image generation, not cost monitoring
 ```
 
 ## Bot Behavior
@@ -117,8 +96,8 @@ OpenAI API:
 
 ### Cost Display Logic
 - Only shows services with available cost data
-- Shows "This Month" and "Lifetime" costs
-- **OpenAI Lifetime**: Shows $0.00 since we currently only query current month data (API supports historical data but not implemented)
+- Shows "This Month" and "Lifetime" costs for Gemini API
+- **OpenAI costs are not available** - OpenAI removed public usage API
 - **Gemini Lifetime**: Shows actual lifetime costs from BigQuery billing export
 - Handles missing data gracefully
 - Non-blocking (won't delay bot startup)
@@ -139,17 +118,14 @@ OpenAI API:
 - Billing export may still be populating
 - Check date range in queries
 
-### OpenAI Issues
+### OpenAI Cost Monitoring
 
-**"API key lacks permissions"**
-- Most OpenAI API keys don't have billing access by default
-- Requires special permissions from OpenAI/org admin
-- This is normal - OpenAI restricts billing API access
+**OpenAI cost monitoring is not available through the public API.** OpenAI removed these endpoints in 2023. Cost data can only be accessed through:
+- OpenAI Enterprise API (for enterprise customers)
+- OpenAI Dashboard web interface
+- Monthly billing statements
 
-**"Cost data not available"**
-- OpenAI intentionally limits cost API access
-- Only works if your API key has billing permissions
-- Bot gracefully handles missing OpenAI cost data
+The bot cannot monitor OpenAI API costs due to OpenAI's API limitations.
 
 ## Security Considerations
 
