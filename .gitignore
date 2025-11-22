@@ -38,8 +38,7 @@ symlinked.docker-compose.yml
 .cursor/mcp.json
 docker-compose.prod-DEPRECATED.yml
 version.txt
-.specstory/history/*
-.specstory/ai_rules_backups/*
+.specstory/
 
 # Integration test outputs (dated directories with generated images)
 integration-test-outputs/

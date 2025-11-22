@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 
 // Types for Gemini image generation
-export type GeminiModelType = 'nano-banana' | 'gemini-2.0-flash' | 'gemini-2.5-pro';
+export type GeminiModelType = 'gemini-2.0-flash' | 'gemini-2.5-pro';
 
 export interface GeminiImageOptions {
   model?: GeminiModelType;
@@ -27,18 +27,16 @@ function getGeminiClient(): GoogleGenerativeAI {
 }
 
 // Get the appropriate Gemini model
-function getGeminiModel(modelType: GeminiModelType = 'nano-banana'): GenerativeModel {
+function getGeminiModel(modelType: GeminiModelType = 'gemini-2.0-flash'): GenerativeModel {
   const client = getGeminiClient();
 
   switch (modelType) {
-    case 'nano-banana':
-      return client.getGenerativeModel({ model: 'gemini-2.5-flash-image' });
     case 'gemini-2.0-flash':
       return client.getGenerativeModel({ model: 'gemini-2.0-flash' });
     case 'gemini-2.5-pro':
       return client.getGenerativeModel({ model: 'gemini-2.5-pro' });
     default:
-      return client.getGenerativeModel({ model: 'gemini-2.5-flash-image' });
+      return client.getGenerativeModel({ model: 'gemini-2.0-flash' });
   }
 }
 
@@ -128,7 +126,7 @@ function getMimeType(imagePath: string): string {
 
 // Generate image using Gemini with optional two-step analysis
 export async function generateImageWithGemini(options: GeminiImageOptions): Promise<string> {
-  const { model = 'nano-banana', imageInput, prompt, useAnalysis = true } = options;
+  const { model = 'gemini-2.0-flash', imageInput, prompt, useAnalysis = true } = options;
 
   // Validate inputs before API key check
   if (imageInput && !fs.existsSync(imageInput)) {
