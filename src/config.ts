@@ -70,6 +70,24 @@ export type ImageEngine = 'dalle' | 'gemini';
 // Manage DEFAULT_ENGINE as a variable with getter/setter
 let defaultEngine: ImageEngine = (process.env.DEFAULT_ENGINE as ImageEngine) || 'dalle';
 
+// Validate that the default engine has required API keys
+if (defaultEngine === 'dalle' && !OPENAI_API_KEY) {
+    console.warn('⚠️  WARNING: DEFAULT_ENGINE is set to "dalle" but OPENAI_API_KEY is not configured.');
+    console.warn('⚠️  Switching default engine to "gemini" for image generation.');
+    console.warn('💡 To use DALL-E as default, set OPENAI_API_KEY environment variable.');
+    defaultEngine = 'gemini';
+} else if (defaultEngine === 'gemini' && !GEMINI_API_KEY) {
+    console.warn('⚠️  WARNING: DEFAULT_ENGINE is set to "gemini" but GEMINI_API_KEY is not configured.');
+    if (OPENAI_API_KEY) {
+        console.warn('⚠️  Switching default engine to "dalle" for image generation.');
+        defaultEngine = 'dalle';
+    } else {
+        console.error('❌ ERROR: Neither GEMINI_API_KEY nor OPENAI_API_KEY are configured!');
+        console.error('❌ Please set at least one of GEMINI_API_KEY or OPENAI_API_KEY environment variables.');
+        process.exit(1);
+    }
+}
+
 export const getDEFAULT_ENGINE = (): ImageEngine => defaultEngine;
 export const setDEFAULT_ENGINE = (value: ImageEngine): void => {
     if (value === 'dalle' || value === 'gemini') {
