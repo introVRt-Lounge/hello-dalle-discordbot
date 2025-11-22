@@ -1,6 +1,7 @@
 import { Client, TextChannel } from 'discord.js';
 import { BOTSPAM_CHANNEL_ID, OPENAI_API_KEY, GEMINI_API_KEY } from '../config';
 import { execSync } from 'child_process';
+import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -177,14 +178,96 @@ export class CostMonitoringService {
     }
 
     try {
-      // OpenAI cost monitoring would require their billing API
-      // For now, return null as we don't have billing API access
-      console.log('OpenAI cost monitoring not yet implemented - requires billing API access');
-      return null;
+      // Try to get usage data from OpenAI
+      // Note: This requires special permissions on the API key
+      const currentDate = new Date();
+      const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1); // First day of current month
+      const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0); // Last day of current month
+
+      // Get usage for current month
+      const usageResponse = await axios.get('https://api.openai.com/v1/usage', {
+        headers: {
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        params: {
+          date: startDate.toISOString().split('T')[0], // YYYY-MM-DD format
+          end_date: endDate.toISOString().split('T')[0]
+        },
+        timeout: 10000
+      });
+
+      if (usageResponse.data && usageResponse.data.data) {
+        // Calculate costs based on usage data
+        // OpenAI provides usage counts, we need to estimate costs
+        let monthlyCost = 0;
+        let lifetimeCost = 0;
+
+        for (const usage of usageResponse.data.data) {
+          // Rough cost estimation based on model usage
+          // DALL-E 3: ~$0.08-0.12 per image
+          // GPT models: variable based on tokens
+          if (usage.model?.includes('dall-e')) {
+            monthlyCost += usage.n * 0.10; // Estimate $0.10 per DALL-E image
+          } else if (usage.model?.includes('gpt')) {
+            // Rough estimate for GPT usage
+            monthlyCost += (usage.total_tokens || 0) * 0.000002; // ~$0.002 per 1000 tokens
+          }
+        }
+
+        // For lifetime, we'd need historical data - for now, just return monthly
+        lifetimeCost = monthlyCost; // Approximation
+
+        return {
+          service: 'openai',
+          lifetime: Math.abs(lifetimeCost),
+          thisMonth: Math.abs(monthlyCost),
+          currency: 'USD'
+        };
+      }
+
+      // If usage API fails or no permissions, try subscription endpoint
+      console.warn('OpenAI usage API not accessible, trying subscription endpoint');
+      return await this.getOpenAISubscriptionCosts();
 
     } catch (error) {
-      console.warn('OpenAI cost query failed:', error);
-      return null;
+      console.warn('OpenAI usage API failed, trying subscription endpoint:', error instanceof Error ? error.message : String(error));
+
+      // Fallback to subscription endpoint
+      try {
+        return await this.getOpenAISubscriptionCosts();
+      } catch (fallbackError) {
+        console.warn('OpenAI cost monitoring not available:', fallbackError instanceof Error ? fallbackError.message : String(fallbackError));
+        return null;
+      }
     }
+  }
+
+  /**
+   * Fallback: Get basic OpenAI subscription info (not actual costs)
+   */
+  private async getOpenAISubscriptionCosts(): Promise<CostData | null> {
+    try {
+      const subscriptionResponse = await axios.get('https://api.openai.com/v1/dashboard/billing/subscription', {
+        headers: {
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 5000
+      });
+
+      if (subscriptionResponse.data) {
+        // This gives subscription info but not actual usage costs
+        // We can only show that OpenAI monitoring is configured but costs are not available
+        console.log('OpenAI subscription accessible but cost details not available via API');
+        return null; // Return null since we can't get actual costs
+      }
+
+    } catch (error) {
+      // Subscription endpoint also failed
+      console.warn('OpenAI subscription endpoint also failed');
+    }
+
+    return null;
   }
 }
