@@ -18,7 +18,6 @@ function checkEnvVar(name: string, value: string | undefined): string {
 // Export constants with checks for required variables
 export const POSTING_DELAY = parseInt(process.env.POSTING_DELAY || '120', 10); // Default to 120 seconds (2 minutes)
 export const DISCORD_BOT_TOKEN = checkEnvVar('DISCORD_BOT_TOKEN', process.env.DISCORD_BOT_TOKEN);
-export const OPENAI_API_KEY = checkEnvVar('OPENAI_API_KEY', process.env.OPENAI_API_KEY);
 export const BOTSPAM_CHANNEL_ID = checkEnvVar('BOTSPAM_CHANNEL_ID', process.env.BOTSPAM_CHANNEL_ID);
 export const WELCOME_CHANNEL_ID = checkEnvVar('WELCOME_CHANNEL_ID', process.env.WELCOME_CHANNEL_ID);
 export const PROFILE_CHANNEL_ID = checkEnvVar('PROFILE_CHANNEL_ID', process.env.PROFILE_CHANNEL_ID);
@@ -29,6 +28,7 @@ export const BOT_USER_ROLE = checkEnvVar('BOT_USER_ROLE', process.env.BOT_USER_R
 export const WILDCARD = parseInt(process.env.WILDCARD ?? '0', 10);
 export const DEBUG = process.env.DEBUG === 'true' || false; // Default DEBUG to false
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // Optional: for Gemini image generation
+export const OPENAI_API_KEY = process.env.OPENAI_API_KEY; // Optional: for OpenAI cost monitoring
 
 // Get version from version.txt - no fallback, must exist
 const versionPath = path.resolve(__dirname, '../version.txt');
