@@ -16,6 +16,7 @@ import { registerSlashCommands } from './commands/slashCommands';
 import { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID, getWILDCARD, DEBUG, WELCOME_CHANNEL_ID, PROFILE_CHANNEL_ID } from './config';
 import { logMessage } from './utils/log';
 import { readWelcomeCount } from './utils/appUtils';
+import { CostMonitoringService } from './services/costMonitoringService';
 
 // Create a new Discord client instance
 const client = new Client({
@@ -39,7 +40,8 @@ client.once('ready', async () => {
             return;
         }
 
-
+        // Initialize cost monitoring service
+        const costService = new CostMonitoringService(client);
 
         // Register slash commands
         await registerSlashCommands(client);
@@ -54,6 +56,10 @@ client.once('ready', async () => {
         await logMessage(client, guild, startupMessage);
         console.log(`DEBUG mode is set to: ${DEBUG}`);
 
+        // Send cost report to botspam channel (async, don't wait)
+        costService.sendCostReport().catch(error => {
+            console.warn('Failed to send cost report at startup:', error);
+        });
 
     } catch (error) {
         console.error('Error during ready event:', error instanceof Error ? error.message : String(error));

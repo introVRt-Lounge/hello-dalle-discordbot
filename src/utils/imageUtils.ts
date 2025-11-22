@@ -1,7 +1,7 @@
 import { DEBUG, OPENAI_API_KEY, WATERMARK_PATH, ImageEngine, getDEFAULT_ENGINE } from '../config';
 import axios from 'axios';
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 import sharp from 'sharp';
 import { generateImageWithGemini, GeminiModelType } from '../services/geminiService';
 
@@ -65,6 +65,10 @@ export async function generateImageWithOptions(options: ImageGenerationOptions):
     }
 
     // Default to DALL-E
+    if (!OPENAI_API_KEY) {
+        throw new Error('OPENAI_API_KEY is required for DALL-E image generation. Please set the OPENAI_API_KEY environment variable.');
+    }
+
     try {
         const response = await axios.post('https://api.openai.com/v1/images/generations', {
             model: 'dall-e-3',
