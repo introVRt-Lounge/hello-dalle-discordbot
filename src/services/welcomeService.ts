@@ -4,8 +4,8 @@ import { generateWelcomeImage, downloadAndSaveImage, describeImage } from '../ut
 import { ImageEngine, getDEFAULT_ENGINE } from '../config';
 import { WELCOME_CHANNEL_ID, WELCOME_PROMPT, POSTING_DELAY, BOTSPAM_CHANNEL_ID, STEALTH_WELCOME, getWILDCARD, DEBUG, GENDER_SENSITIVITY } from '../config';
 import { analyzeImageContent } from './geminiService';
-import path from 'path';
-import fs from 'fs';
+import * as path from 'path';
+import * as fs from 'fs';
 import { logMessage } from '../utils/log';
 import { readWelcomeCount, writeWelcomeCount } from '../utils/appUtils';
 
@@ -48,8 +48,10 @@ export async function welcomeUser(client: Client, member: GuildMember, debugMode
     const displayName = member.displayName;
     const userId = member.user.id;
 
-    // 🎉 MILESTONE CHECK: Is this the 500th member (welcome #463)?
-    const isMilestoneWelcome = (welcomeCount + 1) === 463;
+    // 🎉 MILESTONE CHECK: Has the server just reached 500 members?
+    // Note: guild.memberCount is the authoritative source - it reflects current server state
+    // When a new member joins, memberCount includes them, so === 500 means this join made it 500
+    const isMilestoneWelcome = guild.memberCount === 500;
 
     try {
         // Log the avatar URL
@@ -166,7 +168,7 @@ Make this the most spectacular welcome image ever created - fit for royalty! ✨
 
         // Notify admins about welcome image generation (with milestone celebration!)
         const adminMessage = isMilestoneWelcome
-            ? `🎉 **MILESTONE WELCOME GENERATED!** 🎉\n\nGolden VIP welcome image created for our **500th Discord member** "${displayName}" using Gemini engine! ✨🏆\n\nThis is welcome #463 - what a spectacular achievement!`
+            ? `🎉 **MILESTONE WELCOME GENERATED!** 🎉\n\nGolden VIP welcome image created for our **500th Discord member** "${displayName}" using Gemini engine! ✨🏆\n\nThis is welcome #500 - what a spectacular achievement!`
             : `Welcome image generated for user "${displayName}".`;
 
         await notifyAdmins(client, guild, adminMessage, avatarPath ? [avatarPath, welcomeImagePath] : [welcomeImagePath]);

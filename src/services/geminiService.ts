@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
 import { GEMINI_API_KEY, DEBUG } from '../config';
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Types for Gemini image generation
 export type GeminiModelType = 'gemini-2.0-flash' | 'gemini-2.5-pro';
