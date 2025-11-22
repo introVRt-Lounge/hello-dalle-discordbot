@@ -4,8 +4,8 @@ import { generateWelcomeImage, downloadAndSaveImage, describeImage } from '../ut
 import { ImageEngine, getDEFAULT_ENGINE } from '../config';
 import { WELCOME_CHANNEL_ID, WELCOME_PROMPT, POSTING_DELAY, BOTSPAM_CHANNEL_ID, STEALTH_WELCOME, getWILDCARD, DEBUG, GENDER_SENSITIVITY } from '../config';
 import { analyzeImageContent } from './geminiService';
-import path from 'path';
-import fs from 'fs';
+import * as path from 'path';
+import * as fs from 'fs';
 import { logMessage } from '../utils/log';
 import { readWelcomeCount, writeWelcomeCount } from '../utils/appUtils';
 
@@ -48,7 +48,8 @@ export async function welcomeUser(client: Client, member: GuildMember, debugMode
     const displayName = member.displayName;
     const userId = member.user.id;
 
-    // 🎉 MILESTONE CHECK: Is this the 500th member (welcome #463)?
+    // 🎉 MILESTONE CHECK: Is this the 463rd welcome (approximating 500th member)?
+    // Note: We use welcomeCount because it's deterministic - memberCount fluctuates as users join/leave
     const isMilestoneWelcome = (welcomeCount + 1) === 463;
 
     try {
