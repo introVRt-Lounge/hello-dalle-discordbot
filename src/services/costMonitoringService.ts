@@ -1,6 +1,8 @@
 import { Client, TextChannel } from 'discord.js';
 import { BOTSPAM_CHANNEL_ID, OPENAI_API_KEY, GEMINI_API_KEY } from '../config';
 import { execSync } from 'child_process';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export interface CostData {
   service: 'gemini' | 'openai';
@@ -109,24 +111,48 @@ export class CostMonitoringService {
         timeout: 30000
       });
 
-      // Parse CSV result
+      // Parse CSV result with improved error handling
       const lines = result.trim().split('\n');
       if (lines.length < 2) {
+        console.warn('BigQuery returned insufficient data for cost analysis');
         return null;
       }
 
       let lifetimeCost = 0;
       let thisMonthCost = 0;
 
-      // Skip header row
+      // Skip header row and process data rows
       for (let i = 1; i < lines.length; i++) {
-        const [cost, isCurrentMonth] = lines[i].split(',');
-        const costValue = parseFloat(cost) || 0;
+        const line = lines[i].trim();
+        if (!line) continue; // Skip empty lines
 
-        if (isCurrentMonth === 'true') {
-          thisMonthCost = costValue;
+        // Split on comma and trim each field
+        const fields = line.split(',').map(field => field.trim());
+
+        if (fields.length !== 2) {
+          console.warn(`Skipping malformed CSV line ${i}: ${line}`);
+          continue;
+        }
+
+        const [costStr, isCurrentMonthStr] = fields;
+        const costValue = parseFloat(costStr);
+
+        if (isNaN(costValue)) {
+          console.warn(`Invalid cost value on line ${i}: ${costStr}`);
+          continue;
+        }
+
+        const isCurrentMonth = isCurrentMonthStr === 'true';
+
+        if (isCurrentMonth) {
+          thisMonthCost += costValue;
         }
         lifetimeCost += costValue;
+      }
+
+      if (lifetimeCost === 0) {
+        console.warn('No valid cost data found in BigQuery results');
+        return null;
       }
 
       return {
