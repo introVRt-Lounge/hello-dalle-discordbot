@@ -3,13 +3,17 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 // Load environment variables
-if (process.env.NODE_ENV?.includes('test')) {
-    // In test environment, load test-specific env vars
-    loadEnv({ path: path.resolve(__dirname, '../.env.test') });
+if (process.env.NODE_ENV?.includes('test') && !process.env.CI) {
+    // In local test environment, load test-specific env vars if file exists
+    const testEnvPath = path.resolve(__dirname, '../.env.test');
+    if (fs.existsSync(testEnvPath)) {
+        loadEnv({ path: testEnvPath });
+    }
 } else if (!process.env.CI && fs.existsSync(path.resolve(__dirname, '../.env'))) {
     // In development, load .env file if present
     loadEnv();
 }
+// In CI, environment variables are provided directly via GitHub Secrets
 
 // Helper function to ensure env variables are set
 function checkEnvVar(name: string, value: string | undefined): string {
