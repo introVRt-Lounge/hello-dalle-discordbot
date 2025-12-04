@@ -48,10 +48,11 @@ export async function welcomeUser(client: Client, member: GuildMember, debugMode
     const displayName = member.displayName;
     const userId = member.user.id;
 
-    // 🎉 MILESTONE CHECK: Has the server just reached 500 members?
-    // Note: guild.memberCount is the authoritative source - it reflects current server state
-    // When a new member joins, memberCount includes them, so === 500 means this join made it 500
-    const isMilestoneWelcome = guild.memberCount === 500;
+    // 🎉 MILESTONE CHECK: Has the server just reached 500 human members?
+    // Count only human members (exclude bots) for the milestone celebration
+    // guild.members.cache.filter(member => !member.user.bot).size gives us human member count
+    const humanMemberCount = guild.members.cache.filter(member => !member.user.bot).size;
+    const isMilestoneWelcome = humanMemberCount === 500;
 
     try {
         // Log the avatar URL
@@ -84,15 +85,23 @@ export async function welcomeUser(client: Client, member: GuildMember, debugMode
             avatarDescription = await describeImage(avatarPath, avatarUrl, GENDER_SENSITIVITY);
             if (DEBUG) console.log(`DEBUG: Avatar description: ${avatarDescription}`);
         } else {
-            // No custom profile picture available, generate one
-            if (DEBUG) console.log(`DEBUG: No custom profile picture found for user "${displayName}". Generating profile picture.`);
-            await generateProfilePicture(client, member, GENDER_SENSITIVITY);
+            // No custom profile picture available
+            if (isMilestoneWelcome) {
+                // For milestones, we still want to create a welcome image even without avatar
+                // Just create a generic avatar description for text-to-image generation
+                avatarDescription = `a friendly Discord user named ${displayName}`;
+                if (DEBUG) console.log(`DEBUG: No custom avatar for milestone user "${displayName}". Using generic description: ${avatarDescription}`);
+            } else {
+                // For regular welcomes without avatar, generate a profile picture instead
+                if (DEBUG) console.log(`DEBUG: No custom profile picture found for user "${displayName}". Generating profile picture.`);
+                await generateProfilePicture(client, member, GENDER_SENSITIVITY);
 
-            // Notify admins about profile picture generation
-            await notifyAdmins(client, guild, `Profile picture generated for user "${displayName}".`, []);
+                // Notify admins about profile picture generation
+                await notifyAdmins(client, guild, `Profile picture generated for user "${displayName}".`, []);
 
-            // Exit after generating profile picture, no welcome image is needed in this case
-            return;
+                // Exit after generating profile picture, no welcome image is needed in this case
+                return;
+            }
         }
 
         // 🎉 MILESTONE WELCOME: Special golden VIP treatment for user #463 (500th member)
@@ -103,8 +112,9 @@ export async function welcomeUser(client: Client, member: GuildMember, debugMode
             // Force Gemini engine for maximum personalization and quality
             engine = 'gemini';
 
-            // Create spectacular golden VIP welcome prompt with EXACT text and spicy double entendres
-            finalPrompt = `Create an absolutely spectacular golden VIP welcome image for "${displayName}" - our 500th Discord member! 🎉🏆
+            if (avatarPath) {
+                // User has avatar - use image-to-image transformation
+                finalPrompt = `Create an absolutely spectacular golden VIP welcome image for "${displayName}" - our 500th Discord member! 🎉🏆
 
 Using the input image as reference: **${avatarDescription}**
 
@@ -119,6 +129,22 @@ Transform this into a luxurious golden celebration featuring:
 - The user's avatar transformed into a VIP version with golden enhancements and commanding stature
 
 Make this the most spectacular welcome image ever created - fit for royalty! ✨👑 The composition should emphasize height, power, and celebration with multiple towering elements.`;
+            } else {
+                // No avatar - use text-to-image generation
+                finalPrompt = `Create an absolutely spectacular golden VIP welcome image for "${displayName}" - our 500th Discord member! 🎉🏆
+
+Design a majestic golden celebration scene featuring:
+- Opulent gold accents and metallic finishes throughout
+- Royal VIP elements (crowns, jewels, luxury branding, golden scepters)
+- Display the EXACT TEXT "500th Member" prominently in large, elegant golden letters
+- Towering golden obelisks and phallic monuments rising majestically
+- Rocket-shaped fireworks launching skyward with golden trails
+- Crown jewels and royal staffs with commanding presence
+- Cyberpunk/synthwave aesthetic with golden holographic effects
+- A regal figure representing "${displayName}" in golden royal attire
+
+Make this the most spectacular welcome image ever created - fit for royalty! ✨👑 The composition should emphasize height, power, and celebration with multiple towering elements.`;
+            }
 
             milestoneMessage = `🎉 **INCREDIBLE MILESTONE ALERT!** 🎉\n\nWelcome our **500th Discord member**, <@${userId}>! 🏆✨\n\nThis calls for something EXTRA SPECIAL - a golden VIP welcome created just for you with our premium Gemini engine! 🌟`;
 
