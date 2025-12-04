@@ -49,8 +49,11 @@ client.once('ready', async () => {
         // Read the welcome count from the file
         const welcomeCount = readWelcomeCount();
 
+        // Get human member count (exclude bots)
+        const humanMemberCount = guild.members.cache.filter(member => !member.user.bot).size;
+
         // Construct the startup message
-        const startupMessage = `Bot is online! Version: ${VERSION}. Wildcard chance: ${getWILDCARD()}%. Total welcomed users so far: ${welcomeCount}`;
+        const startupMessage = `Bot is online! Version: ${VERSION}. Wildcard chance: ${getWILDCARD()}%. Total welcomed users so far: ${welcomeCount}. Active human members: ${humanMemberCount}`;
 
         // Log the startup message
         await logMessage(client, guild, startupMessage);
