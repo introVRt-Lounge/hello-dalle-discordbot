@@ -84,7 +84,7 @@ jobs:
 
       - name: Generate version.txt and release notes
         id: semantic
-        uses: cycjimmy/semantic-release-action@v5
+        uses: cycjimmy/semantic-release-action@v6
         with:
           branch: main
           dry_run: false
