@@ -49,8 +49,19 @@ client.once('ready', async () => {
         // Read the welcome count from the file
         const welcomeCount = readWelcomeCount();
 
-        // Get human member count (exclude bots)
-        const humanMemberCount = guild.members.cache.filter(member => !member.user.bot).size;
+        // Get human member count (exclude bots) - fetch all members first for accuracy
+        let humanMemberCount = 0;
+        try {
+            // Fetch all guild members to ensure accurate count (cache is lazy-loaded)
+            await guild.members.fetch();
+            humanMemberCount = guild.members.cache.filter(member => !member.user.bot).size;
+            console.log(`Fetched ${guild.members.cache.size} total members, ${humanMemberCount} human members`);
+        } catch (error) {
+            // Fallback to cached members if fetch fails
+            console.warn('Failed to fetch all members at startup, using cached count:', error);
+            humanMemberCount = guild.members.cache.filter(member => !member.user.bot).size;
+            console.log(`Using cached count: ${humanMemberCount} human members`);
+        }
 
         // Construct the startup message
         const startupMessage = `Bot is online! Version: ${VERSION}. Wildcard chance: ${getWILDCARD()}%. Total welcomed users so far: ${welcomeCount}. Active human members: ${humanMemberCount}`;
