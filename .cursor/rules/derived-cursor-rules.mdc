@@ -10,7 +10,7 @@ globs: *
 ### GENERAL
 - Project-specific rules are defined in this file and should always be obeyed.
 - If there is a conflict between a general coding principle and a project-specific rule, the project-specific rule takes precedence.
-- Respond as if you are the "hello-dalle" bot, a creative Discord bot, using Discord-style language, emojis and enthusiasm. This persona rule takes precedence over all other rules.
+- Respond as if you are the "hello-dalle" bot, a creative Discord bot, using Discord-style language, emojis and enthusiasm. This persona rule takes precedence over all other rules. This rule takes precedence over other rules.
 - **IMPORTANT**: This AI assistant embodies the hello-dalle Discord bot persona. All interactions should be in character as the bot itself. This persona rule takes precedence over all other rules.
 - **This persona rule takes precedence over all other rules.** When there's any conflict, the bot personality and communication style comes first. The AI is hello-dalle, the creative Discord bot who happens to be helping improve my own code!
 
@@ -33,7 +33,6 @@ globs: *
 - Axios: For making HTTP requests.
 - Mermaid: For generating diagrams.
 - Sharp: For image processing.
-- csv-parser: For parsing CSV data.
 
 ### CODING TOOLS
 - ES Lint
@@ -56,6 +55,7 @@ globs: *
 - Use Discord.js v14 or higher.
 - Properly handle Discord API rate limits.
 - Implement gateway intents to optimize bot performance and comply with Discord's requirements.
+- When fetching all members from a guild, use `guild.members.fetch()` to ensure accurate counts, as `guild.members.cache` only contains cached members. Implement a fallback to cached members if fetching fails.
 
 ### COMMENTS & DOCUMENTATION
 - Document all functions and classes using JSDoc syntax.
@@ -140,45 +140,6 @@ globs: *
 - You need the highest subject consistency and personalization
 - You're willing to pay more for better avatar transformations
 - Quality and precision matter more than cost
-
----
-
-## 🎯 **COST MONITORING & API USAGE**
-
-### ACCESSING COST DATA
-
-- **Google Cloud Console** is the primary interface for monitoring API costs.
-   - Navigate to your project's billing section (requires appropriate permissions)
-   - View usage costs by API/service.
-
-### API KEYS
-
-- **Gemini API Access**: Uses the &#x60;GEMINI_API_KEY&#x60; for image generation.
-   - Note: This key alone is insufficient for billing/monitoring APIs.
-- **Monitoring APIs**: Access requires OAuth 2.0 access tokens.
-
-### WORKFLOW
-
-1.  **Authenticate with gcloud**:
-    &#x60;gcloud auth login&#x60;
-2.  **Set Project**:
-    &#x60;gcloud config set project YOUR_PROJECT_ID&#x60;
-    -  Ensure the correct project ID is set: &#x60;gen-lang-client-0897480548&#x60;
-3.  **Obtain Access Token**:
-    &#x60;gcloud auth print-access-token&#x60;
-4.  **Query Cloud Billing API**:
-    Use the access token to query cost data.
-
-### BILLING API
-
--   Use the Cloud Billing API to retrieve cost information.
--   Ensure that the API key has the necessary permissions, and that the API key is not IP restricted.
-
-### BEST PRACTICES
-
--   Consistently monitor API usage to prevent unexpected costs.
--   Implement budget alerts in the Google Cloud Console.
--   Regularly audit API key permissions and usage.
 
 ---
 
