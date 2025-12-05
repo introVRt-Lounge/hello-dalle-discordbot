@@ -89,7 +89,7 @@ jobs:
           branch: main
           dry_run: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Debug semantic release output
         run: |
@@ -102,7 +102,7 @@ jobs:
       - name: Summarize release notes and update release
         if: steps.semantic.outputs.new_release_published == 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           RELEASE_NOTES: ${{ steps.semantic.outputs.new_release_notes }}
         run: |
@@ -213,7 +213,7 @@ jobs:
       - name: Announce release to Discord
         if: steps.semantic.outputs.new_release_published == 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           # Get release information
           RELEASE_TAG="${{ steps.semantic.outputs.new_release_git_tag }}"
