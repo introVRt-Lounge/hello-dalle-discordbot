@@ -50,8 +50,19 @@ export async function welcomeUser(client: Client, member: GuildMember, debugMode
 
     // 🎉 MILESTONE CHECK: Has the server just reached 500 human members?
     // Count only human members (exclude bots) for the milestone celebration
-    // guild.members.cache.filter(member => !member.user.bot).size gives us human member count
-    const humanMemberCount = guild.members.cache.filter(member => !member.user.bot).size;
+    // Must fetch all members first since cache only contains recently active members
+    let humanMemberCount = 0;
+    try {
+        // Fetch all guild members to ensure accurate count (cache is lazy-loaded)
+        await guild.members.fetch();
+        humanMemberCount = guild.members.cache.filter(member => !member.user.bot).size;
+        if (DEBUG) console.log(`DEBUG: Fetched ${guild.members.cache.size} total members, ${humanMemberCount} human members for milestone check`);
+    } catch (error) {
+        // Fallback to cached members if fetch fails
+        console.warn('Failed to fetch all members for milestone check, using cached count:', error);
+        humanMemberCount = guild.members.cache.filter(member => !member.user.bot).size;
+        if (DEBUG) console.log(`DEBUG: Using cached count: ${humanMemberCount} human members`);
+    }
     const isMilestoneWelcome = humanMemberCount === 500;
 
     try {
