@@ -175,7 +175,7 @@ export async function generateImageWithGemini(options: GeminiImageOptions): Prom
         {
           text: finalPrompt
         }
-      ];
+      ] as any;
     } else {
       // Text-to-image generation
       content = [{ text: prompt }];
