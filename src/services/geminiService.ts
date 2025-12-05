@@ -76,7 +76,7 @@ export async function analyzeImageContent(imagePath: string): Promise<string> {
       }
     ];
 
-    const result = await modelInstance.generateContent(content);
+    const result = await modelInstance.generateContent(content as any);
     const response = result.response;
 
     // Extract the text description
@@ -175,13 +175,13 @@ export async function generateImageWithGemini(options: GeminiImageOptions): Prom
         {
           text: finalPrompt
         }
-      ];
+      ] as any;
     } else {
       // Text-to-image generation
       content = [{ text: prompt }];
     }
 
-    const result = await modelInstance.generateContent(content);
+    const result = await modelInstance.generateContent(content as any);
 
     if (DEBUG) {
       console.log('DEBUG: Gemini response received');
