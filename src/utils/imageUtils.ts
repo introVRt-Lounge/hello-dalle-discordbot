@@ -2,7 +2,7 @@ import { DEBUG, OPENAI_API_KEY, WATERMARK_PATH, ImageEngine, getDEFAULT_ENGINE }
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
-import sharp from 'sharp';
+import sharp = require('sharp');
 import { generateImageWithGemini, GeminiModelType } from '../services/geminiService';
 
 // Ensure the temp directory exists
@@ -84,18 +84,18 @@ export async function generateImageWithOptions(options: ImageGenerationOptions):
 
     // Primary engine attempt
     try {
-      if (engine === 'gemini') {
+    if (engine === 'gemini') {
         return await generateImageWithGemini({
           prompt: sanitizedPrompt,
-          model: geminiModel,
-          imageInput,
-          useAnalysis
-        });
+        model: geminiModel,
+        imageInput,
+        useAnalysis
+      });
       } else {
-        // Default to DALL-E
-        if (!OPENAI_API_KEY) {
-            throw new Error('OPENAI_API_KEY is required for DALL-E image generation. Please set the OPENAI_API_KEY environment variable.');
-        }
+    // Default to DALL-E
+    if (!OPENAI_API_KEY) {
+        throw new Error('OPENAI_API_KEY is required for DALL-E image generation. Please set the OPENAI_API_KEY environment variable.');
+    }
 
         const response = await axios.post('https://api.openai.com/v1/images/generations', {
             model: 'dall-e-3',
@@ -131,7 +131,7 @@ export async function generateImageWithOptions(options: ImageGenerationOptions):
             imageInput,
             useAnalysis: false // Disable analysis for fallback to avoid further issues
           });
-        } else {
+                } else {
           // Fallback to DALL-E
           if (!OPENAI_API_KEY) {
             throw new Error('OPENAI_API_KEY is required for DALL-E fallback. Please set the OPENAI_API_KEY environment variable.');
@@ -150,7 +150,7 @@ export async function generateImageWithOptions(options: ImageGenerationOptions):
           });
 
           return response.data.data[0].url;
-        }
+                }
       } catch (fallbackError: any) {
         const fallbackErrorMessage = fallbackError.message || 'Unknown fallback error';
 
@@ -166,7 +166,7 @@ export async function generateImageWithOptions(options: ImageGenerationOptions):
           const data = primaryError.response.data;
           if (data?.error?.message) {
             primaryDetails = `${status}: ${data.error.message}`;
-          }
+        }
         }
 
         if (fallbackError.response) {

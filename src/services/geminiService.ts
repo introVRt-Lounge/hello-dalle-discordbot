@@ -74,7 +74,7 @@ export async function analyzeImageContent(imagePath: string): Promise<string> {
       {
         text: analysisPrompt
       }
-    ];
+    ] as any;
 
     const result = await modelInstance.generateContent(content);
     const response = result.response;
