@@ -189,61 +189,72 @@ async function generateImageWithGeminiInternal(options: GeminiImageOptions): Pro
   }
 
   try {
-    // Use REST API for image generation - this is TEXT-TO-IMAGE only
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateImage?key=${GEMINI_API_KEY}`;
-
-    const response = await axios.post(apiUrl, {
-      prompt: finalPrompt
-    }, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
+    // Use SDK for image generation (this is the WORKING approach!)
+    const client = getGeminiClient();
+    const modelInstance = client.getGenerativeModel({ model: model });
 
     if (DEBUG) {
-      console.log('DEBUG: Gemini image generation API response received');
-      console.log('DEBUG: Response status:', response.status);
+      console.log('DEBUG: Calling model.generateContent() with SDK...');
     }
 
-    // Extract image data from the response
-    const responseData = response.data;
-    if (responseData.generatedImages && responseData.generatedImages.length > 0) {
-      const generatedImage = responseData.generatedImages[0];
-      const imageData = generatedImage.imageData;
-      const mimeType = generatedImage.mimeType || 'image/png';
+    const result = await modelInstance.generateContent(finalPrompt);
 
-      if (DEBUG) {
-        console.log(`DEBUG: Found generated image, mimeType: ${mimeType}`);
-        console.log(`DEBUG: Data length: ${imageData.length}`);
-      }
+    if (DEBUG) {
+      console.log('DEBUG: Gemini SDK response received');
+      console.log('DEBUG: Candidates:', result.response.candidates?.length || 0);
+    }
 
-      // Convert base64 to temporary file
-      const tempDir = path.join(__dirname, '../../temp');
-      if (!fs.existsSync(tempDir)) {
-        fs.mkdirSync(tempDir, { recursive: true });
-      }
+    // Extract image data from SDK response (different structure than REST API)
+    if (result.response.candidates && result.response.candidates.length > 0) {
+      const candidate = result.response.candidates[0];
 
-      const tempFileName = `gemini-generated-${Date.now()}.png`;
-      const tempFilePath = path.join(tempDir, tempFileName);
+      if (candidate.content && candidate.content.parts) {
+        for (const part of candidate.content.parts) {
+          // Check for inline data (image response)
+          if (part.inlineData && part.inlineData.data) {
+            const imageData = part.inlineData.data;
+            const mimeType = part.inlineData.mimeType || 'image/png';
 
-      try {
-        // Decode base64 and save as file
-        const imageBuffer = Buffer.from(imageData, 'base64');
-        fs.writeFileSync(tempFilePath, imageBuffer);
+            if (DEBUG) {
+              console.log(`DEBUG: Found inline image data, mimeType: ${mimeType}`);
+              console.log(`DEBUG: Data length: ${imageData.length}`);
+            }
 
-        if (DEBUG) {
-          console.log(`DEBUG: Saved Gemini generated image to: ${tempFilePath}`);
-          console.log(`DEBUG: File size: ${imageBuffer.length} bytes`);
+            // Convert base64 to temporary file
+            const tempDir = path.join(__dirname, '../../temp');
+            if (!fs.existsSync(tempDir)) {
+              fs.mkdirSync(tempDir, { recursive: true });
+            }
+
+            const tempFileName = `gemini-generated-${Date.now()}.png`;
+            const tempFilePath = path.join(tempDir, tempFileName);
+
+            try {
+              // Decode base64 and save as file
+              const imageBuffer = Buffer.from(imageData, 'base64');
+              fs.writeFileSync(tempFilePath, imageBuffer);
+
+              if (DEBUG) {
+                console.log(`DEBUG: Saved Gemini generated image to: ${tempFilePath}`);
+                console.log(`DEBUG: File size: ${imageBuffer.length} bytes`);
+              }
+
+              return tempFilePath;
+            } catch (bufferError) {
+              console.error('DEBUG: Error decoding base64 image data:', bufferError);
+              throw new Error(`Failed to decode Gemini image data: ${bufferError}`);
+            }
+          }
+
+          // Also check for text responses (might indicate an error or different response type)
+          if (part.text && DEBUG) {
+            console.log('DEBUG: Text part in response:', part.text.substring(0, 200) + '...');
+          }
         }
-
-        return tempFilePath;
-      } catch (bufferError) {
-        console.error('DEBUG: Error decoding base64 image data:', bufferError);
-        throw new Error(`Failed to decode Gemini image data: ${bufferError}`);
       }
     }
 
-    throw new Error('No image data found in Gemini generateImage response');
+    throw new Error('No image data found in Gemini SDK response');
 
   } catch (error: any) {
     const errorMessage = error.response?.data?.error?.message || error.message || 'Unknown Gemini API error';
