@@ -171,22 +171,31 @@ async function generateImageWithGeminiInternal(options: GeminiImageOptions): Pro
 
   let finalPrompt = prompt;
 
-  // For image-to-image transformations, use multimodal analysis + image generation
-  if (imageInput && fs.existsSync(imageInput) && useAnalysis) {
-    try {
-      // Step 1: Analyze the image using Gemini's multimodal capabilities
-      const imageDescription = await analyzeImageContent(imageInput);
+  // For image-to-image transformations
+  if (imageInput && fs.existsSync(imageInput)) {
+    if (useAnalysis) {
+      // Use multimodal analysis + image generation
+      try {
+        // Step 1: Analyze the image using Gemini's multimodal capabilities
+        const imageDescription = await analyzeImageContent(imageInput);
 
-      // Step 2: Create enhanced prompt using the analysis
-      finalPrompt = `Create an image based on this subject: ${imageDescription}. ${prompt}. Preserve the subject's key visual characteristics and pose.`;
+        // Step 2: Create enhanced prompt using the analysis
+        finalPrompt = `Create an image based on this subject: ${imageDescription}. ${prompt}. Preserve the subject's key visual characteristics and pose.`;
 
-      if (DEBUG) {
-        console.log(`DEBUG: Enhanced multimodal prompt: ${finalPrompt}`);
+        if (DEBUG) {
+          console.log(`DEBUG: Enhanced multimodal prompt: ${finalPrompt}`);
+        }
+      } catch (analysisError) {
+        // If analysis fails, fall back to basic prompt
+        console.warn('Image analysis failed, using basic prompt:', analysisError);
+        finalPrompt = prompt;
       }
-    } catch (analysisError) {
-      // If analysis fails, fall back to basic prompt
-      console.warn('Image analysis failed, using basic prompt:', analysisError);
-      finalPrompt = prompt;
+    } else {
+      // Skip analysis but still include image in generation request
+      // The image will be processed by Gemini's image generation model directly
+      if (DEBUG) {
+        console.log(`DEBUG: Using image input without analysis for direct image-to-image generation`);
+      }
     }
   }
 
@@ -199,7 +208,30 @@ async function generateImageWithGeminiInternal(options: GeminiImageOptions): Pro
       console.log('DEBUG: Calling model.generateContent() with SDK...');
     }
 
-    const result = await modelInstance.generateContent(finalPrompt);
+    // Prepare content for generation
+    let content: any;
+    if (imageInput && fs.existsSync(imageInput)) {
+      // Image-to-image generation: include both image and prompt
+      const base64Image = imageToBase64(imageInput);
+      const mimeType = getMimeType(imageInput);
+
+      content = [
+        {
+          inlineData: {
+            data: base64Image,
+            mimeType: mimeType
+          }
+        },
+        {
+          text: finalPrompt
+        }
+      ] as any;
+    } else {
+      // Text-to-image generation: prompt only
+      content = finalPrompt;
+    }
+
+    const result = await modelInstance.generateContent(content);
 
     if (DEBUG) {
       console.log('DEBUG: Gemini SDK response received');
