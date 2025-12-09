@@ -47,12 +47,14 @@ function getGeminiMultimodalModel(modelType: GeminiMultimodalModelType = 'gemini
   const client = getGeminiClient();
 
   switch (modelType) {
+    case 'gemini-2.5-flash':
+      return client.getGenerativeModel({ model: 'gemini-2.5-flash' });
     case 'gemini-2.0-flash':
       return client.getGenerativeModel({ model: 'gemini-2.0-flash' });
     case 'gemini-2.5-pro':
       return client.getGenerativeModel({ model: 'gemini-2.5-pro' });
     default:
-      return client.getGenerativeModel({ model: 'gemini-2.0-flash' });
+      return client.getGenerativeModel({ model: 'gemini-2.5-flash' });
   }
 }
 
