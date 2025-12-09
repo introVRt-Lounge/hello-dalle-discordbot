@@ -49,40 +49,14 @@ export async function generateImage(prompt: string, engine: ImageEngine = getDEF
   return generateImageWithOptions(fullOptions);
 }
 
-// Sanitize prompt to avoid content policy violations
-function sanitizePrompt(prompt: string): string {
-    // Remove or replace potentially problematic words/phrases
-    let sanitized = prompt;
-
-    // Replace potentially suggestive terms with safer alternatives
-    sanitized = sanitized.replace(/\bsexy\b/gi, 'attractive');
-    sanitized = sanitized.replace(/\bhot\b/gi, 'stylish');
-    sanitized = sanitized.replace(/\bbeautiful\b/gi, 'elegant');
-    sanitized = sanitized.replace(/\bnaked\b|\bnude\b/gi, 'artistically posed');
-    sanitized = sanitized.replace(/\bcall_me_sexy\b/gi, 'call_me_cool');
-
-    // Handle specific case of "bare shoulders" before generic "bare" replacement
-    if (sanitized.toLowerCase().includes('bare') && sanitized.toLowerCase().includes('shoulder')) {
-        sanitized = sanitized.replace(/bare shoulders?/gi, 'stylish outfit');
-    }
-
-    // Replace remaining instances of "bare" with safer alternatives
-    sanitized = sanitized.replace(/\bbare\b/gi, 'minimalist');
-
-    return sanitized;
-}
-
 // New function with full options support
 export async function generateImageWithOptions(options: ImageGenerationOptions): Promise<string> {
     const { prompt, engine = 'dalle', geminiModel, imageInput, useAnalysis = true } = options;
 
-    // Sanitize prompt for Gemini to avoid content policy violations
-    const sanitizedPrompt = engine === 'gemini' ? sanitizePrompt(prompt) : prompt;
+    // Use original prompt - sanitization was a workaround for broken Gemini implementation
+    const sanitizedPrompt = prompt;
 
-    console.log(`DEBUG: Generating image with engine: ${engine}, original prompt: ${prompt}`);
-    if (sanitizedPrompt !== prompt) {
-        console.log(`DEBUG: Sanitized prompt: ${sanitizedPrompt}`);
-    }
+    console.log(`DEBUG: Generating image with engine: ${engine}, prompt: ${prompt}`);
 
     // Primary engine attempt
     try {
@@ -125,10 +99,9 @@ export async function generateImageWithOptions(options: ImageGenerationOptions):
 
       try {
         if (fallbackEngine === 'gemini') {
-          // For Gemini fallback, use a more sanitized version to avoid content issues
-          const geminiFallbackPrompt = sanitizePrompt(prompt).replace(/call_me_\w+/gi, 'call_me_cool');
+          // For Gemini fallback, use the original prompt (no sanitization needed)
           return await generateImageWithGemini({
-            prompt: geminiFallbackPrompt,
+            prompt: prompt,
             model: geminiModel,
             imageInput,
             useAnalysis: false // Disable analysis for fallback to avoid further issues
@@ -141,7 +114,7 @@ export async function generateImageWithOptions(options: ImageGenerationOptions):
 
           const response = await axios.post('https://api.openai.com/v1/images/generations', {
             model: 'dall-e-3',
-            prompt: sanitizedPrompt,
+            prompt: prompt,
             n: 1,
             size: "1024x1024"
           }, {
