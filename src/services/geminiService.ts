@@ -4,15 +4,15 @@ import { GEMINI_API_KEY, DEBUG } from '../config';
 import * as fs from 'fs';
 import * as path from 'path';
 
-// Types for Gemini image generation
-export type GeminiModelType = 'gemini-2.5-flash-image' | 'imagen-3.0';
-export type GeminiTextModelType = 'gemini-2.0-flash' | 'gemini-2.5-pro';
+// Types for Gemini models
+export type GeminiImageModelType = 'gemini-2.5-flash-image' | 'imagen-3.0'; // For image generation only
+export type GeminiMultimodalModelType = 'gemini-2.5-flash' | 'gemini-2.0-flash' | 'gemini-2.5-pro'; // For text + image analysis
 
 export interface GeminiImageOptions {
-  model?: GeminiModelType;
+  model?: GeminiImageModelType;
   imageInput?: string; // Path to input image for image-to-image
   prompt: string;
-  useAnalysis?: boolean; // Whether to use two-step analysis for better prompts (default: true)
+  useAnalysis?: boolean; // Whether to use multimodal analysis for better prompts (default: true)
 }
 
 // Initialize Gemini AI client
@@ -29,7 +29,7 @@ function getGeminiClient(): GoogleGenerativeAI {
 }
 
 // Get the appropriate Gemini image generation model
-function getGeminiImageModel(modelType: GeminiModelType = 'gemini-2.5-flash-image'): GenerativeModel {
+function getGeminiImageModel(modelType: GeminiImageModelType = 'gemini-2.5-flash-image'): GenerativeModel {
   const client = getGeminiClient();
 
   switch (modelType) {
@@ -42,8 +42,8 @@ function getGeminiImageModel(modelType: GeminiModelType = 'gemini-2.5-flash-imag
   }
 }
 
-// Get the appropriate Gemini text model (for analysis only)
-function getGeminiTextModel(modelType: GeminiTextModelType = 'gemini-2.0-flash'): GenerativeModel {
+// Get the appropriate Gemini multimodal model (for text + image analysis)
+function getGeminiMultimodalModel(modelType: GeminiMultimodalModelType = 'gemini-2.5-flash'): GenerativeModel {
   const client = getGeminiClient();
 
   switch (modelType) {
@@ -66,10 +66,10 @@ function imageToBase64(imagePath: string): string {
   }
 }
 
-// Analyze image content using text-based Gemini model
+// Analyze image content using multimodal Gemini model
 export async function analyzeImageContent(imagePath: string): Promise<string> {
   try {
-    const modelInstance = getGeminiTextModel('gemini-2.0-flash'); // Use text model for analysis
+    const modelInstance = getGeminiMultimodalModel('gemini-2.5-flash'); // Use multimodal model for image analysis // Use text model for analysis
 
     if (DEBUG) {
       console.log(`DEBUG: Analyzing image content: ${imagePath}`);
@@ -159,7 +159,7 @@ async function generateImageWithGeminiInternal(options: GeminiImageOptions): Pro
   }
 
   if (DEBUG) {
-    console.log(`DEBUG: Generating image with Gemini REST API using model: ${model}`);
+    console.log(`DEBUG: Generating image with Gemini using multimodal approach`);
     console.log(`DEBUG: Original prompt: ${prompt}`);
     console.log(`DEBUG: Use analysis: ${useAnalysis}`);
     if (imageInput) {
@@ -169,22 +169,27 @@ async function generateImageWithGeminiInternal(options: GeminiImageOptions): Pro
 
   let finalPrompt = prompt;
 
-  // For image-to-image, we need to analyze first, then use the image generation API
+  // For image-to-image transformations, use multimodal analysis + image generation
   if (imageInput && fs.existsSync(imageInput) && useAnalysis) {
-    // Step 1: Analyze the image content using text model
-    const imageDescription = await analyzeImageContent(imageInput);
+    try {
+      // Step 1: Analyze the image using Gemini's multimodal capabilities
+      const imageDescription = await analyzeImageContent(imageInput);
 
-    // Step 2: Create enhanced prompt using the analysis
-    finalPrompt = `Transform this image: ${imageDescription}. ${prompt}. Preserve the subject's appearance and pose.`;
+      // Step 2: Create enhanced prompt using the analysis
+      finalPrompt = `Create an image based on this subject: ${imageDescription}. ${prompt}. Preserve the subject's key visual characteristics and pose.`;
 
-    if (DEBUG) {
-      console.log(`DEBUG: Enhanced prompt: ${finalPrompt}`);
+      if (DEBUG) {
+        console.log(`DEBUG: Enhanced multimodal prompt: ${finalPrompt}`);
+      }
+    } catch (analysisError) {
+      // If analysis fails, fall back to basic prompt
+      console.warn('Image analysis failed, using basic prompt:', analysisError);
+      finalPrompt = prompt;
     }
   }
 
   try {
-    // Use REST API directly for image generation (SDK doesn't support it properly)
-    // Use gemini-2.5-flash-image for all Gemini image generation
+    // Use REST API for image generation - this is TEXT-TO-IMAGE only
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateImage?key=${GEMINI_API_KEY}`;
 
     const response = await axios.post(apiUrl, {
@@ -196,7 +201,7 @@ async function generateImageWithGeminiInternal(options: GeminiImageOptions): Pro
     });
 
     if (DEBUG) {
-      console.log('DEBUG: Gemini REST API response received');
+      console.log('DEBUG: Gemini image generation API response received');
       console.log('DEBUG: Response status:', response.status);
     }
 
@@ -260,10 +265,10 @@ async function generateImageWithGeminiInternal(options: GeminiImageOptions): Pro
   }
 }
 
-// Test Gemini connectivity using text model
+// Test Gemini connectivity using multimodal model
 export async function testGeminiConnection(): Promise<boolean> {
   try {
-    const modelInstance = getGeminiTextModel('gemini-2.0-flash');
+    const modelInstance = getGeminiMultimodalModel('gemini-2.5-flash'); // Use latest multimodal model
     const result = await modelInstance.generateContent('Say "Gemini connected" in one word');
     const response = result.response.text().toLowerCase();
 

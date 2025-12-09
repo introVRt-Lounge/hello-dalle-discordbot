@@ -1,4 +1,4 @@
-import { generateImageWithGemini, testGeminiConnection, GeminiModelType } from '../services/geminiService';
+import { generateImageWithGemini, testGeminiConnection, GeminiImageModelType } from '../services/geminiService';
 import { generateImageWithOptions, ImageGenerationOptions } from '../utils/imageUtils';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -207,7 +207,7 @@ describe('Gemini Service Tests', () => {
 
     describe('Model Selection', () => {
         test('should accept different Gemini model types', () => {
-            const models: GeminiModelType[] = ['gemini-2.5-flash-image', 'imagen-3.0'];
+            const models: GeminiImageModelType[] = ['gemini-2.5-flash-image', 'imagen-3.0'];
 
             models.forEach(model => {
                 expect(['gemini-2.5-flash-image', 'imagen-3.0']).toContain(model);

@@ -3,7 +3,7 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 import sharp = require('sharp');
-import { generateImageWithGemini, GeminiModelType } from '../services/geminiService';
+import { generateImageWithGemini, GeminiImageModelType } from '../services/geminiService';
 
 // Ensure the temp directory exists
 const tempDir = path.join(__dirname, '../../temp');
@@ -27,7 +27,7 @@ if (!fs.existsSync(welcomeImagesDir)) {
 export interface ImageGenerationOptions {
   prompt: string;
   engine?: ImageEngine;
-  geminiModel?: GeminiModelType;
+  geminiModel?: GeminiImageModelType;
   imageInput?: string; // For image-to-image generation
   useAnalysis?: boolean; // Whether to use double-LLM analysis for better prompts (default: true)
 }
