@@ -1,6 +1,10 @@
 import { generateImageWithOptions, ImageGenerationOptions } from '../utils/imageUtils';
 import { jest } from '@jest/globals';
 
+// Mock axios to prevent real API calls during fallback
+jest.mock('axios');
+const mockAxios = require('axios');
+
 // Mock the Gemini service to avoid expensive API calls
 jest.mock('../services/geminiService', () => ({
     generateImageWithGemini: jest.fn(),
@@ -15,6 +19,10 @@ const mockAnalyzeImageContent = analyzeImageContent as jest.MockedFunction<typeo
 describe('Gemini Logic Tests (No API Calls)', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        // Mock axios to prevent real API calls during fallback
+        mockAxios.post.mockResolvedValue({
+            data: { data: [{ url: 'https://example.com/fallback-image.png' }] }
+        });
     });
 
     describe('Engine Routing', () => {
@@ -94,7 +102,7 @@ describe('Gemini Logic Tests (No API Calls)', () => {
     });
 
     describe('Error Handling', () => {
-        test('should handle Gemini API errors gracefully', async () => {
+        test('should handle Gemini API errors gracefully with fallback', async () => {
             mockGenerateImageWithGemini.mockRejectedValue(new Error('API quota exceeded'));
 
             const options: ImageGenerationOptions = {
@@ -102,10 +110,12 @@ describe('Gemini Logic Tests (No API Calls)', () => {
                 engine: 'gemini'
             };
 
-            await expect(generateImageWithOptions(options)).rejects.toThrow('API quota exceeded');
+            // Should succeed with fallback to DALL-E
+            const result = await generateImageWithOptions(options);
+            expect(result).toBe('https://example.com/fallback-image.png');
         });
 
-        test('should handle missing GEMINI_API_KEY', async () => {
+        test('should handle missing GEMINI_API_KEY with fallback', async () => {
             // Temporarily remove the env var for this test
             const originalKey = process.env.GEMINI_API_KEY;
             delete process.env.GEMINI_API_KEY;
@@ -117,7 +127,9 @@ describe('Gemini Logic Tests (No API Calls)', () => {
                 engine: 'gemini'
             };
 
-            await expect(generateImageWithOptions(options)).rejects.toThrow('GEMINI_API_KEY environment variable is required');
+            // Should succeed with fallback to DALL-E
+            const result = await generateImageWithOptions(options);
+            expect(result).toBe('https://example.com/fallback-image.png');
 
             // Restore the env var
             process.env.GEMINI_API_KEY = originalKey;
@@ -145,13 +157,13 @@ describe('Gemini Logic Tests (No API Calls)', () => {
             const options: ImageGenerationOptions = {
                 prompt: 'Test prompt',
                 engine: 'gemini',
-                geminiModel: 'gemini-2.0-flash'
+                geminiModel: 'gemini-2.5-flash-image'
             };
 
             await generateImageWithOptions(options);
 
             const callArgs = mockGenerateImageWithGemini.mock.calls[0][0];
-            expect(callArgs.model).toBe('gemini-2.0-flash'); // The model gets passed through from imageUtils
+            expect(callArgs.model).toBe('gemini-2.5-flash-image'); // The model gets passed through from imageUtils
         });
     });
 });
