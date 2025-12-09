@@ -157,13 +157,13 @@ describe('Gemini Logic Tests (No API Calls)', () => {
             const options: ImageGenerationOptions = {
                 prompt: 'Test prompt',
                 engine: 'gemini',
-                geminiModel: 'gemini-1.5-flash'
+                geminiModel: 'gemini-2.5-flash-image'
             };
 
             await generateImageWithOptions(options);
 
             const callArgs = mockGenerateImageWithGemini.mock.calls[0][0];
-            expect(callArgs.model).toBe('gemini-1.5-flash'); // The model gets passed through from imageUtils
+            expect(callArgs.model).toBe('gemini-2.5-flash-image'); // The model gets passed through from imageUtils
         });
     });
 });

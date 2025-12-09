@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 // Types for Gemini image generation
-export type GeminiModelType = 'gemini-1.5-flash' | 'imagen-3.0';
+export type GeminiModelType = 'gemini-2.5-flash-image' | 'imagen-3.0';
 export type GeminiTextModelType = 'gemini-2.0-flash' | 'gemini-2.5-pro';
 
 export interface GeminiImageOptions {
@@ -29,16 +29,16 @@ function getGeminiClient(): GoogleGenerativeAI {
 }
 
 // Get the appropriate Gemini image generation model
-function getGeminiImageModel(modelType: GeminiModelType = 'gemini-1.5-flash'): GenerativeModel {
+function getGeminiImageModel(modelType: GeminiModelType = 'gemini-2.5-flash-image'): GenerativeModel {
   const client = getGeminiClient();
 
   switch (modelType) {
-    case 'gemini-1.5-flash':
-      return client.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    case 'gemini-2.5-flash-image':
+      return client.getGenerativeModel({ model: 'gemini-2.5-flash-image' });
     case 'imagen-3.0':
       return client.getGenerativeModel({ model: 'imagen-3.0' });
     default:
-      return client.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      return client.getGenerativeModel({ model: 'gemini-2.5-flash-image' });
   }
 }
 
@@ -147,7 +147,7 @@ export async function generateImageWithGemini(options: GeminiImageOptions): Prom
 
 // Internal function that does the actual Gemini API call using REST API for image generation
 async function generateImageWithGeminiInternal(options: GeminiImageOptions): Promise<string> {
-  const { model = 'gemini-1.5-flash', imageInput, prompt, useAnalysis = true } = options;
+  const { model = 'gemini-2.5-flash-image', imageInput, prompt, useAnalysis = true } = options;
 
   // Validate inputs before API key check
   if (imageInput && !fs.existsSync(imageInput)) {
@@ -184,7 +184,8 @@ async function generateImageWithGeminiInternal(options: GeminiImageOptions): Pro
 
   try {
     // Use REST API directly for image generation (SDK doesn't support it properly)
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateImage?key=${GEMINI_API_KEY}`;
+    // Use gemini-2.5-flash-image for all Gemini image generation
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateImage?key=${GEMINI_API_KEY}`;
 
     const response = await axios.post(apiUrl, {
       prompt: finalPrompt
