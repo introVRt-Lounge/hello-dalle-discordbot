@@ -1,7 +1,7 @@
-import { generateImageWithGemini, testGeminiConnection, GeminiModelType } from '../services/geminiService';
+import { generateImageWithGemini, testGeminiConnection, GeminiImageModelType } from '../services/geminiService';
 import { generateImageWithOptions, ImageGenerationOptions } from '../utils/imageUtils';
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Mock axios to avoid real API calls in tests
 jest.mock('axios');
@@ -207,20 +207,20 @@ describe('Gemini Service Tests', () => {
 
     describe('Model Selection', () => {
         test('should accept different Gemini model types', () => {
-            const models: GeminiModelType[] = ['gemini-2.0-flash', 'gemini-2.5-pro'];
+            const models: GeminiImageModelType[] = ['gemini-2.5-flash-image', 'gemini-1.5-flash'];
 
             models.forEach(model => {
-                expect(['gemini-2.0-flash', 'gemini-2.5-pro']).toContain(model);
+                expect(['gemini-2.5-flash-image', 'gemini-1.5-flash']).toContain(model);
             });
         });
 
-        test('should default to gemini-2.0-flash model', async () => {
+        test('should default to gemini-2.5-flash-image model', async () => {
             mockGenerateImageWithGeminiFn.mockResolvedValue('/path/to/image.png');
 
             const options: ImageGenerationOptions = {
                 prompt: 'Test prompt',
                 engine: 'gemini'
-                // No model specified, should default to gemini-2.0-flash
+                // No model specified, should default to gemini-2.5-flash-image
             };
 
             const result = await generateImageWithOptions(options);
@@ -229,7 +229,7 @@ describe('Gemini Service Tests', () => {
             expect(mockGenerateImageWithGeminiFn).toHaveBeenCalledWith({
                 prompt: 'Test prompt',
                 useAnalysis: true
-                // model should default to gemini-2.0-flash
+                // model should default to gemini-2.5-flash-image
             });
         });
     });
