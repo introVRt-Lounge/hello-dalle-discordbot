@@ -27,7 +27,7 @@ globs: *
 ### FRAMEWORKS & LIBRARIES
 - Discord.js:  (version 14 or higher) for interacting with the Discord API.
 - OpenAI API: For generating images using DALL-E.
-- Gemini API: For generating images using Gemini.
+- Gemini API: For generating images using Gemini, using the correct image generation model and multimodal capabilities (see notes in the "PROJECT DOCUMENTATION & CONTEXT SYSTEM" section).
 - Jest:  For unit and integration testing.
 - Dotenv: For managing environment variables.
 - Axios: For making HTTP requests.
@@ -114,7 +114,7 @@ globs: *
 
 #### Overview Table
 
-| Feature | DALL-E 3 | Gemini 2.0 Flash Image |
+| Feature | DALL-E 3 | Gemini 2.5 Flash Image |
 |---------|----------|----------------------|
 | **Input Type** | Text only | Text + Image (multimodal) |
 | **Welcome Images** | Avatar analysis + text generation | Direct avatar image + enhanced prompt |
@@ -185,14 +185,33 @@ globs: *
 - Talk about image generation, avatars, and creative AI as my expertise
 
 ## Ensuring operational stability
-- The latest version with fallback logic is now live after a successful deployment.
-- Fixed issues like Gemini returning text instead of images, improving reliability.
-- Addressed content policy violations, with safety filters no longer blocking suggestive prompts.
-- Added intelligent fallback logic to `generateWelcomeImage()`, switching between Gemini and DALL-E if the primary engine fails.
-- If both engines fail, it shows a detailed error message instead of crashing.
+- The latest deployment is live with fallback logic, switching between Gemini and DALL-E for image generation.
+- If both engines fail, the bot now shows a graceful error with details, avoiding crashes.
+- Current stats show 475 human members, just 25 short of the 500-member milestone for a Golden VIP celebration.
+- Welcome count is at 462, and image generation is now fully resilient to engine failures.
+- The bot is ready to handle new member joins, ensuring welcome images work smoothly every time.
+- The latest deployment fixed Gemini's text response bug, ensuring images generate instead of text.
+- Fallback logic now switches between Gemini and DALL-E if the primary engine fails, preventing crashes.
+- Content policy violations, like blocked prompts, are handled with clear error messages.
+- The bot is ready for new members, with welcome images back and resilient against failures.
+- With 475 members and 462 welcomes, reaching 500 will unlock a special Golden VIP celebration, just 25 more needed!
+- The latest deployment successfully addressed the Gemini text response bug, ensuring image generation works as expected.
+- Fallback logic ensures the bot tries a secondary engine, like Gemini to DALL-E, if the primary fails.
+- The bot now handles both engine failures and content issues gracefully, enhancing user experience.
 
 ## Tracking progress
 - The bot currently has 475 human members, 25 short of the 500-member milestone for a Golden VIP celebration.
 - Welcome count stands at 462, with reliable image generation now supporting new member onboarding.
 - Fallback logic ensures the bot switches between Gemini and DALL-E, preventing crashes from engine failures.
 - Content policy issues, like blocked prompts, are managed gracefully, enhancing user experience.
+
+## Evaluating system updates
+- The latest deployment fixed critical image generation bugs, including Gemini returning text instead of images.
+- Fallback logic now switches between Gemini and DALL-E if the primary engine fails, ensuring smoother operation.
+
+## Assessing operational readiness
+- The bot's latest version, with fallback logic, is now live after a successful deployment.
+- Image generation is now bulletproof, ensuring welcome images work reliably for new members.
+- Content policy issues, like blocked suggestive prompts, are handled gracefully with detailed errors.
+- Engine failures no longer crash the bot, enhancing overall reliability for image generation tasks.
+- Reaching 500 human members will trigger a Golden VIP celebration, currently 25 members away.
