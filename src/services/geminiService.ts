@@ -69,7 +69,7 @@ function imageToBase64(imagePath: string): string {
 // Analyze image content using multimodal Gemini model
 export async function analyzeImageContent(imagePath: string): Promise<string> {
   try {
-    const modelInstance = getGeminiMultimodalModel('gemini-2.5-flash'); // Use multimodal model for image analysis // Use text model for analysis
+    const modelInstance = getGeminiMultimodalModel('gemini-2.5-flash'); // Use multimodal model for image analysis
 
     if (DEBUG) {
       console.log(`DEBUG: Analyzing image content: ${imagePath}`);

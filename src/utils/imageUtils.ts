@@ -59,13 +59,15 @@ function sanitizePrompt(prompt: string): string {
     sanitized = sanitized.replace(/\bhot\b/gi, 'stylish');
     sanitized = sanitized.replace(/\bbeautiful\b/gi, 'elegant');
     sanitized = sanitized.replace(/\bnaked\b|\bnude\b/gi, 'artistically posed');
-    sanitized = sanitized.replace(/\bbare\b/gi, 'minimalist');
     sanitized = sanitized.replace(/\bcall_me_sexy\b/gi, 'call_me_cool');
 
-    // Remove any content about bare skin/torso if it's likely to be flagged
+    // Handle specific case of "bare shoulders" before generic "bare" replacement
     if (sanitized.toLowerCase().includes('bare') && sanitized.toLowerCase().includes('shoulder')) {
         sanitized = sanitized.replace(/bare shoulders?/gi, 'stylish outfit');
     }
+
+    // Replace remaining instances of "bare" with safer alternatives
+    sanitized = sanitized.replace(/\bbare\b/gi, 'minimalist');
 
     return sanitized;
 }
