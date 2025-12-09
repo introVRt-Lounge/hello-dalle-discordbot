@@ -1,10 +1,12 @@
 import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
+import axios from 'axios';
 import { GEMINI_API_KEY, DEBUG } from '../config';
 import * as fs from 'fs';
 import * as path from 'path';
 
 // Types for Gemini image generation
-export type GeminiModelType = 'gemini-2.0-flash' | 'gemini-2.5-pro';
+export type GeminiModelType = 'gemini-1.5-flash' | 'imagen-3.0';
+export type GeminiTextModelType = 'gemini-2.0-flash' | 'gemini-2.5-pro';
 
 export interface GeminiImageOptions {
   model?: GeminiModelType;
@@ -26,8 +28,22 @@ function getGeminiClient(): GoogleGenerativeAI {
   return genAI;
 }
 
-// Get the appropriate Gemini model
-function getGeminiModel(modelType: GeminiModelType = 'gemini-2.0-flash'): GenerativeModel {
+// Get the appropriate Gemini image generation model
+function getGeminiImageModel(modelType: GeminiModelType = 'gemini-1.5-flash'): GenerativeModel {
+  const client = getGeminiClient();
+
+  switch (modelType) {
+    case 'gemini-1.5-flash':
+      return client.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    case 'imagen-3.0':
+      return client.getGenerativeModel({ model: 'imagen-3.0' });
+    default:
+      return client.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  }
+}
+
+// Get the appropriate Gemini text model (for analysis only)
+function getGeminiTextModel(modelType: GeminiTextModelType = 'gemini-2.0-flash'): GenerativeModel {
   const client = getGeminiClient();
 
   switch (modelType) {
@@ -53,7 +69,7 @@ function imageToBase64(imagePath: string): string {
 // Analyze image content using text-based Gemini model
 export async function analyzeImageContent(imagePath: string): Promise<string> {
   try {
-    const modelInstance = getGeminiModel('gemini-2.0-flash'); // Use text model for analysis
+    const modelInstance = getGeminiTextModel('gemini-2.0-flash'); // Use text model for analysis
 
     if (DEBUG) {
       console.log(`DEBUG: Analyzing image content: ${imagePath}`);
@@ -124,78 +140,26 @@ function getMimeType(imagePath: string): string {
 // For now, let's use inline data approach with proper structure
 // TODO: Implement proper File API upload when needed
 
-// Generate image using Gemini with retry logic for reliability
+// Generate image using Gemini with the CORRECT image generation API
 export async function generateImageWithGemini(options: GeminiImageOptions): Promise<string> {
-  const { model = 'gemini-2.0-flash', imageInput, prompt, useAnalysis = true } = options;
-
-  // Retry up to 3 times with modified prompts if Gemini returns text instead of image
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    try {
-      const attemptPrompt = attempt === 1 ? prompt : modifyPromptForRetry(prompt, attempt);
-      const result = await generateImageWithGeminiInternal({ ...options, prompt: attemptPrompt });
-
-      if (DEBUG) {
-        console.log(`DEBUG: Gemini attempt ${attempt} successful`);
-      }
-
-      return result;
-    } catch (error: any) {
-      const errorMessage = error.message || '';
-
-      // If it's a content policy violation, don't retry - this will fail
-      if (errorMessage.includes('safety') || errorMessage.includes('policy') || errorMessage.includes('violating')) {
-        if (DEBUG) {
-          console.log(`DEBUG: Content policy violation detected, not retrying: ${errorMessage}`);
-        }
-        throw error;
-      }
-
-      // If it's the last attempt, throw the error
-      if (attempt === 3) {
-        if (DEBUG) {
-          console.log(`DEBUG: All ${attempt} Gemini attempts failed`);
-        }
-        throw error;
-      }
-
-      // For other errors (including text responses), try again with modified prompt
-      if (DEBUG) {
-        console.log(`DEBUG: Gemini attempt ${attempt} failed (${errorMessage}), retrying with modified prompt`);
-      }
-    }
-  }
-
-  // This should never be reached, but TypeScript needs it
-  throw new Error('Unexpected error in Gemini retry logic');
+  return await generateImageWithGeminiInternal(options);
 }
 
-// Helper function to modify prompts for retry attempts
-function modifyPromptForRetry(originalPrompt: string, attempt: number): string {
-  const forceImageInstructions = "CRITICAL: You MUST generate and return an actual IMAGE file. Do not return text, descriptions, or explanations. Only return the visual image.";
-
-  switch (attempt) {
-    case 2:
-      return `${forceImageInstructions} Generate a cyberpunk billboard image showing: ${originalPrompt}. Return ONLY the image, no text.`;
-    case 3:
-      return `${forceImageInstructions} Create a synthwave/cyberpunk welcome image for username display: ${originalPrompt}. Return ONLY the visual image file.`;
-    default:
-      return originalPrompt;
-  }
-}
-
-// Internal function that does the actual Gemini API call
+// Internal function that does the actual Gemini API call using REST API for image generation
 async function generateImageWithGeminiInternal(options: GeminiImageOptions): Promise<string> {
-  const { model = 'gemini-2.0-flash', imageInput, prompt, useAnalysis = true } = options;
+  const { model = 'gemini-1.5-flash', imageInput, prompt, useAnalysis = true } = options;
 
   // Validate inputs before API key check
   if (imageInput && !fs.existsSync(imageInput)) {
     throw new Error(`Failed to read image file: ${imageInput}`);
   }
 
-  const modelInstance = getGeminiModel(model);
+  if (!GEMINI_API_KEY) {
+    throw new Error('GEMINI_API_KEY environment variable is required for Gemini image generation');
+  }
 
   if (DEBUG) {
-    console.log(`DEBUG: Generating image with Gemini model: ${model}`);
+    console.log(`DEBUG: Generating image with Gemini REST API using model: ${model}`);
     console.log(`DEBUG: Original prompt: ${prompt}`);
     console.log(`DEBUG: Use analysis: ${useAnalysis}`);
     if (imageInput) {
@@ -204,142 +168,102 @@ async function generateImageWithGeminiInternal(options: GeminiImageOptions): Pro
   }
 
   let finalPrompt = prompt;
-  let content: any[];
 
-  if (imageInput && fs.existsSync(imageInput)) {
-    // Image-to-image generation: Use two-step analysis if enabled
-    const base64Image = imageToBase64(imageInput);
-    const mimeType = getMimeType(imageInput);
+  // For image-to-image, we need to analyze first, then use the image generation API
+  if (imageInput && fs.existsSync(imageInput) && useAnalysis) {
+    // Step 1: Analyze the image content using text model
+    const imageDescription = await analyzeImageContent(imageInput);
 
-    if (useAnalysis) {
-      // Step 1: Analyze the image content first
-      const imageDescription = await analyzeImageContent(imageInput);
+    // Step 2: Create enhanced prompt using the analysis
+    finalPrompt = `Transform this image: ${imageDescription}. ${prompt}. Preserve the subject's appearance and pose.`;
 
-      // Step 2: Create enhanced prompt using the analysis
-      finalPrompt = `IMPORTANT: Generate an actual IMAGE file, not text. Using the input image, and knowing that the subject is: "${imageDescription}", ${prompt}. Preserve the subject's form, pose, and key visual characteristics while applying the requested transformation. Return ONLY the image.`;
+    if (DEBUG) {
+      console.log(`DEBUG: Enhanced prompt: ${finalPrompt}`);
+    }
+  }
+
+  try {
+    // Use REST API directly for image generation (SDK doesn't support it properly)
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateImage?key=${GEMINI_API_KEY}`;
+
+    const response = await axios.post(apiUrl, {
+      prompt: finalPrompt
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (DEBUG) {
+      console.log('DEBUG: Gemini REST API response received');
+      console.log('DEBUG: Response status:', response.status);
+    }
+
+    // Extract image data from the response
+    const responseData = response.data;
+    if (responseData.generatedImages && responseData.generatedImages.length > 0) {
+      const generatedImage = responseData.generatedImages[0];
+      const imageData = generatedImage.imageData;
+      const mimeType = generatedImage.mimeType || 'image/png';
 
       if (DEBUG) {
-        console.log(`DEBUG: Enhanced prompt: ${finalPrompt}`);
+        console.log(`DEBUG: Found generated image, mimeType: ${mimeType}`);
+        console.log(`DEBUG: Data length: ${imageData.length}`);
       }
-    }
 
-    content = [
-      {
-        inlineData: {
-          data: base64Image,
-          mimeType: mimeType
+      // Convert base64 to temporary file
+      const tempDir = path.join(__dirname, '../../temp');
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true });
+      }
+
+      const tempFileName = `gemini-generated-${Date.now()}.png`;
+      const tempFilePath = path.join(tempDir, tempFileName);
+
+      try {
+        // Decode base64 and save as file
+        const imageBuffer = Buffer.from(imageData, 'base64');
+        fs.writeFileSync(tempFilePath, imageBuffer);
+
+        if (DEBUG) {
+          console.log(`DEBUG: Saved Gemini generated image to: ${tempFilePath}`);
+          console.log(`DEBUG: File size: ${imageBuffer.length} bytes`);
         }
-      },
-      {
-        text: finalPrompt
-      }
-    ] as any;
-  } else {
-    // Text-to-image generation
-    finalPrompt = `IMPORTANT: Generate an actual IMAGE file, not text or descriptions. ${prompt}. Return ONLY the visual image.`;
-    content = [{ text: finalPrompt }];
-  }
 
-  const result = await modelInstance.generateContent(content);
-
-  if (DEBUG) {
-    console.log('DEBUG: Gemini response received');
-    console.log('DEBUG: Full response:', JSON.stringify(result.response, null, 2));
-    console.log('DEBUG: Candidates:', result.response.candidates);
-    if (result.response.candidates && result.response.candidates[0]) {
-      console.log('DEBUG: First candidate parts:', result.response.candidates[0].content?.parts);
-    }
-  }
-
-  // Extract the generated image URL/data from response
-  // Gemini returns image data differently than DALL-E
-  const response = result.response;
-
-  if (DEBUG) {
-    console.log('DEBUG: Processing Gemini response...');
-    console.log('DEBUG: Response structure keys:', Object.keys(response));
-    if (response.candidates && response.candidates.length > 0) {
-      const candidate = response.candidates[0];
-      console.log('DEBUG: Candidate structure:', Object.keys(candidate));
-      if (candidate.content && candidate.content.parts) {
-        candidate.content.parts.forEach((part: any, index: number) => {
-          console.log(`DEBUG: Part ${index} keys:`, Object.keys(part));
-          if (part.inlineData || part.inline_data) {
-            console.log(`DEBUG: Part ${index} inline data keys:`, Object.keys(part.inlineData || part.inline_data));
-          }
-        });
+        return tempFilePath;
+      } catch (bufferError) {
+        console.error('DEBUG: Error decoding base64 image data:', bufferError);
+        throw new Error(`Failed to decode Gemini image data: ${bufferError}`);
       }
     }
-  }
 
-  if (response.candidates && response.candidates.length > 0) {
-    const candidate = response.candidates[0];
+    throw new Error('No image data found in Gemini generateImage response');
 
-    // Check if response contains image data
-    if (candidate.content && candidate.content.parts) {
-      for (const part of candidate.content.parts) {
-        // Check for inline data (image response)
-        const inlineData = part.inlineData;
-        if (inlineData && inlineData.data) {
-          // Gemini returned image data directly
-          const imageData = inlineData.data;
-          const mimeType = inlineData.mimeType || 'image/png';
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.error?.message || error.message || 'Unknown Gemini API error';
 
-          if (DEBUG) {
-            console.log(`DEBUG: Found inline data, mimeType: ${mimeType}`);
-            console.log(`DEBUG: Data length: ${imageData.length}`);
-          }
-
-          // Convert base64 to temporary file
-          const tempDir = path.join(__dirname, '../../temp');
-          if (!fs.existsSync(tempDir)) {
-            fs.mkdirSync(tempDir, { recursive: true });
-          }
-
-          const tempFileName = `gemini-generated-${Date.now()}.png`;
-          const tempFilePath = path.join(tempDir, tempFileName);
-
-          try {
-            // Decode base64 and save as file
-            const imageBuffer = Buffer.from(imageData, 'base64');
-            fs.writeFileSync(tempFilePath, imageBuffer);
-
-            if (DEBUG) {
-              console.log(`DEBUG: Saved Gemini generated image to: ${tempFilePath}`);
-              console.log(`DEBUG: File size: ${imageBuffer.length} bytes`);
-            }
-
-            return tempFilePath; // Return file path instead of URL
-          } catch (bufferError) {
-            console.error('DEBUG: Error decoding base64 image data:', bufferError);
-            throw new Error(`Failed to decode Gemini image data: ${bufferError}`);
-          }
-        }
-      }
-    }
-  }
-
-  // If no image data found in response, check for text response (error case)
-  const textResponse = response.text();
-  if (textResponse) {
     if (DEBUG) {
-      console.log('DEBUG: Gemini returned text response:', textResponse);
+      console.error('DEBUG: Gemini image generation error:', error.response?.data || error);
     }
 
-    // Some Gemini models might return a description instead of image data
-    // In this case, we should probably fall back to text-to-image or throw an error
-    throw new Error(`Gemini returned text response instead of image: ${textResponse}`);
-  }
+    // Handle specific Gemini API errors
+    if (errorMessage.includes('quota')) {
+      throw new Error('Gemini API quota exceeded. Try again later or check your billing.');
+    } else if (errorMessage.includes('safety') || errorMessage.includes('policy')) {
+      throw new Error('Gemini rejected the prompt due to safety filters. Try a different prompt.');
+    } else if (errorMessage.includes('model')) {
+      throw new Error(`Gemini model error: ${errorMessage}`);
+    }
 
-  throw new Error('No image data found in Gemini response');
+    throw new Error(`Gemini image generation failed: ${errorMessage}`);
+  }
 }
 
-// Test Gemini connectivity
+// Test Gemini connectivity using text model
 export async function testGeminiConnection(): Promise<boolean> {
   try {
-    const client = getGeminiClient();
-    const model = client.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
-    const result = await model.generateContent('Say "Gemini connected" in one word');
+    const modelInstance = getGeminiTextModel('gemini-2.0-flash');
+    const result = await modelInstance.generateContent('Say "Gemini connected" in one word');
     const response = result.response.text().toLowerCase();
 
     if (DEBUG) {
