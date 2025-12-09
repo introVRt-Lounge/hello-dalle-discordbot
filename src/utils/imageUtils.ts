@@ -2,8 +2,8 @@ import { DEBUG, OPENAI_API_KEY, WATERMARK_PATH, ImageEngine, getDEFAULT_ENGINE }
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
-import sharp from 'sharp';
-import { generateImageWithGemini, GeminiModelType } from '../services/geminiService';
+import sharp = require('sharp');
+import { generateImageWithGemini, GeminiImageModelType } from '../services/geminiService';
 
 // Ensure the temp directory exists
 const tempDir = path.join(__dirname, '../../temp');
@@ -27,7 +27,7 @@ if (!fs.existsSync(welcomeImagesDir)) {
 export interface ImageGenerationOptions {
   prompt: string;
   engine?: ImageEngine;
-  geminiModel?: GeminiModelType;
+  geminiModel?: GeminiImageModelType;
   imageInput?: string; // For image-to-image generation
   useAnalysis?: boolean; // Whether to use double-LLM analysis for better prompts (default: true)
 }
@@ -53,26 +53,29 @@ export async function generateImage(prompt: string, engine: ImageEngine = getDEF
 export async function generateImageWithOptions(options: ImageGenerationOptions): Promise<string> {
     const { prompt, engine = 'dalle', geminiModel, imageInput, useAnalysis = true } = options;
 
+    // Use original prompt - sanitization was a workaround for broken Gemini implementation
+    const sanitizedPrompt = prompt;
+
     console.log(`DEBUG: Generating image with engine: ${engine}, prompt: ${prompt}`);
 
+    // Primary engine attempt
+    try {
     if (engine === 'gemini') {
-      return generateImageWithGemini({
-        prompt,
+        return await generateImageWithGemini({
+          prompt: sanitizedPrompt,
         model: geminiModel,
         imageInput,
         useAnalysis
       });
-    }
-
+      } else {
     // Default to DALL-E
     if (!OPENAI_API_KEY) {
         throw new Error('OPENAI_API_KEY is required for DALL-E image generation. Please set the OPENAI_API_KEY environment variable.');
     }
 
-    try {
         const response = await axios.post('https://api.openai.com/v1/images/generations', {
             model: 'dall-e-3',
-            prompt: prompt,
+            prompt: sanitizedPrompt,
             n: 1,
             size: "1024x1024"
         }, {
@@ -83,35 +86,74 @@ export async function generateImageWithOptions(options: ImageGenerationOptions):
         });
 
         return response.data.data[0].url;
-    } catch (error: any) {
-        // Extract detailed error information from OpenAI API response
-        let errorDetails = 'Unknown error occurred';
+      }
+    } catch (primaryError: any) {
+      const primaryErrorMessage = primaryError.message || 'Unknown error occurred';
 
-        if (error.response) {
-            const status = error.response.status;
-            const data = error.response.data;
+      console.error(`Primary engine (${engine}) failed:`, primaryErrorMessage);
 
-            if (data && typeof data === 'object') {
-                // Extract OpenAI-specific error details
-                if (data.error && data.error.message) {
-                    errorDetails = `${status}: ${data.error.message}`;
-                    if (data.error.type) {
-                        errorDetails += ` (Type: ${data.error.type})`;
-                    }
-                } else if (data.message) {
-                    errorDetails = `${status}: ${data.message}`;
+      // Fallback logic: if primary fails, try the other engine
+      const fallbackEngine = engine === 'gemini' ? 'dalle' : 'gemini';
+
+      console.log(`Attempting fallback to ${fallbackEngine} engine...`);
+
+      try {
+        if (fallbackEngine === 'gemini') {
+          // For Gemini fallback, use the original prompt (no sanitization needed)
+          return await generateImageWithGemini({
+            prompt: prompt,
+            model: geminiModel,
+            imageInput,
+            useAnalysis: false // Disable analysis for fallback to avoid further issues
+          });
                 } else {
-                    errorDetails = `${status}: ${JSON.stringify(data)}`;
-                }
-            } else {
-                errorDetails = `${status}: ${String(data)}`;
+          // Fallback to DALL-E
+          if (!OPENAI_API_KEY) {
+            throw new Error('OPENAI_API_KEY is required for DALL-E fallback. Please set the OPENAI_API_KEY environment variable.');
+          }
+
+          const response = await axios.post('https://api.openai.com/v1/images/generations', {
+            model: 'dall-e-3',
+            prompt: prompt,
+            n: 1,
+            size: "1024x1024"
+          }, {
+            headers: {
+              'Authorization': `Bearer ${OPENAI_API_KEY}`,
+              'Content-Type': 'application/json'
             }
-        } else if (error.message) {
-            errorDetails = error.message;
+          });
+
+          return response.data.data[0].url;
+                }
+      } catch (fallbackError: any) {
+        const fallbackErrorMessage = fallbackError.message || 'Unknown fallback error';
+
+        console.error(`Fallback engine (${fallbackEngine}) also failed:`, fallbackErrorMessage);
+
+        // Extract detailed error information for both engines
+        let primaryDetails = primaryErrorMessage;
+        let fallbackDetails = fallbackErrorMessage;
+
+        // For OpenAI/DALL-E errors, extract detailed info
+        if (primaryError.response) {
+          const status = primaryError.response.status;
+          const data = primaryError.response.data;
+          if (data?.error?.message) {
+            primaryDetails = `${status}: ${data.error.message}`;
+        }
         }
 
-        console.error('OpenAI API Error Details:', errorDetails);
-        throw new Error(`Failed to generate image: ${errorDetails}`);
+        if (fallbackError.response) {
+          const status = fallbackError.response.status;
+          const data = fallbackError.response.data;
+          if (data?.error?.message) {
+            fallbackDetails = `${status}: ${data.error.message}`;
+          }
+        }
+
+        throw new Error(`Image generation failed with both engines. Primary (${engine}): ${primaryDetails}. Fallback (${fallbackEngine}): ${fallbackDetails}`);
+      }
     }
 }
 
