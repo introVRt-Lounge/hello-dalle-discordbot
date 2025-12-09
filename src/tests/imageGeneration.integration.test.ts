@@ -87,7 +87,7 @@ describe('Image Generation Integration Tests', () => {
             const options: ImageGenerationOptions = {
                 prompt: 'Fluid silhouettes of dancers materializing through fog and strobe light, bodies moving like liquid in rhythm with deep bass. The atmosphere is sensual and immersive, colors shifting between violet, cyan, and magenta. Projection mapping visual, glowing body paint.',
                 engine: 'gemini',
-                geminiModel: 'gemini-2.5-flash-image' // Use the same model that works for image-to-image
+                geminiModel: 'gemini-2.5-flash-image' // Use the correct image generation model
             };
 
             const result = await generateImageWithOptions(options);

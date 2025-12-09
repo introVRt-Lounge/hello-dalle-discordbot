@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 // Types for Gemini models
-export type GeminiImageModelType = 'gemini-2.5-flash-image' | 'imagen-3.0'; // For image generation only
+export type GeminiImageModelType = 'gemini-2.5-flash-image' | 'gemini-1.5-flash'; // For image generation via REST API
 export type GeminiMultimodalModelType = 'gemini-2.5-flash' | 'gemini-2.0-flash' | 'gemini-2.5-pro'; // For text + image analysis
 
 export interface GeminiImageOptions {
@@ -35,8 +35,8 @@ function getGeminiImageModel(modelType: GeminiImageModelType = 'gemini-2.5-flash
   switch (modelType) {
     case 'gemini-2.5-flash-image':
       return client.getGenerativeModel({ model: 'gemini-2.5-flash-image' });
-    case 'imagen-3.0':
-      return client.getGenerativeModel({ model: 'imagen-3.0' });
+    case 'gemini-1.5-flash':
+      return client.getGenerativeModel({ model: 'gemini-1.5-flash' });
     default:
       return client.getGenerativeModel({ model: 'gemini-2.5-flash-image' });
   }
