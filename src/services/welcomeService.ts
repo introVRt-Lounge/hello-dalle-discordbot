@@ -186,7 +186,7 @@ Make this the most spectacular welcome image ever created - fit for royalty! ✨
                     if (DEBUG) console.log(`DEBUG: Avatar analysis result: ${analysisResult}`);
 
                     // Step 2: Construct enhanced prompt using analysis
-                    finalPrompt = `Using the input image as reference: ${analysisResult}. Create a cyberpunk billboard welcome image featuring ${displayName} prominently, in a mixture of synthwave and cyberpunk styles.`;
+                    finalPrompt = `Using the input image as reference: ${analysisResult}. Create a cyberpunk billboard welcome image. The billboard should prominently display the text "${displayName}" and nothing else. Style: mixture of synthwave and cyberpunk aesthetics.`;
 
                     if (DEBUG) console.log(`DEBUG: Enhanced Gemini welcome prompt: ${finalPrompt}`);
                 } catch (analysisError) {
