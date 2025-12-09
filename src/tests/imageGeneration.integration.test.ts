@@ -1,6 +1,6 @@
 import { generateImageWithOptions, ImageGenerationOptions, downloadAndSaveImage } from '../utils/imageUtils';
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Integration tests that actually generate images via paid APIs
 // These tests require valid API keys and will be skipped in CI unless explicitly enabled
@@ -87,7 +87,7 @@ describe('Image Generation Integration Tests', () => {
             const options: ImageGenerationOptions = {
                 prompt: 'Fluid silhouettes of dancers materializing through fog and strobe light, bodies moving like liquid in rhythm with deep bass. The atmosphere is sensual and immersive, colors shifting between violet, cyan, and magenta. Projection mapping visual, glowing body paint.',
                 engine: 'gemini',
-                geminiModel: 'gemini-2.0-flash' // Use the same model that works for image-to-image
+                geminiModel: 'gemini-2.5-flash-image' // Use the correct image generation model
             };
 
             const result = await generateImageWithOptions(options);
@@ -116,7 +116,7 @@ describe('Image Generation Integration Tests', () => {
                 prompt: 'Take this exact profile picture and create a cartoon superhero version while maintaining the person\'s facial features, expression, and overall appearance. Add a superhero cape flowing behind them and keep the original art style but make it more animated.',
                 engine: 'gemini',
                 imageInput: testImagePath,
-                geminiModel: 'gemini-2.0-flash'
+                geminiModel: 'gemini-2.5-flash-image'
             };
 
             const result = await generateImageWithOptions(options);
@@ -149,7 +149,7 @@ describe('Image Generation Integration Tests', () => {
             const options: ImageGenerationOptions = {
                 prompt: 'Explosive visual of bodies dissolving into light shards, merging with digital waveform tunnels. The motion feels ecstatic, transcendental — chaos and unity rendered in vivid pulses of color and glitch. Gaspar Noé style cinematography.',
                 engine: 'gemini',
-                geminiModel: 'gemini-2.0-flash'
+                geminiModel: 'gemini-2.5-flash-image'
             };
 
             try {
