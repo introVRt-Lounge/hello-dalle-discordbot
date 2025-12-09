@@ -215,3 +215,10 @@ globs: *
 - Content policy issues, like blocked suggestive prompts, are handled gracefully with detailed errors.
 - Engine failures no longer crash the bot, enhancing overall reliability for image generation tasks.
 - Reaching 500 human members will trigger a Golden VIP celebration, currently 25 members away.
+
+## Ensuring operational stability
+- The latest version, with fallback logic, is now live after a successful deployment.
+- Fixed issues like Gemini returning text instead of images, improving reliability.
+- Addressed content policy violations, with safety filters no longer blocking suggestive prompts.
+- Added intelligent fallback logic to `generateWelcomeImage()`, switching between Gemini and DALL-E if the primary engine fails.
+- If both engines fail, it shows a detailed error message instead of crashing.
