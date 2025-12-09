@@ -222,3 +222,14 @@ globs: *
 - Addressed content policy violations, with safety filters no longer blocking suggestive prompts.
 - Added intelligent fallback logic to `generateWelcomeImage()`, switching between Gemini and DALL-E if the primary engine fails.
 - If both engines fail, it shows a detailed error message instead of crashing.
+
+## Tracking system performance
+- The bot now has a robust fallback system, minimizing disruptions in image generation.
+- Welcome images will continue to generate reliably, enhancing the user experience.
+
+## Ensuring operational stability
+- The bot now uses fallback logic, switching between Gemini and DALL-E if one fails during image generation.
+- Content policy issues, like blocked prompts, are resolved with graceful error handling.
+- Human membership is at 475, with a goal of 500 for a special Golden VIP celebration.
+- Welcome images are reliable again, ensuring smooth experiences for new members joining.
+- The bot is fully prepared to handle image generation challenges without crashing.

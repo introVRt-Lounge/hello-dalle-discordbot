@@ -25,7 +25,7 @@ describe('Welcome Module Tests', () => {
             .mockResolvedValue('A person with blue hair and green eyes');
 
         // Test the prompt construction logic (simulated)
-        const expectedPrompt = 'Using the input image as reference: A person with blue hair and green eyes. Create a welcome image for TestUser proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles.';
+        const expectedPrompt = 'Using the input image as reference: A person with blue hair and green eyes. Create a cyberpunk billboard welcome image featuring TestUser prominently, in a mixture of synthwave and cyberpunk styles.';
 
         // Verify the prompt structure
         expect(expectedPrompt).toContain('Using the input image as reference:');
