@@ -45,7 +45,7 @@ Note: AI-generated prompt components from previous step output, **{denoted in bo
 | Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
 |-----------------|-------------------------|---------------------------|
 | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/pfp1.png" width="200" height="200" alt="Ariabel's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/welcome-ariabel-default-dalle.png" width="300" height="300" alt="Ariabel DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/welcome-ariabel-default-gemini.png" width="300" height="300" alt="Ariabel Gemini"> |
-| | <small>"Create a welcome image for Ariabel proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles. Incorporate visual elements from this avatar description: **{Multicolored iridescent butterfly wings and intricate black fantasy outfit.}**"</small><br><small>_{Curly braces indicate AI-generated description}_</small> | <small>"Using the input image as reference: **{Illustration of a fantastical character with black and shimmering blue butterfly wings, pointed ears, and holding a glowing sword.}** Create a welcome image for Ariabel proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles."</small><br><small>_{Curly braces indicate AI-generated description}_</small> |
+| | <small>"Create a cyberpunk billboard welcome image. The billboard should prominently display the text \"Ariabel\" and nothing else. Style: mixture of synthwave and cyberpunk aesthetics. Incorporate visual elements from this avatar description: **{Multicolored iridescent butterfly wings and intricate black fantasy outfit.}**"</small><br><small>_{Curly braces indicate AI-generated description}_</small> | <small>"Using the input image as reference: **{Illustration of a fantastical character with black and shimmering blue butterfly wings, pointed ears, and holding a glowing sword.}** Create a cyberpunk billboard welcome image. The billboard should prominently display the text \"Ariabel\" and nothing else. Style: mixture of synthwave and cyberpunk aesthetics."</small><br><small>_{Curly braces indicate AI-generated description}_</small> |
 
 ### 2. heavygee - PFP Transformation (Space Explorer)
 
@@ -72,7 +72,7 @@ Note: AI-generated prompt components from previous step output, **{denoted in bo
 | Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
 |-----------------|-------------------------|---------------------------|
 | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/pfp3.png" width="200" height="200" alt="tokentrevor's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/welcome-tokentrevor-steampunk-dalle.png" width="300" height="300" alt="tokentrevor DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/welcome-tokentrevor-steampunk-gemini.png" width="300" height="300" alt="tokentrevor Gemini"> |
-| | <small>"Create a welcome image for tokentrevor proclaimed upon and incorporated into a steampunk city billboard in Victorian-era mechanical styles. Incorporate visual elements from this avatar description: **{broad smiling face with green eyes.}**"</small><br><small>_{Curly braces indicate AI-generated description}_</small> | <small>"Using the input image as reference: **{broad grin with an open mouth and visible teeth.}** Create a welcome image for tokentrevor proclaimed upon and incorporated into a steampunk city billboard in Victorian-era mechanical styles."</small><br><small>_{Curly braces indicate AI-generated description}_</small> |
+| | <small>"Create a steampunk city billboard welcome image. The billboard should prominently display the text \"tokentrevor\" and nothing else. Style: Victorian-era mechanical aesthetics. Incorporate visual elements from this avatar description: **{broad smiling face with green eyes.}**"</small><br><small>_{Curly braces indicate AI-generated description}_</small> | <small>"Using the input image as reference: **{broad grin with an open mouth and visible teeth.}** Create a steampunk city billboard welcome image. The billboard should prominently display the text \"tokentrevor\" and nothing else. Style: Victorian-era mechanical aesthetics."</small><br><small>_{Curly braces indicate AI-generated description}_</small> |
 
 ### 5. wallac3 - PFP Transformation (Superhero)
 
@@ -90,7 +90,7 @@ Note: AI-generated prompt components from previous step output, **{denoted in bo
 | Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
 |-----------------|-------------------------|---------------------------|
 | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/pfp2.png" width="200" height="200" alt="pecachu's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/welcome-pecachu-default-dalle.png" width="300" height="300" alt="pecachu DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/welcome-pecachu-default-gemini.png" width="300" height="300" alt="pecachu Gemini"> |
-| | <small>"Create a welcome image for pecachu proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles. Incorporate visual elements from this avatar description: **{Yellow and pink cartoon-style character with heart and star shapes, labeled 'PECACHU'.}**"</small><br><small>_{Curly braces indicate AI-generated description}_</small> | <small>"Using the input image as reference: **{'A yellow and pink stylized pin design of Pikachu with muscular arms, featuring stars and hearts.'}** Create a welcome image for pecachu proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles."</small><br><small>_{Curly braces indicate AI-generated description}_</small> |
+| | <small>"Create a cyberpunk billboard welcome image. The billboard should prominently display the text \"pecachu\" and nothing else. Style: mixture of synthwave and cyberpunk aesthetics. Incorporate visual elements from this avatar description: **{Yellow and pink cartoon-style character with heart and star shapes, labeled 'PECACHU'.}**"</small><br><small>_{Curly braces indicate AI-generated description}_</small> | <small>"Using the input image as reference: **{'A yellow and pink stylized pin design of Pikachu with muscular arms, featuring stars and hearts.'}** Create a cyberpunk billboard welcome image. The billboard should prominently display the text \"pecachu\" and nothing else. Style: mixture of synthwave and cyberpunk aesthetics."</small><br><small>_{Curly braces indicate AI-generated description}_</small> |
 
 ---
 
@@ -152,7 +152,7 @@ flowchart TD
 
 **Double-LLM Strategy**:
 1. **Analysis Phase**: `gemini-2.0-flash` analyzes the avatar image and returns a concise description (≤15 words)
-2. **Generation Phase**: `gemini-2.5-flash-image` uses the avatar image + enhanced prompt: `"Using the input image as reference: [analysis result]. Create a welcome image for [username] proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles."`
+2. **Generation Phase**: `gemini-2.5-flash-image` uses the avatar image + enhanced prompt: `"Using the input image as reference: [analysis result]. Create a cyberpunk billboard welcome image. The billboard should prominently display the text \"[username]\" and nothing else. Style: mixture of synthwave and cyberpunk aesthetics."`
 
 #### Profile Pictures (/pfp command)
 ```mermaid
@@ -227,7 +227,7 @@ const analysis = await geminiTextModel.generateContent([analysisPrompt, imageDat
 #### Step 2: Enhanced Generation for Welcome Images
 ```javascript
 // Using gemini-2.5-flash-image (multimodal model)
-const enhancedPrompt = `Using the input image as reference: ${analysis}. Create a welcome image for ${username} proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles.`;
+const enhancedPrompt = `Using the input image as reference: ${analysis}. Create a cyberpunk billboard welcome image. The billboard should prominently display the text "${username}" and nothing else. Style: mixture of synthwave and cyberpunk aesthetics.`;
 const result = await geminiImageModel.generateContent([enhancedPrompt, imageData]);
 ```
 
@@ -242,7 +242,7 @@ const result = await geminiImageModel.generateContent([enhancedPrompt, imageData
 
 ```javascript
 // Environment variables
-const WELCOME_PROMPT = "Create a welcome image for {username} proclaimed upon and incorporated into a cyberpunk billboard in a mixture of synthwave and cyberpunk styles.";
+const WELCOME_PROMPT = "Create a cyberpunk billboard welcome image. The billboard should prominently display the text \"{username}\" and nothing else. Style: mixture of synthwave and cyberpunk aesthetics.";
 const DEFAULT_ENGINE = process.env.DEFAULT_ENGINE || 'dalle';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
