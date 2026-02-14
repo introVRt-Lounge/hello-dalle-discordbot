@@ -237,8 +237,10 @@ export async function describeImage(imagePath: string, imageUrl: string, genderS
             ? "This image is used as a discord profile picture. Describe its main features, especially any characteristics (such as hairstyle, clothing, or accessories) that might help in adjusting for personalization. Please provide a concise description in the form of '<description>' without using explicit gender labels unless the characteristics are very apparent. Limit your response to around 50 tokens."
             : "This image is used as a discord profile picture. Describe the most notable visual feature concisely, in the form of '<description>'. Focus only on distinctive elements like colors, shapes, or items without drawing any conclusions about personal characteristics. Limit your response to around 50 tokens.";
 
+        // NOTE: Must use a vision-capable model when sending image content blocks.
+        // gpt-4-turbo does NOT support `image_url` here and will 400.
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-            model: 'gpt-4-turbo',
+            model: process.env.OPENAI_VISION_MODEL || 'gpt-4o-mini',
             messages: [
                 {
                     role: 'user',
