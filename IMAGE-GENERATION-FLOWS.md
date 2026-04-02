@@ -36,6 +36,8 @@ The bot supports two image generation engines with fundamentally different appro
 
 Each example shows the same input processed by both engines to demonstrate the technical differences.
 
+**Note:** Example avatars and outputs are stored locally under `docs/assets/` (gitignored), not in the repository. Open the referenced filenames on your clone to view them.
+
 Note: AI-generated prompt components from previous step output, **{denoted in bold with braces}**
 
 ### 1. Ariabel - Default Welcome Image
@@ -44,7 +46,7 @@ Note: AI-generated prompt components from previous step output, **{denoted in bo
 
 | Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
 |-----------------|-------------------------|---------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/pfp1.png" width="200" height="200" alt="Ariabel's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/welcome-ariabel-default-dalle.png" width="300" height="300" alt="Ariabel DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/welcome-ariabel-default-gemini.png" width="300" height="300" alt="Ariabel Gemini"> |
+| `docs/assets/pfp1.png` | `docs/assets/welcome-ariabel-default-dalle.png` | `docs/assets/welcome-ariabel-default-gemini.png` |
 | | <small>"Create a cyberpunk billboard welcome image. The billboard should prominently display the text \"Ariabel\" and nothing else. Style: mixture of synthwave and cyberpunk aesthetics. Incorporate visual elements from this avatar description: **{Multicolored iridescent butterfly wings and intricate black fantasy outfit.}**"</small><br><small>_{Curly braces indicate AI-generated description}_</small> | <small>"Using the input image as reference: **{Illustration of a fantastical character with black and shimmering blue butterfly wings, pointed ears, and holding a glowing sword.}** Create a cyberpunk billboard welcome image. The billboard should prominently display the text \"Ariabel\" and nothing else. Style: mixture of synthwave and cyberpunk aesthetics."</small><br><small>_{Curly braces indicate AI-generated description}_</small> |
 
 ### 2. heavygee - PFP Transformation (Space Explorer)
@@ -53,7 +55,7 @@ Note: AI-generated prompt components from previous step output, **{denoted in bo
 
 | Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Transform) |
 |-----------------|-------------------------------|-----------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/pfp6.png" width="200" height="200" alt="heavygee's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/pfp-heavygee-space-explorer-dalle.png" width="300" height="300" alt="heavygee DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/pfp-heavygee-space-explorer-gemini.png" width="300" height="300" alt="heavygee Gemini"> |
+| `docs/assets/pfp6.png` | `docs/assets/pfp-heavygee-space-explorer-dalle.png` | `docs/assets/pfp-heavygee-space-explorer-gemini.png` |
 | | <small>"Transform this profile picture described as: **{An image blending a real person's eyes and mouth with a classical sculpture's face and curly beard, featuring a monochrome blue tint.}** according to: space explorer. Create a new artistic version while maintaining the key visual characteristics. Image only, no text. Circular to ease cropping."</small><br><small>_{Curly braces indicate AI-generated description}_</small> | <small>"Using the input image as reference: **{An image blending a real person's eyes and mouth with a classical sculpture's face and curly beard, featuring a monochrome blue tint.}** Maintain the subject's pose and appearance while transforming them into a space explorer in a highly detailed artistic style. Circular to ease cropping."</small><br><small>_{Curly braces indicate AI-generated description}_</small> |
 
 ### 3. radgey - PFP Transformation (Medieval Knight)
@@ -62,7 +64,7 @@ Note: AI-generated prompt components from previous step output, **{denoted in bo
 
 | Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Transform) |
 |-----------------|-------------------------------|-----------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/pfp5.png" width="200" height="200" alt="radgey's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/pfp-radgey-medieval-knight-dalle.png" width="300" height="300" alt="radgey DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/pfp-radgey-medieval-knight-gemini.png" width="300" height="300" alt="radgey Gemini"> |
+| `docs/assets/pfp5.png` | `docs/assets/pfp-radgey-medieval-knight-dalle.png` | `docs/assets/pfp-radgey-medieval-knight-gemini.png` |
 | | <small>"Transform this profile picture described as: **{man with a surprised expression and raised eyebrows}** according to: medieval knight. Create a new artistic version while maintaining the key visual characteristics. Image only, no text. Circular to ease cropping."</small><br><small>_{Curly braces indicate AI-generated description}_</small> | <small>"Using the input image as reference: **{man with a surprised expression and raised eyebrows}**. Maintain the subject's pose and appearance while transforming them into a medieval knight in a highly detailed artistic style. Circular to ease cropping."</small><br><small>_{Curly braces indicate AI-generated description}_</small> |
 
 ### 4. tokentrevor - Welcome Image (Steampunk City)
@@ -71,7 +73,7 @@ Note: AI-generated prompt components from previous step output, **{denoted in bo
 
 | Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
 |-----------------|-------------------------|---------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/pfp3.png" width="200" height="200" alt="tokentrevor's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/welcome-tokentrevor-steampunk-dalle.png" width="300" height="300" alt="tokentrevor DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/welcome-tokentrevor-steampunk-gemini.png" width="300" height="300" alt="tokentrevor Gemini"> |
+| `docs/assets/pfp3.png` | `docs/assets/welcome-tokentrevor-steampunk-dalle.png` | `docs/assets/welcome-tokentrevor-steampunk-gemini.png` |
 | | <small>"Create a steampunk city billboard welcome image. The billboard should prominently display the text \"tokentrevor\" and nothing else. Style: Victorian-era mechanical aesthetics. Incorporate visual elements from this avatar description: **{broad smiling face with green eyes.}**"</small><br><small>_{Curly braces indicate AI-generated description}_</small> | <small>"Using the input image as reference: **{broad grin with an open mouth and visible teeth.}** Create a steampunk city billboard welcome image. The billboard should prominently display the text \"tokentrevor\" and nothing else. Style: Victorian-era mechanical aesthetics."</small><br><small>_{Curly braces indicate AI-generated description}_</small> |
 
 ### 5. wallac3 - PFP Transformation (Superhero)
@@ -80,7 +82,7 @@ Note: AI-generated prompt components from previous step output, **{denoted in bo
 
 | Original Avatar | DALL-E Result (Vision Analysis) | Gemini Result (Direct Transform) |
 |-----------------|-------------------------------|-----------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/pfp4.png" width="200" height="200" alt="wallac3's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/pfp-wallac3-superhero-dalle.png" width="300" height="300" alt="wallac3 DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/pfp-wallac3-superhero-gemini.png" width="300" height="300" alt="wallac3 Gemini"> |
+| `docs/assets/pfp4.png` | `docs/assets/pfp-wallac3-superhero-dalle.png` | `docs/assets/pfp-wallac3-superhero-gemini.png` |
 | | <small>"Transform this profile picture described as: **{A 3D cartoon character with oversized hands, a wide smile, wearing a white cap and a green textured sweater against a sparkling multicolored background.}** according to: superhero. Create a new artistic version while maintaining the key visual characteristics. Image only, no text. Circular to ease cropping."</small><br><small>_{Curly braces indicate AI-generated description}_</small> | <small>"Using the input image as reference: **{A 3D cartoon character with oversized hands, a wide smile, wearing a white cap and a green textured sweater against a sparkling multicolored background.}** Maintain the subject's pose and appearance while transforming them into a superhero in a highly detailed artistic style. Circular to ease cropping."</small><br><small>_{Curly braces indicate AI-generated description}_</small> |
 
 ### 6. pecachu - Default Welcome Image
@@ -89,7 +91,7 @@ Note: AI-generated prompt components from previous step output, **{denoted in bo
 
 | Original Avatar | DALL-E Result (Two-Step) | Gemini Result (Multimodal) |
 |-----------------|-------------------------|---------------------------|
-| <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/pfp2.png" width="200" height="200" alt="pecachu's Avatar"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/welcome-pecachu-default-dalle.png" width="300" height="300" alt="pecachu DALL-E"> | <img src="https://raw.githubusercontent.com/introVRt-Lounge/hello-dalle-discordbot/main/docs/assets/welcome-pecachu-default-gemini.png" width="300" height="300" alt="pecachu Gemini"> |
+| `docs/assets/pfp2.png` | `docs/assets/welcome-pecachu-default-dalle.png` | `docs/assets/welcome-pecachu-default-gemini.png` |
 | | <small>"Create a cyberpunk billboard welcome image. The billboard should prominently display the text \"pecachu\" and nothing else. Style: mixture of synthwave and cyberpunk aesthetics. Incorporate visual elements from this avatar description: **{Yellow and pink cartoon-style character with heart and star shapes, labeled 'PECACHU'.}**"</small><br><small>_{Curly braces indicate AI-generated description}_</small> | <small>"Using the input image as reference: **{'A yellow and pink stylized pin design of Pikachu with muscular arms, featuring stars and hearts.'}** Create a cyberpunk billboard welcome image. The billboard should prominently display the text \"pecachu\" and nothing else. Style: mixture of synthwave and cyberpunk aesthetics."</small><br><small>_{Curly braces indicate AI-generated description}_</small> |
 
 ---

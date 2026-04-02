@@ -15,7 +15,6 @@ Thumbs.db
 .vscode/
 .idea/
 *~
-readme_images/*Zone.Identifier
 vrchat-jellyfin-logs.txt
 temp.json
 hello-dalle-discordbot.code-workspace
@@ -42,3 +41,9 @@ version.txt
 
 # Integration test outputs (dated directories with generated images)
 integration-test-outputs/
+
+# Generated / example images (keep locally; do not commit)
+temp/
+docs/assets/
+readme_images/
+gemini-sdk-image.png
