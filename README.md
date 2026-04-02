@@ -183,6 +183,14 @@ The autocomplete searches through both usernames and display names, so you can f
 
 The bot has been converted from using `!` commands to modern Discord slash commands. The old `!` commands are no longer supported. Users should now use the `/` commands instead for better Discord integration, auto-completion, and help text.
 
+## For maintainers (Git)
+
+History was rewritten to drop large generated images from the object database. Until `main` on GitHub matches this clone, `git status` may show `main` as far ahead/behind `origin/main` even though the histories are unrelated.
+
+- **Publish the rewritten `main`:** `git push --force-with-lease origin main`
+- **Other machines after that push:** `git fetch origin` and `git reset --hard origin/main` (or re-clone) so they do not keep pre-rewrite commits.
+- **Stale remote branches** (`dependabot/*`, old `feature/*`, etc.) on GitHub still reference old objects until they are deleted or replaced. Deleting obsolete `dependabot/*` branches on GitHub is usually fine; Dependabot can open new PRs.
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](https://github.com/heavygee/hello-dalle-discordbot/blob/main/LICENSE) file for details.
@@ -195,7 +203,5 @@ This project is licensed under the MIT License. See the [LICENSE](https://github
 ## Support
 
 For issues, please open an issue on the [GitHub repository](https://github.com/heavygee/hello-dalle-discordbot).
-# Test comment
-
 
 <!-- deploy trigger: 2026-02-14T15:24:10Z -->
