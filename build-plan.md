@@ -40,4 +40,7 @@ We will create a GitHub Actions workflow (`.github/workflows/release.yml`) that 
 - Manually trigger the workflow.
 - Verify that `package.json` and `version_info.json` are updated correctly.
 - Verify that Docker images are built, tagged, and pushed to Docker Hub correctly.
-- Verify that a new Git tag is created. 
+- Verify that a new Git tag is created.
+
+### Status (2026-04)
+GitHub Actions release workflow is in place. Large binary paths were removed from Git history locally; see README section **For maintainers (Git)** for force-push and collaborator sync steps.
