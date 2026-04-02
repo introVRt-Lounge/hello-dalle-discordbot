@@ -1,4 +1,6 @@
-# ![Logo](https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/logo.png) Hello Dall-E Discord Bot
+# Hello Dall-E Discord Bot
+
+*(Optional logo and screenshots live under `readme_images/` locally; that folder is not tracked in git.)*
 
 # 🚫 **PRODUCTION DEPLOYMENT WARNING**
 
@@ -94,17 +96,19 @@ This bot supports two image generation engines:
 
 ## Examples of Output
 
+Screenshots are not in the repository (they stay on disk under `readme_images/` if you have them locally). Typical filenames:
+
 ### Example welcome image in `welcome` channel
-![Example welcome image in `welcome` channel](https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/new-users-output.png)
+- `readme_images/new-users-output.png`
 
 ### Example debug report in `#botspam`
-![Example debug report in `#botspam`](https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/botspam-output.png)
+- `readme_images/botspam-output.png`
 
 ### Example WILDCARD welcome image in `welcome` channel
-![Example wildcard welcome image in `welcome` channel](https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/wildcard-output.png)
+- `readme_images/wildcard-output.png`
 
 ### Example WILDCARD debug report in `#botspam`
-![Example wildcard debug report in `#botspam`](https://github.com/heavygee/hello-dalle-discordbot/blob/main/readme_images/wildcard-botspam-output.png)
+- `readme_images/wildcard-botspam-output.png`
 
 ## Cost
 
