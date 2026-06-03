@@ -1,20 +1,57 @@
-increment_version.sh
-welcome_images/
-testbuild.sh
-dockerhub_readme.md
-hubpush.sh
-avatar.png
-dalle_image.png
-welcomeCount.json
-node_modules
-npm-debug.log
-.env
+# Files NOT shipped into the Docker build context.
+# Keep this aligned with .gitignore + sane defaults; smaller context = faster builds.
+
+# VCS / tooling
 .git
+.github
+.husky
+.cursor
+.specstory
+.vscode
+
+# Build / test output
+dist
+coverage
+node_modules
+*.tsbuildinfo
+
+# Test artifacts (the integration-test-outputs/ folder can hit hundreds of MB)
+integration-test-outputs
+src/tests/temp
+temp
+
+# Runtime state - should come from the Docker volume, not the image
+data
+logs
+welcome_images
+
+# Local secrets / env
+.env
+.env.*
+!.env.example
+
+# Editor / OS junk
+*.swp
+*.swo
+.DS_Store
 *~
-vrchat-jellyfin-logs.txt
-watermark_noback.png
-watermark.png
+npm-debug.log
 output.log
-avatar.png
-dalle_image.png
-.github/
+
+# Generated images and large local assets that have no business in the image
+gemini-sdk-image.png
+helpers/pfp*.png
+readme_images
+dockerhub_readme.md
+docs
+
+# Helper scripts not used at runtime
+generate-pfp-transformations.cjs
+get-latest-run.sh
+update-version.sh
+verify-gemini-input.js
+testDescribeImage.js
+testDescribeImage.ts
+local_helpers
+helpers/testbuild.sh
+helpers/increment_version.sh
