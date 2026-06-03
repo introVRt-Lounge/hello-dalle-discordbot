@@ -1,0 +1,73 @@
+# Canonical label set for hello-dalle-discordbot.
+# Quote color values as strings - YAML 1.1 will otherwise parse e.g.
+# "5319e7" as scientific notation (5319 * 10^7) and label-sync will reject.
+
+# Type
+- name: bug
+  color: "d73a4a"
+  description: Something isn't working
+- name: enhancement
+  color: "a2eeef"
+  description: New feature or improvement
+- name: documentation
+  color: "0075ca"
+  description: Improvements or additions to docs
+- name: refactor
+  color: "fbca04"
+  description: Internal cleanup with no behavior change
+- name: ci
+  color: "1d76db"
+  description: CI / build / release tooling
+- name: security
+  color: "ee0701"
+  description: Security-relevant change or finding
+
+# Status
+- name: blocked
+  color: "b60205"
+  description: Cannot proceed without external action
+- name: needs-info
+  color: "fef2c0"
+  description: Awaiting more information from the reporter
+- name: wontfix
+  color: "ffffff"
+  description: This will not be worked on
+- name: duplicate
+  color: "cfd3d7"
+  description: This issue or PR already exists
+
+# Triage / contributor experience
+- name: good first issue
+  color: "7057ff"
+  description: A good entry point for new contributors
+- name: help wanted
+  color: "008672"
+  description: Extra attention is needed
+
+# Domain
+- name: area/welcome
+  color: "5319e7"
+  description: Welcome image flow (guildMemberAdd)
+- name: area/pfp
+  color: "5319e7"
+  description: Profile picture flow (/pfp)
+- name: area/wildcard
+  color: "5319e7"
+  description: Wildcard prompts (/wildcard)
+- name: area/engine
+  color: "5319e7"
+  description: Engine selection (DALL-E vs Gemini)
+- name: area/cost-monitoring
+  color: "5319e7"
+  description: Cost reporting and budget controls
+- name: area/docker
+  color: "5319e7"
+  description: Container build and runtime
+- name: area/ci
+  color: "5319e7"
+  description: GitHub Actions, gates, branch protection
+
+# Dependencies
+- name: dependencies
+  color: "0366d6"
+  description: Pull requests that update a dependency file
