@@ -1,0 +1,15 @@
+node_modules/
+dist/
+coverage/
+welcome_images/
+integration-test-outputs/
+readme_images/
+helpers/pfp*.png
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+.env
+.env.*
+package-lock.json
