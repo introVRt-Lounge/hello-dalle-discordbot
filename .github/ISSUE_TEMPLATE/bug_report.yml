@@ -1,0 +1,81 @@
+name: Bug report
+description: Report a defect in hello-dalle-discordbot
+title: "fix: <short summary>"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing! Please describe what you saw, what you expected,
+        and how to reproduce. The more concrete, the faster the fix.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Concrete description of the bad behavior.
+      placeholder: e.g. "Bot generated a welcome image for a user who already left and rejoined"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      placeholder: e.g. "No image; rejoiner should be acknowledged in #new-user without re-running DALL-E"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: |
+        Numbered steps. If you can reproduce in DEBUG mode (`/welcome ... destination:botspam`),
+        say so - that lets us iterate without spamming the welcome channel.
+      placeholder: |
+        1. User joins server
+        2. Same user leaves
+        3. Same user rejoins
+        4. ...
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Bot version
+      description: From `/version` slash command, the startup log line, or the running container tag.
+      placeholder: e.g. "1.12.9"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: engine
+    attributes:
+      label: Which image engine was active?
+      options:
+        - "DALL-E"
+        - "Gemini"
+        - "Both / fallback path triggered"
+        - "N/A - not an image generation issue"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: |
+        From `#botspam` or container logs. Redact any tokens before pasting.
+      render: shell
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Confirmation
+      options:
+        - label: I have searched existing issues and this is not a duplicate.
+          required: true
+        - label: I have redacted any tokens / API keys from logs.
+          required: true
