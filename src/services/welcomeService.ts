@@ -7,7 +7,7 @@ import { analyzeImageContent } from './geminiService';
 import * as path from 'path';
 import * as fs from 'fs';
 import { logMessage } from '../utils/log';
-import { readWelcomeCount, writeWelcomeCount } from '../utils/appUtils';
+import { readWelcomeCount, writeWelcomeCount, addWelcomedUser } from '../utils/appUtils';
 
 export let welcomeCount = readWelcomeCount();
 
@@ -221,6 +221,7 @@ Make this the most spectacular welcome image ever created - fit for royalty! ✨
         // Increment welcome count and log it
         welcomeCount++;
         writeWelcomeCount(welcomeCount);
+        addWelcomedUser(userId);
         await logMessage(client, guild, `Welcome count updated: ${welcomeCount}`);
 
         // Clean up temp files

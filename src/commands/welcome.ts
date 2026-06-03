@@ -1,7 +1,8 @@
-import { Client, ChatInputCommandInteraction, GuildMember, PermissionsBitField } from 'discord.js';
+import { Client, ChatInputCommandInteraction, GuildMember, PermissionsBitField, TextChannel } from 'discord.js';
 import { logMessage } from '../utils/log';
 import { welcomeUser } from '../services/welcomeService';
-import { BOT_USER_ROLE, ImageEngine, getDEFAULT_ENGINE } from '../config';
+import { BOT_USER_ROLE, BOTSPAM_CHANNEL_ID, ImageEngine, getDEFAULT_ENGINE } from '../config';
+import { hasWelcomedUser } from '../utils/appUtils';
 
 // Check if user has permission to use welcome command
 function hasWelcomePermission(member: any): boolean {
@@ -74,10 +75,29 @@ export async function welcomeCommand(client: Client, message: any): Promise<void
 export async function welcomeNewMember(client: Client, member: GuildMember): Promise<void> {
     const guild = member.guild;
     const displayName = member.displayName;
+    const userId = member.user.id;
+
+    // Skip auto-welcome for rejoiners we have already welcomed once.
+    // This is a hard short-circuit: no image generation, no welcome-channel post,
+    // no welcome-count increment. Admins can still trigger /welcome manually.
+    if (hasWelcomedUser(userId)) {
+        const skipMessage = `Skipping welcome for "${displayName}" (id ${userId}) - already welcomed previously (rejoin detected).`;
+        await logMessage(client, guild, skipMessage);
+        try {
+            const botspam = guild.channels.cache.get(BOTSPAM_CHANNEL_ID) as TextChannel | undefined;
+            if (botspam?.isTextBased()) {
+                await botspam.send(`👋 Welcome back, <@${userId}>! Skipping fresh welcome image - we've already welcomed this user before.`);
+            }
+        } catch (notifyError) {
+            const errorMessage = notifyError instanceof Error ? notifyError.message : String(notifyError);
+            await logMessage(client, guild, `Failed to notify botspam about rejoin skip for ${displayName}: ${errorMessage}`);
+        }
+        return;
+    }
 
     // Log the new member's join
     await logMessage(client, guild, `New member joined: ${displayName}`);
-    
+
     try {
         // Call the service function to handle the actual welcome process
         // Use the default engine for new member welcomes
