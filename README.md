@@ -1,5 +1,9 @@
 # Hello Dall-E Discord Bot
 
+[![CI](https://github.com/introVRt-Lounge/hello-dalle-discordbot/actions/workflows/ci.yml/badge.svg)](https://github.com/introVRt-Lounge/hello-dalle-discordbot/actions/workflows/ci.yml)
+[![Docker Hub](https://img.shields.io/docker/v/heavygee/hello-dalle-discordbot?label=docker&logo=docker)](https://hub.docker.com/r/heavygee/hello-dalle-discordbot)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 *(Optional logo and screenshots live under `readme_images/` locally; that folder is not tracked in git.)*
 
 # 🚫 **PRODUCTION DEPLOYMENT WARNING**
