@@ -47,3 +47,7 @@ temp/
 docs/assets/
 readme_images/
 gemini-sdk-image.png
+
+# Test coverage reports - never commit, may leak local paths/usernames
+coverage/
+*.lcov
