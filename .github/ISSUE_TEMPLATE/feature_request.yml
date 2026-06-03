@@ -1,0 +1,75 @@
+name: Feature request
+description: Suggest a new capability or behavior change
+title: "feat: <short summary>"
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion. Per CONTRIBUTING.md, features need an
+        issue before implementation work begins.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: |
+        The user-facing pain or limitation. Avoid leading with the
+        implementation - describe the experience first.
+      placeholder: e.g. "Users without an avatar get a generated PFP, but there's no way for them to react to keep/regenerate it without DMing a mod."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: A concrete sketch of the behavior. Slash command shape, channel(s), state, edge cases.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches you weighed and why they're worse than the proposal.
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - "Welcome image flow (guildMemberAdd)"
+        - "Profile picture (/pfp)"
+        - "Wildcard (/wildcard)"
+        - "Engine selection (/engine)"
+        - "Cost monitoring / observability"
+        - "Other"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: cost
+    attributes:
+      label: Expected cost impact per invocation
+      description: |
+        Rough order of magnitude for the new feature - DALL-E is ~$0.04/image,
+        Gemini is ~$0.08/image. "Free" means no AI API calls.
+      options:
+        - "Free (no AI API call)"
+        - "Low (1 AI API call, ~$0.04 - $0.08)"
+        - "Medium (2-5 calls)"
+        - "High (>5 calls or per-message)"
+        - "Unknown - want input on this"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Confirmation
+      options:
+        - label: I have searched existing issues / TODO.md and this is not a duplicate.
+          required: true
+        - label: I understand this requires an issue before implementation work begins.
+          required: true
