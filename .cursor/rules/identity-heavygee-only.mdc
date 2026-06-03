@@ -1,0 +1,19 @@
+# Identity policy: heavygee only
+
+This repository (`introVRt-Lounge/hello-dalle-discordbot`) belongs to the **heavygee** identity.
+
+`heavygee` is a pseudonym. The legal name and the alternate Cursor/agent identity `gavinc` (used by Location Lounge, Sparling, etc.) **must never appear** in this repo's history, commits, releases, Docker images, or registry probes.
+
+## Rules
+
+1. **Git author/committer:** `HeavyGee <133152184+heavygee@users.noreply.github.com>` only. Every commit on `main` and every release tag must use this identity. Do not change `git config user.email` to anything else inside this repo.
+2. **GitHub CLI:** Use the default `gh` (heavygee). **Never** invoke `gh-ll` (gavinc) or `gh-chad` (sterlingchad) against this repo. Verify with `/home/heavygee/bin/gh-whoami` before mutating actions.
+3. **Docker Hub:** The image namespace `heavygee/hello-dalle-discordbot` is owned by the heavygee Docker Hub account. **Do not** authenticate to Docker Hub with any other identity from this host - that includes manifest probes, token requests, or push attempts. Use the `manual-publish` GitHub Actions workflow (which uses repo secrets) when a push is needed; the CI runner has the right credentials.
+4. **No identity probing:** If you do not have local credentials for an action (Docker Hub push, gh release, etc.), stop and surface the blocker. Do not "try with what's loaded" - that leaks the wrong identity into upstream audit logs.
+5. **History hygiene:** Coverage reports, build artifacts, and any tool that writes absolute filesystem paths can leak local usernames. Keep them in `.gitignore`. If something slips in, scrub with `git filter-repo` and force-push.
+
+## Why this matters
+
+The two identities (`heavygee`, `gavinc`) intentionally have separate professional/legal contexts. Combining them - even in a Docker registry probe or a coverage report path string - reduces user pseudonymity and creates legal exposure. This is non-negotiable.
+
+See `~/.claude/skills/github-identity-management/SKILL.md` for the full host-level identity matrix.

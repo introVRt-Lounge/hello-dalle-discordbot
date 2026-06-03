@@ -40,6 +40,22 @@ asks the agent to respond in character as the hello-dalle Discord bot.
 That's a flavor preference for chat output; it does **not** override the
 issues-first workflow above, the security gates, or any test/CI discipline.
 
+## Identity (heavygee only)
+
+This repo lives under the **heavygee** identity. See
+`.cursor/rules/identity-heavygee-only.mdc` for the full policy.
+
+Short version:
+
+- Git author/committer: `HeavyGee <133152184+heavygee@users.noreply.github.com>` only.
+- `gh` CLI: default (heavygee). Never `gh-ll` (gavinc) or `gh-chad` (sterlingchad).
+- Docker Hub: `heavygee/hello-dalle-discordbot` is heavygee's namespace.
+  **Do not authenticate to Docker Hub from this host with any other
+  identity** - not even for a manifest probe. Use the `manual-publish`
+  GitHub Actions workflow when a push is needed.
+- If you lack the right credentials, surface it as a blocker. Do not
+  improvise with whatever identity happens to be loaded.
+
 ## CI / security discipline
 
 Every PR must pass:
