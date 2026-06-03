@@ -1,5 +1,20 @@
 # Hello DALL-E Discord Bot TODOs
 
+## GitHub repo hardening (perfect-github-setup-and-operation skill — Public OSS)
+- [ ] Re-enable CI: rename `.github/workflows/ci-cd.yml.disabled` → `ci.yml`, ensure lint+test gate runs on PRs
+- [ ] Add `.gitleaks.toml` + `secret-scan` job
+- [ ] Add `owasp-sast` Semgrep job (registry packs: `p/owasp-top-ten`, `p/typescript`, `p/javascript`, `p/secrets`)
+- [ ] Aggregate `ci` job (needs lint/test + secret-scan + owasp-sast); branch-protect main against it
+- [ ] Tier H via `gh api`: enable secret_scanning, push_protection, CodeQL default setup, private vulnerability reporting
+- [ ] Tier A governance: `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, `AGENTS.md` with issue-gate block, `.github/ISSUE_TEMPLATE/{bug_report,feature_request,config}.yml`, `.github/pull_request_template.md`
+- [ ] Tier B hygiene: `SUPPORT.md`, `CHANGELOG.md` (Keep a Changelog), `.editorconfig`, `.github/labels.yml` + sync workflow
+- [ ] Tier H polish: `.github/FUNDING.yml`, `.github/social-preview.png` (1280x640)
+- [ ] `REPO_SETTINGS.md` documenting all of the above
+
+## Discord-bot skill (`discord-bot/SKILL.md`)
+- [x] Slash commands registered globally only — no stale-globals dual-registration footgun
+- [x] **Idempotent welcome on rejoin** — issue #81 (this branch)
+
 ## User Interaction Improvements
 - [ ] Add reaction-based interactions for profile picture acceptance/rejection
 - [ ] Allow users to request regeneration of their welcome/profile images
