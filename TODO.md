@@ -1,19 +1,27 @@
 # Hello DALL-E Discord Bot TODOs
 
-## GitHub repo hardening (perfect-github-setup-and-operation skill — Public OSS)
-- [ ] Re-enable CI: rename `.github/workflows/ci-cd.yml.disabled` → `ci.yml`, ensure lint+test gate runs on PRs
-- [ ] Add `.gitleaks.toml` + `secret-scan` job
-- [ ] Add `owasp-sast` Semgrep job (registry packs: `p/owasp-top-ten`, `p/typescript`, `p/javascript`, `p/secrets`)
-- [ ] Aggregate `ci` job (needs lint/test + secret-scan + owasp-sast); branch-protect main against it
-- [ ] Tier H via `gh api`: enable secret_scanning, push_protection, CodeQL default setup, private vulnerability reporting
-- [ ] Tier A governance: `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, `AGENTS.md` with issue-gate block, `.github/ISSUE_TEMPLATE/{bug_report,feature_request,config}.yml`, `.github/pull_request_template.md`
-- [ ] Tier B hygiene: `SUPPORT.md`, `CHANGELOG.md` (Keep a Changelog), `.editorconfig`, `.github/labels.yml` + sync workflow
-- [ ] Tier H polish: `.github/FUNDING.yml`, `.github/social-preview.png` (1280x640)
-- [ ] `REPO_SETTINGS.md` documenting all of the above
+## GitHub repo hardening (perfect-github-setup-and-operation skill)
 
-## Discord-bot skill (`discord-bot/SKILL.md`)
-- [x] Slash commands registered globally only — no stale-globals dual-registration footgun
-- [x] **Idempotent welcome on rejoin** — issue #81 (this branch)
+### Public OSS baseline - DONE 2026-06
+- [x] Tier A governance: `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, `AGENTS.md`, `.github/ISSUE_TEMPLATE/{bug_report,feature_request,config}.yml`, `.github/pull_request_template.md` (PR #88, issue #84)
+- [x] Tier B hygiene: `SUPPORT.md`, `CHANGELOG.md`, `.editorconfig`, `.github/labels.yml` + `label-sync` workflow (PR #89, issue #85)
+- [x] Tier C CI: lean `ci.yml` with `lint`, `test`, `secret-scan` (gitleaks), `owasp-sast` (Semgrep), aggregate `ci` job (PR #87, issue #83)
+- [x] Tier H platform: secret scanning + push protection enabled, CodeQL default setup (actions + javascript + typescript), Code Quality (preview) configured, private vulnerability reporting on, dependabot alerts + security updates on (gh api flips, see `REPO_SETTINGS.md`)
+- [x] Dockerfile modernization: `node:22-bookworm-slim` LTS pin, `npm ci`, multi-stage with `deps`/`build`/`test`/`prod-deps`/`runtime`, `USER node`, healthcheck, `.dockerignore` updated (PR for issue #86)
+- [x] Social preview image at `.github/social-preview.png` (1280x640) - committed; **operator must upload via Settings -> General -> Social preview**
+- [x] License mismatch fixed (`package.json` "ISC" -> "MIT" to match `LICENSE` file)
+- [x] `REPO_SETTINGS.md` canonical record of all platform-side toggles
+
+### Operator follow-up
+- [ ] Approve & merge PRs #82 (rejoiner bug), #87 (CI), #88 (Tier A), #89 (Tier B), and the #86 PR (Dockerfile + Tier H polish)
+- [ ] After CI green: flip branch protection required check from `test` (release.yml) to `ci` (ci.yml)
+- [ ] Upload `.github/social-preview.png` via Settings -> General -> Social preview (one-time UI action)
+- [ ] Decide on Sponsorships: GitHub Sponsors / Ko-fi / skip. If yes, follow the ritual in REPO_SETTINGS.md
+- [ ] Triage 54 Dependabot alerts on default branch (1 critical, 25 high). Many will likely auto-resolve via the security-updates PRs that Dependabot opens once the queue catches up
+
+### Discord-bot skill
+- [x] Slash commands registered globally only - no stale-globals dual-registration footgun
+- [x] Idempotent welcome on rejoin (PR #82, issue #81)
 
 ## User Interaction Improvements
 - [ ] Add reaction-based interactions for profile picture acceptance/rejection

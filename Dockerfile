@@ -1,59 +1,84 @@
 # Multi-stage Dockerfile for hello-dalle-discordbot.
-# - test stage: builds and runs jest against the app
-# - production stage: runtime image; runs as a non-root user
-# Full modernization (LTS pin, npm ci, slim base, layer-cache cleanup, healthcheck)
-# tracked in issue #86.
+#
+# Stages:
+#   deps       -> install ALL deps (incl. dev) from package-lock.json
+#   build      -> compile TypeScript -> dist/
+#   test       -> CI target; runs jest against the build
+#   prod-deps  -> install only production deps
+#   runtime    -> minimal slim runtime image; non-root, healthcheck
+#
+# Base: Node 22 LTS on Debian Bookworm slim (supported until 2027-04).
+# Use `npm ci` everywhere so builds are deterministic from package-lock.json.
 
-# Test target for CI/CD - builds dist/ for the production stage to copy from.
-FROM node:25 AS test
+ARG NODE_IMAGE=node:22-bookworm-slim
 
+# ---------- deps ----------
+FROM ${NODE_IMAGE} AS deps
 WORKDIR /usr/src/app
+COPY --chown=node:node package.json package-lock.json ./
+RUN npm ci --include=dev
 
-COPY package*.json ./
-RUN npm install
+# ---------- build ----------
+FROM deps AS build
+WORKDIR /usr/src/app
+COPY --chown=node:node tsconfig.json tsconfig.check.json ./
+COPY --chown=node:node src ./src
+COPY --chown=node:node setupTests.ts jest.config.ts ./
+RUN npx tsc \
+  && chown -R node:node /usr/src/app
 
-COPY . .
-RUN npx tsc
-
-# Drop privileges before running tests so file artifacts are owned by node.
-RUN chown -R node:node /usr/src/app
+# ---------- test (CI target) ----------
+FROM build AS test
+WORKDIR /usr/src/app
+COPY --chown=node:node version.txt ./
 USER node
-
 CMD ["npm", "test"]
 
-# Production target.
-FROM node:25 AS production
+# ---------- prod-deps ----------
+FROM ${NODE_IMAGE} AS prod-deps
+WORKDIR /usr/src/app
+COPY --chown=node:node package.json package-lock.json ./
+RUN npm ci --omit=dev
 
+# ---------- runtime (default target) ----------
+FROM ${NODE_IMAGE} AS production
 WORKDIR /usr/src/app
 
-# Install Google Cloud CLI (includes `bq`) for cost monitoring.
-# Coolify runtime logs previously showed: `bq: not found`.
+# Install Google Cloud CLI (includes `bq`) for cost monitoring,
+# plus procps for the healthcheck. Pin nothing here because base
+# is bookworm-slim and apt is the canonical source.
+# hadolint ignore=DL3008,DL3009
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends ca-certificates curl gnupg \
+  && apt-get install -y --no-install-recommends \
+       ca-certificates \
+       curl \
+       gnupg \
+       procps \
   && mkdir -p /etc/apt/keyrings \
-  && curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/keyrings/cloud.google.gpg \
-  && echo "deb [signed-by=/etc/apt/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" > /etc/apt/sources.list.d/google-cloud-sdk.list \
+  && curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+       | gpg --dearmor -o /etc/apt/keyrings/cloud.google.gpg \
+  && echo "deb [signed-by=/etc/apt/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
+       > /etc/apt/sources.list.d/google-cloud-sdk.list \
   && apt-get update \
   && apt-get install -y --no-install-recommends google-cloud-cli \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
-# Create writable runtime directories owned by the non-root user.
+# Pre-create writable runtime directories owned by the non-root user.
 RUN mkdir -p data logs welcome_images temp \
   && chown -R node:node /usr/src/app
 
-COPY --chown=node:node package*.json ./
-RUN npm install --only=production
+COPY --chown=node:node --from=prod-deps /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+COPY --chown=node:node package.json package-lock.json version.txt ./
 
-# Copy compiled files from test stage.
-COPY --from=test --chown=node:node /usr/src/app/dist ./dist
-
-# Copy essential runtime files.
-COPY --chown=node:node version.txt ./
-
-# Drop privileges. Process and any files it writes will be owned by `node`.
 USER node
 
 EXPOSE 3000
+
+# Healthcheck: process must be alive. (No HTTP /healthz endpoint yet -
+# upgrade to a real liveness probe when the bot exposes one.)
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD pidof node >/dev/null || exit 1
 
 CMD ["node", "dist/bot.js"]
