@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discord - introVRt Lounge
+    url: https://discord.gg/introvrt
+    about: Casual questions, deployment help, or just hanging out with the community.
+  - name: Security vulnerability report
+    url: https://github.com/introVRt-Lounge/hello-dalle-discordbot/security/advisories/new
+    about: Private vulnerability report (do NOT use the public bug tracker).
