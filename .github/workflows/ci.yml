@@ -12,6 +12,13 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Default token permissions for every job below: read-only on contents.
+# Individual jobs may narrow further. Avoids the "Workflow does not contain
+# permissions" CodeQL finding. Per CIS hardening: principle of least
+# privilege for the GITHUB_TOKEN.
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint / type-check
@@ -58,8 +65,6 @@ jobs:
   secret-scan:
     name: Secret scan (gitleaks)
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v6
         with:
