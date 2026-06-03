@@ -1,0 +1,51 @@
+# Project-specific Semgrep rules for hello-dalle-discordbot.
+# Registry packs (p/owasp-top-ten, p/javascript, p/typescript, p/secrets) cover
+# the cross-cutting OWASP/Top-10 patterns. The rules below are bot-specific.
+rules:
+  - id: discord-token-not-from-env
+    pattern-either:
+      - pattern: |
+          new Client({ ..., token: "..." })
+      - pattern: |
+          client.login("...")
+    message: |
+      Hard-coded Discord client token. Tokens MUST come from environment variables
+      (DISCORD_BOT_TOKEN), never string literals.
+    languages: [typescript, javascript]
+    severity: ERROR
+
+  - id: openai-key-not-from-env
+    pattern-either:
+      - pattern: |
+          new OpenAI({ apiKey: "..." })
+      - pattern: |
+          new openai.OpenAI({ apiKey: "..." })
+    message: |
+      Hard-coded OpenAI API key. Use process.env.OPENAI_API_KEY.
+    languages: [typescript, javascript]
+    severity: ERROR
+
+  - id: gemini-key-not-from-env
+    patterns:
+      - pattern-either:
+          - pattern: |
+              new GoogleGenerativeAI("...")
+      - pattern-not: |
+          new GoogleGenerativeAI(process.env.$X)
+    message: |
+      Hard-coded Gemini API key. Use process.env.GEMINI_API_KEY.
+    languages: [typescript, javascript]
+    severity: ERROR
+
+  - id: console-log-token-leak
+    pattern-either:
+      - pattern: console.log($MSG, ..., process.env.DISCORD_BOT_TOKEN, ...)
+      - pattern: console.log($MSG, ..., process.env.OPENAI_API_KEY, ...)
+      - pattern: console.log($MSG, ..., process.env.GEMINI_API_KEY, ...)
+      - pattern: console.error($MSG, ..., process.env.DISCORD_BOT_TOKEN, ...)
+      - pattern: console.error($MSG, ..., process.env.OPENAI_API_KEY, ...)
+      - pattern: console.error($MSG, ..., process.env.GEMINI_API_KEY, ...)
+    message: |
+      Logging secret env vars. Never echo bot tokens or API keys to stdout/stderr.
+    languages: [typescript, javascript]
+    severity: ERROR

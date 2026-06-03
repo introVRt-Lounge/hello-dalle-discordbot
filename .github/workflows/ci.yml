@@ -1,0 +1,124 @@
+name: ci
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Cancel in-progress runs for the same PR/branch on a new push.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Default token permissions for every job below: read-only on contents.
+# Individual jobs may narrow further. Avoids the "Workflow does not contain
+# permissions" CodeQL finding. Per CIS hardening: principle of least
+# privilege for the GITHUB_TOKEN.
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint / type-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run type-check
+
+  test:
+    name: Test (jest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - name: Create version.txt for tests
+        run: echo "test-version" > version.txt
+      - name: Create .env.test for jest
+        run: |
+          cat > .env.test << 'EOF'
+          DISCORD_BOT_TOKEN=test-bot-token-for-jest
+          OPENAI_API_KEY=sk-fake-test-key-not-real-for-ci-only
+          BOTSPAM_CHANNEL_ID=123456789012345678
+          WELCOME_CHANNEL_ID=123456789012345679
+          PROFILE_CHANNEL_ID=123456789012345680
+          BOT_USER_ROLE=123456789012345681
+          WELCOME_PROMPT=Test welcome prompt for Jest
+          GENDER_SENSITIVITY=false
+          STEALTH_WELCOME=false
+          WILDCARD=0
+          DEBUG=false
+          NODE_ENV=test
+          EOF
+      - run: npm test
+
+  secret-scan:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Install gitleaks
+        run: |
+          GITLEAKS_VERSION=8.30.1
+          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin gitleaks
+          gitleaks version
+      - name: Run gitleaks detect
+        run: |
+          gitleaks detect \
+            --source . \
+            --config .gitleaks.toml \
+            --redact \
+            --verbose \
+            --no-banner \
+            --exit-code 1
+
+  owasp-sast:
+    name: OWASP SAST (Semgrep)
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep:1.122.0
+    steps:
+      - uses: actions/checkout@v6
+      - name: Semgrep scan
+        run: |
+          semgrep scan \
+            --error \
+            --config p/owasp-top-ten \
+            --config p/javascript \
+            --config p/typescript \
+            --config p/secrets \
+            --config security/semgrep/hello-dalle.yml
+
+  ci:
+    name: ci
+    runs-on: ubuntu-latest
+    needs: [lint, test, secret-scan, owasp-sast]
+    if: always()
+    steps:
+      - name: Aggregate gate
+        run: |
+          if [ "${{ needs.lint.result }}" != "success" ] \
+            || [ "${{ needs.test.result }}" != "success" ] \
+            || [ "${{ needs.secret-scan.result }}" != "success" ] \
+            || [ "${{ needs.owasp-sast.result }}" != "success" ]; then
+            echo "::error::One or more required jobs failed."
+            echo "lint=${{ needs.lint.result }}"
+            echo "test=${{ needs.test.result }}"
+            echo "secret-scan=${{ needs.secret-scan.result }}"
+            echo "owasp-sast=${{ needs.owasp-sast.result }}"
+            exit 1
+          fi
+          echo "All required jobs passed."

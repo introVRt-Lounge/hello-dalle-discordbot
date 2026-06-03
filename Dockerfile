@@ -1,23 +1,11 @@
-# Use the official Node.js image with version 20
-FROM node:25
+# Multi-stage Dockerfile for hello-dalle-discordbot.
+# - test stage: builds and runs jest against the app
+# - production stage: runtime image; runs as a non-root user
+# Full modernization (LTS pin, npm ci, slim base, layer-cache cleanup, healthcheck)
+# tracked in issue #86.
 
-# Create and change to the app directory
-WORKDIR /usr/src/app
-
-# Copy package.json and package-lock.json to install dependencies
-COPY package*.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy the rest of the application code
-COPY . .
-
-# Compile TypeScript files (if this step is needed in your setup)
-RUN npx tsc
-
-# Test target for CI/CD
-FROM node:25 as test
+# Test target for CI/CD - builds dist/ for the production stage to copy from.
+FROM node:25 AS test
 
 WORKDIR /usr/src/app
 
@@ -26,11 +14,15 @@ RUN npm install
 
 COPY . .
 RUN npx tsc
+
+# Drop privileges before running tests so file artifacts are owned by node.
+RUN chown -R node:node /usr/src/app
+USER node
 
 CMD ["npm", "test"]
 
-# Production target
-FROM node:25 as production
+# Production target.
+FROM node:25 AS production
 
 WORKDIR /usr/src/app
 
@@ -46,23 +38,22 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
-# Create necessary directories
-RUN mkdir -p data logs
+# Create writable runtime directories owned by the non-root user.
+RUN mkdir -p data logs welcome_images temp \
+  && chown -R node:node /usr/src/app
 
-COPY package*.json ./
+COPY --chown=node:node package*.json ./
 RUN npm install --only=production
 
-# Copy compiled files from test stage
-COPY --from=test /usr/src/app/dist ./dist
+# Copy compiled files from test stage.
+COPY --from=test --chown=node:node /usr/src/app/dist ./dist
 
-# Copy essential runtime files
-COPY version.txt ./
+# Copy essential runtime files.
+COPY --chown=node:node version.txt ./
 
-# Ensure proper permissions
-RUN chmod -R 755 /usr/src/app
+# Drop privileges. Process and any files it writes will be owned by `node`.
+USER node
 
-# Expose port for health checks (if needed)
 EXPOSE 3000
 
-# Run the web service on container startup
 CMD ["node", "dist/bot.js"]

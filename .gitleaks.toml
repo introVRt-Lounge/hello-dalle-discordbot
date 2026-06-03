@@ -1,0 +1,30 @@
+# gitleaks configuration for hello-dalle-discordbot
+# Extends the default ruleset; add allowlists / additions below as needed.
+title = "hello-dalle-discordbot gitleaks config"
+
+[extend]
+useDefault = true
+
+# Allowlist: false-positive patterns that should NOT trip gitleaks.
+[allowlist]
+description = "Global allowlist for hello-dalle-discordbot"
+paths = [
+    '''node_modules/''',
+    '''dist/''',
+    '''coverage/''',
+    '''welcome_images/''',
+    '''integration-test-outputs/''',
+    '''readme_images/''',
+]
+# Test fixture keys are clearly fake (sk-fake-..., test-bot-token-for-jest)
+# but defense in depth: ignore the example env templates.
+files = [
+    '''(?i).*\.env\.example''',
+    '''(?i).*setupTests\.ts''',
+]
+regexes = [
+    # Clearly-fake CI test fixtures
+    '''sk-fake-test-key-not-real-for-ci-only''',
+    '''test-bot-token-for-jest''',
+    '''123456789012345678''',
+]
