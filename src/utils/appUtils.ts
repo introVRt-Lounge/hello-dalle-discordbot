@@ -5,10 +5,69 @@ import * as crypto from 'crypto';
 const dataDir = path.join(__dirname, '../../data');
 const welcomeCountFilePath = path.join(dataDir, 'welcomeCount.json');
 const imageDescriptionCacheFilePath = path.join(dataDir, 'imageDescriptionCache.json');
+const welcomedUsersFilePath = path.join(dataDir, 'welcomedUsers.json');
 
 // Ensure the data directory exists
 if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
+}
+
+// In-memory cache of welcomed user IDs. Lazy-loaded on first access so unit tests
+// can override the file path before initialization. Holds Discord snowflake IDs as strings.
+let welcomedUserIdsCache: Set<string> | null = null;
+
+function loadWelcomedUserIdsFromDisk(): Set<string> {
+    if (!fs.existsSync(welcomedUsersFilePath)) {
+        return new Set<string>();
+    }
+    try {
+        const data = fs.readFileSync(welcomedUsersFilePath, { encoding: 'utf-8' });
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed?.ids)) {
+            return new Set<string>(parsed.ids.map((id: unknown) => String(id)));
+        }
+        return new Set<string>();
+    } catch (error) {
+        console.warn('Error reading welcomedUsers.json, treating as empty:', error);
+        return new Set<string>();
+    }
+}
+
+function ensureCacheLoaded(): Set<string> {
+    if (welcomedUserIdsCache === null) {
+        welcomedUserIdsCache = loadWelcomedUserIdsFromDisk();
+    }
+    return welcomedUserIdsCache;
+}
+
+function persistWelcomedUserIds(ids: Set<string>): void {
+    // Atomic write: stage to tmp then rename so a crash mid-write cannot corrupt the file.
+    const tmpPath = `${welcomedUsersFilePath}.tmp`;
+    const payload = JSON.stringify({ ids: Array.from(ids) }, null, 2);
+    fs.writeFileSync(tmpPath, payload, { encoding: 'utf-8' });
+    fs.renameSync(tmpPath, welcomedUsersFilePath);
+}
+
+export function hasWelcomedUser(userId: string): boolean {
+    return ensureCacheLoaded().has(String(userId));
+}
+
+export function addWelcomedUser(userId: string): void {
+    const ids = ensureCacheLoaded();
+    const id = String(userId);
+    if (ids.has(id)) return;
+    ids.add(id);
+    persistWelcomedUserIds(ids);
+}
+
+export function readWelcomedUserIds(): string[] {
+    return Array.from(ensureCacheLoaded());
+}
+
+// Test-only: drop the in-memory cache so the next access reloads from disk.
+// Production code never calls this; it is exported for Jest setup/teardown.
+export function _resetWelcomedUsersCacheForTests(): void {
+    welcomedUserIdsCache = null;
 }
 
 // Function to read the welcome count from the file, or initialize if not present
