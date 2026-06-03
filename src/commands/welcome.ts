@@ -1,7 +1,7 @@
 import { Client, ChatInputCommandInteraction, GuildMember, PermissionsBitField, TextChannel } from 'discord.js';
 import { logMessage } from '../utils/log';
 import { welcomeUser } from '../services/welcomeService';
-import { BOT_USER_ROLE, BOTSPAM_CHANNEL_ID, ImageEngine, getDEFAULT_ENGINE } from '../config';
+import { BOT_USER_ROLE, WELCOME_CHANNEL_ID, STEALTH_WELCOME, ImageEngine, getDEFAULT_ENGINE } from '../config';
 import { hasWelcomedUser } from '../utils/appUtils';
 
 // Check if user has permission to use welcome command
@@ -78,19 +78,22 @@ export async function welcomeNewMember(client: Client, member: GuildMember): Pro
     const userId = member.user.id;
 
     // Skip auto-welcome for rejoiners we have already welcomed once.
-    // This is a hard short-circuit: no image generation, no welcome-channel post,
+    // This is a hard short-circuit: no image generation, no welcome-image post,
     // no welcome-count increment. Admins can still trigger /welcome manually.
     if (hasWelcomedUser(userId)) {
         const skipMessage = `Skipping welcome for "${displayName}" (id ${userId}) - already welcomed previously (rejoin detected).`;
         await logMessage(client, guild, skipMessage);
         try {
-            const botspam = guild.channels.cache.get(BOTSPAM_CHANNEL_ID) as TextChannel | undefined;
-            if (botspam?.isTextBased()) {
-                await botspam.send(`👋 Welcome back, <@${userId}>! Skipping fresh welcome image - we've already welcomed this user before.`);
+            const welcomeChannel = guild.channels.cache.get(WELCOME_CHANNEL_ID) as TextChannel | undefined;
+            if (welcomeChannel?.isTextBased()) {
+                await welcomeChannel.send({
+                    content: `👋 Welcome back, <@${userId}>! Great to see you again.`,
+                    allowedMentions: STEALTH_WELCOME ? { users: [userId] } : undefined,
+                });
             }
         } catch (notifyError) {
             const errorMessage = notifyError instanceof Error ? notifyError.message : String(notifyError);
-            await logMessage(client, guild, `Failed to notify botspam about rejoin skip for ${displayName}: ${errorMessage}`);
+            await logMessage(client, guild, `Failed to post rejoin greeting for ${displayName}: ${errorMessage}`);
         }
         return;
     }

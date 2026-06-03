@@ -15,12 +15,12 @@ import { addWelcomedUser, _resetWelcomedUsersCacheForTests } from '../utils/appU
 
 const welcomedUsersFilePath = path.join(__dirname, '../../data/welcomedUsers.json');
 
-function makeMember(userId: string, displayName = 'TestUser', botspamSend?: jest.Mock) {
+function makeMember(userId: string, displayName = 'TestUser', welcomeChannelSend?: jest.Mock) {
     const channelsCacheGet = jest.fn(() => {
-        if (!botspamSend) return undefined;
+        if (!welcomeChannelSend) return undefined;
         return {
             isTextBased: () => true,
-            send: botspamSend,
+            send: welcomeChannelSend,
         };
     });
     return {
@@ -61,19 +61,19 @@ describe('welcomeNewMember rejoiner short-circuit', () => {
 
     it('skips welcomeUser when the member ID is already in welcomedUsers', async () => {
         addWelcomedUser('222');
-        const botspamSend = jest.fn().mockResolvedValue(undefined);
-        const member = makeMember('222', 'ReturnedUser', botspamSend);
+        const welcomeChannelSend = jest.fn().mockResolvedValue(undefined);
+        const member = makeMember('222', 'ReturnedUser', welcomeChannelSend);
 
         await welcomeNewMember({} as any, member);
 
         expect(welcomeUser).not.toHaveBeenCalled();
-        expect(botspamSend).toHaveBeenCalledTimes(1);
-        const sent = botspamSend.mock.calls[0][0];
-        expect(sent).toContain('Welcome back');
-        expect(sent).toContain('<@222>');
+        expect(welcomeChannelSend).toHaveBeenCalledTimes(1);
+        const payload = welcomeChannelSend.mock.calls[0][0];
+        expect(payload.content).toContain('Welcome back');
+        expect(payload.content).toContain('<@222>');
     });
 
-    it('still skips welcomeUser even if the botspam channel is missing', async () => {
+    it('still skips welcomeUser even if the welcome channel is missing', async () => {
         addWelcomedUser('333');
         const member = makeMember('333');
         await expect(welcomeNewMember({} as any, member)).resolves.toBeUndefined();
