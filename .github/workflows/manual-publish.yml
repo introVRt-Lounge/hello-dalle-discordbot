@@ -116,13 +116,18 @@ jobs:
         run: |
           set -euo pipefail
           TAG='${{ inputs.tag }}'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git tag -a "$TAG" -m "$TAG"
           git push origin "refs/tags/$TAG"
-          gh release create "$TAG" \
-            --title "$TAG" \
-            --target "${GITHUB_SHA}" \
-            --generate-notes \
-            --notes-start-tag v1.31.2
+          # GitHub creates the release tied to the existing tag; do not pass --target,
+          # it conflicts with an already-pushed tag and returns HTTP 422.
+          PREV_TAG=$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest" --jq '.tag_name' 2>/dev/null || echo '')
+          if [ -n "$PREV_TAG" ]; then
+            gh release create "$TAG" --title "$TAG" --generate-notes --notes-start-tag "$PREV_TAG"
+          else
+            gh release create "$TAG" --title "$TAG" --generate-notes
+          fi
 
       - name: Summary
         run: |

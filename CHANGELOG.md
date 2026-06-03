@@ -12,6 +12,8 @@ page; this file is the human-curated mirror starting from `1.13.0`.
 
 ## [Unreleased]
 
+## [1.31.3] - 2026-06-03
+
 ### Added
 
 - `data/welcomedUsers.json` persistence so users who leave and rejoin do
@@ -43,4 +45,5 @@ page; this file is the human-curated mirror starting from `1.13.0`.
 Releases prior to this curated changelog (`1.0.0` through `1.12.9`) live
 on the [GitHub Releases page](https://github.com/introVRt-Lounge/hello-dalle-discordbot/releases).
 
-[Unreleased]: https://github.com/introVRt-Lounge/hello-dalle-discordbot/compare/v1.12.9...HEAD
+[Unreleased]: https://github.com/introVRt-Lounge/hello-dalle-discordbot/compare/v1.31.3...HEAD
+[1.31.3]: https://github.com/introVRt-Lounge/hello-dalle-discordbot/compare/v1.31.2...v1.31.3
