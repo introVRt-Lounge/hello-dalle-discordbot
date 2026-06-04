@@ -65,15 +65,42 @@ In-repo gates (run in `ci.yml`):
 
 `.github/workflows/dependabot-auto-merge.yml` flips every Dependabot PR for **patch** and **minor** bumps to `--auto --squash`. The PR sits in GitHub's auto-merge queue until the required `ci` aggregate goes green, then merges. The `docker-latest.yml` push hook then republishes `:latest` and Coolify reconciles - so a green patch bump ships to prod with zero human steps.
 
-**Major** bumps are parked: the workflow leaves a single comment on the PR explaining the policy and waits for a human to merge manually.
+**Major** bumps are parked: the workflow leaves a single comment on the PR explaining the policy, fires a low-priority ntfy notification (so the operator knows a PR is parked), and waits for a human to merge manually.
 
 Why this is safe to fire-and-forget:
 
 - Branch protection requires `ci` aggregate = `lint + test + secret-scan + owasp-sast + security-audit`. No green ci, no merge.
 - `security-audit` runs `npm audit --omit=dev --audit-level=high` so any prod-reachable CVE introduced by a bump blocks the merge.
 - Test coverage exercises the full welcome / pfp / engine / wildcard flows; a regression that compiles and type-checks but breaks behavior is statistically unlikely to also pass jest.
+- Failure-mode alerting via ntfy (see below) catches the long tail.
 
 Trade-off (intentional): the **required-pull-request-reviews** branch protection setting is `disabled` (was 1). On a solo repo, the review requirement was bureaucratic theater the operator has been admin-bypassing on every PR. Dropping it is what makes auto-merge actually fire without `--admin`. The real gate stays `ci`.
+
+## Failure-mode alerts (ntfy)
+
+Failure pings post to the homestack ntfy at `https://ntfy.introvrtlounge.com/hello-dalle-discordbot`.
+
+Subscribe on phone / desktop:
+```
+ntfy subscribe https://ntfy.introvrtlounge.com/hello-dalle-discordbot
+```
+
+Or in the ntfy mobile app: add server `https://ntfy.introvrtlounge.com`, topic `hello-dalle-discordbot`, with the `hello-dalle-publisher` token.
+
+| Event | Workflow | Priority |
+|---|---|---|
+| `ci` red on `main` (push, not PR) | `ci.yml` | high |
+| `docker-latest` failed (production deploy stalled) | `docker-latest.yml` | urgent |
+| `manual-publish` failed (operator-triggered SemVer cut) | `manual-publish.yml` | high |
+| Dependabot major-version bump parked | `dependabot-auto-merge.yml` | low |
+
+PR-stage CI failures do **not** ping (the PR UI already surfaces them; auto-merge will simply not fire for that PR).
+
+The shared posting logic lives in `.github/actions/ntfy/action.yml`. It is a pure-bash composite action that no-ops gracefully if `secrets.NTFY_URL` is not configured (so the workflows stay portable / fork-safe).
+
+Secrets: `NTFY_URL` + `NTFY_TOKEN` are stored in **both** the Actions and Dependabot secret namespaces (Dependabot-triggered workflows can't read regular Actions secrets, see GitHub docs).
+
+ntfy server-side: a dedicated `hello-dalle-publisher` user with `write-only` access to topic `hello-dalle-discordbot` (mirrors the `mapsnatch-publisher` convention on the same homestack). Two access tokens are issued, labelled `github-actions-hello-dalle` (Actions context) and `github-actions-hello-dalle-dependabot` (Dependabot context). To rotate: `docker exec ntfy ntfy token remove <prefix>` then re-mint and `gh secret set NTFY_TOKEN --app {actions,dependabot} --repo introVRt-Lounge/hello-dalle-discordbot --body <new>`.
 
 ## Labels
 
@@ -146,6 +173,7 @@ Record any change that is not in a PR (UI-only toggles, gh api flips, etc.):
 
 | 2026-06-04 | Dropped required-PR-reviews from 1 to 0 to enable Dependabot auto-merge | bot session | gh api branch protection |
 | 2026-06-04 | Added `dependabot-auto-merge.yml` workflow (patch+minor auto, major held for review) | bot session | PR chore/dependabot-auto-merge |
+| 2026-06-04 | Provisioned ntfy publisher (user `hello-dalle-publisher`, topic `hello-dalle-discordbot`, write-only) on `ntfy.introvrtlounge.com` and wired failure pings into ci/docker-latest/manual-publish/dependabot-auto-merge | bot session | PR chore/ntfy-failure-alerts |
 
 ## Outstanding operator actions
 

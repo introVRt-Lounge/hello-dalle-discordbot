@@ -84,3 +84,17 @@ jobs:
             echo ""
             echo "Coolify watches :latest and will pull on next reconcile."
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Notify ntfy on failure
+        if: failure()
+        uses: ./.github/actions/ntfy
+        with:
+          url: ${{ secrets.NTFY_URL }}
+          token: ${{ secrets.NTFY_TOKEN }}
+          title: "docker-latest failed: production deploy stalled"
+          message: |
+            docker-latest.yml failed on commit ${{ github.sha }} (${{ github.actor }}).
+            Coolify will keep serving the previous :latest until this is fixed.
+          priority: urgent
+          tags: rotating_light,whale,octocat
+          click: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
