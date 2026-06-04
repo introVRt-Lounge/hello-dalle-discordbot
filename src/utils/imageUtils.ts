@@ -2,6 +2,7 @@ import { DEBUG, OPENAI_API_KEY, WATERMARK_PATH, ImageEngine, getDEFAULT_ENGINE }
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
+import { pipeline } from 'stream/promises';
 import sharp = require('sharp');
 import { generateImageWithGemini, GeminiImageModelType } from '../services/geminiService';
 
@@ -315,14 +316,12 @@ export async function downloadAndSaveImage(url: string, filepath: string): Promi
         responseType: 'stream'
     });
 
-    return new Promise((resolve, reject) => {
-        response.data.pipe(fs.createWriteStream(filepath))
-            .on('finish', () => resolve(filepath))
-            .on('error', (e: unknown) => {
-                const errorMessage = e instanceof Error ? e.message : String(e);
-                reject(new Error(errorMessage));
-            });
-    });
+    // stream.pipeline propagates errors from BOTH the axios source stream
+    // and the writable target, and ensures the destination is closed on error
+    // (the previous .pipe()...on('error') only listened on the destination,
+    // so a network drop on the source stream produced an unhandled rejection).
+    await pipeline(response.data, fs.createWriteStream(filepath));
+    return filepath;
 }
 
 // Function to handle welcome image generation with watermark

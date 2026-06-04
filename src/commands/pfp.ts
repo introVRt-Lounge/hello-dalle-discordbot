@@ -1,4 +1,4 @@
-import { Client, CommandInteraction, PermissionsBitField, ChatInputCommandInteraction, GuildMember } from 'discord.js';
+import { Client, PermissionsBitField, ChatInputCommandInteraction, GuildMember } from 'discord.js';
 import { generateProfilePicture } from '../services/pfpService';
 import { cooldownService } from '../services/cooldownService';
 import { logMessage } from '../utils/log';

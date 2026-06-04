@@ -5,7 +5,6 @@ const fs = require('fs');
 
 // Import compiled services
 const { generateProfilePicture } = require('./dist/services/pfpService');
-const { getDEFAULT_ENGINE } = require('./dist/config');
 
 async function generatePFPTransformations() {
     console.log('🚀 Generating PFP Transformations...');

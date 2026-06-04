@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, Guild, GuildMember, Message, CommandInteraction, ChatInputCommandInteraction } from 'discord.js';
+import { Client, GatewayIntentBits, Guild, GuildMember, Message, ChatInputCommandInteraction } from 'discord.js';
 import {
     welcomeCommand,
     welcomeNewMember,

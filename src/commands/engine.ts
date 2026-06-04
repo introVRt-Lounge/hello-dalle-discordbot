@@ -1,5 +1,5 @@
 import { Client, ChatInputCommandInteraction, PermissionsBitField } from 'discord.js';
-import { getDEFAULT_ENGINE, setDEFAULT_ENGINE, ImageEngine, BOT_USER_ROLE } from '../config';
+import { setDEFAULT_ENGINE, ImageEngine, BOT_USER_ROLE } from '../config';
 
 // Check if user has permission to use engine command
 function hasEnginePermission(member: any): boolean {
