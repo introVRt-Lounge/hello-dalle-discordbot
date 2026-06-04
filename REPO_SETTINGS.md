@@ -127,3 +127,11 @@ Record any change that is not in a PR (UI-only toggles, gh api flips, etc.):
 | 2026-06-04 | Replaced `release.yml` (broken semantic-release) with `docker-latest.yml` + `manual-publish.yml` | bot session | PR chore/ci-release-rework |
 | 2026-06-04 | Added F-lite `security-audit` job to `ci.yml` | bot session | PR chore/ci-release-rework |
 | 2026-06-04 | Flipped required status check from `test` to `ci` aggregate | bot session | gh api branch protection |
+| 2026-06-04 | Dismissed 19 dev-only Dependabot alerts (jest / semantic-release transitives) as `tolerable_risk` | bot session | gh api dependabot/alerts |
+| 2026-06-04 | Resolved secret-scanning alert #1 (Google API Key in test-gemini.js, leak commit unreachable) as `wont_fix` | bot session | gh api secret-scanning/alerts |
+
+## Outstanding operator actions
+
+- **Verify GEMINI_API_KEY rotation.** Secret-scanning alert #1 fired on 2025-11-01 for a Google API Key committed in `test-gemini.js` / `test-gemini-image.js` at commit `68da77c`. The files and commit are no longer reachable from any branch, so the repo side is clean and the alert was resolved as `wont_fix`. **The bot agent cannot verify whether the leaked key value was rotated.** If you didn't rotate when the alert opened, do it now: Google Cloud Console -> APIs & Services -> Credentials -> regenerate or restrict the API key, then update the bot's `GEMINI_API_KEY` env var on Coolify. If you already rotated, no further action needed.
+- **Upload `.github/social-preview.png`** via Settings -> General -> Social preview (no public API for the OG image).
+- **(Optional) Sponsorships** - decide on GitHub Sponsors / Ko-fi / skip; if yes, follow the ritual in the Sponsorships section above.
