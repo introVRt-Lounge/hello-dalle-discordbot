@@ -102,10 +102,26 @@ jobs:
             --config p/secrets \
             --config security/semgrep/hello-dalle.yml
 
+  security-audit:
+    # F-lite supply-chain gate: only fail on production-reachable CVEs.
+    # Dev-only CVEs (e.g. semantic-release / jest transitives) are tracked
+    # via Dependabot but do not block merges; they never ship to runtime.
+    name: Security audit (npm audit, prod deps)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - name: npm audit (production deps, fail on high+)
+        run: npm audit --omit=dev --audit-level=high
+
   ci:
     name: ci
     runs-on: ubuntu-latest
-    needs: [lint, test, secret-scan, owasp-sast]
+    needs: [lint, test, secret-scan, owasp-sast, security-audit]
     if: always()
     steps:
       - name: Aggregate gate
@@ -113,12 +129,14 @@ jobs:
           if [ "${{ needs.lint.result }}" != "success" ] \
             || [ "${{ needs.test.result }}" != "success" ] \
             || [ "${{ needs.secret-scan.result }}" != "success" ] \
-            || [ "${{ needs.owasp-sast.result }}" != "success" ]; then
+            || [ "${{ needs.owasp-sast.result }}" != "success" ] \
+            || [ "${{ needs.security-audit.result }}" != "success" ]; then
             echo "::error::One or more required jobs failed."
             echo "lint=${{ needs.lint.result }}"
             echo "test=${{ needs.test.result }}"
             echo "secret-scan=${{ needs.secret-scan.result }}"
             echo "owasp-sast=${{ needs.owasp-sast.result }}"
+            echo "security-audit=${{ needs.security-audit.result }}"
             exit 1
           fi
           echo "All required jobs passed."

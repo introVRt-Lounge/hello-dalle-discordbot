@@ -1,0 +1,86 @@
+name: docker-latest
+
+# Auto-build and push :latest to Docker Hub on every successful push to main.
+# Replaces the broken semantic-release pipeline (issue #95). SemVer tags
+# (v1.x.y, v1.32.0, ...) are still cut by the manual-publish workflow when
+# the operator decides a release is ready.
+#
+# Coolify watches :latest, so this keeps production rolling forward as soon
+# as ci.yml is green on main.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Only one in-flight latest build per ref; cancel older runs.
+concurrency:
+  group: docker-latest-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publish-latest:
+    runs-on: ubuntu-latest
+    # Skip auto-runs from non-collaborators / forks; manual_dispatch is fine.
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'introVRt-Lounge/hello-dalle-discordbot'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Generate version metadata
+        run: |
+          set -euo pipefail
+          # Use short SHA + epoch so :latest is tagged with traceable metadata
+          # but not pretending to be a SemVer release.
+          SHORT_SHA="$(git rev-parse --short HEAD)"
+          BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          echo "rolling-${SHORT_SHA}" > version.txt
+          {
+            echo "VERSION=rolling-${SHORT_SHA}"
+            echo "BUILD_DATE=${BUILD_DATE}"
+            echo "GIT_COMMIT=${GITHUB_SHA}"
+          } > .env.version
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push :latest
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: production
+          push: true
+          tags: |
+            heavygee/hello-dalle-discordbot:latest
+            heavygee/hello-dalle-discordbot:main-${{ github.sha }}
+          build-args: |
+            VERSION=rolling-${{ github.sha }}
+            GIT_COMMIT=${{ github.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.title=hello-dalle-discordbot
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Summary
+        run: |
+          {
+            echo "## :latest published"
+            echo ""
+            echo "- Image: \`heavygee/hello-dalle-discordbot:latest\`"
+            echo "- SHA tag: \`heavygee/hello-dalle-discordbot:main-${GITHUB_SHA}\`"
+            echo "- Commit: \`${GITHUB_SHA}\`"
+            echo ""
+            echo "Coolify watches :latest and will pull on next reconcile."
+          } >> "$GITHUB_STEP_SUMMARY"
