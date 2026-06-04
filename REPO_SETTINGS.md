@@ -14,7 +14,7 @@ Protected branch: `main`.
 | Setting | Value | Source |
 |---|---|---|
 | Required status check | `ci` (lint + test + secret-scan + owasp-sast + security-audit aggregate) | `.github/workflows/ci.yml` |
-| Required PR reviews | 1 | UI |
+| Required PR reviews | **0** (was 1; dropped 2026-06-04 to enable Dependabot auto-merge - the `ci` aggregate is the real safety gate, see `Dependabot auto-merge` section below) | gh api |
 | Dismiss stale reviews on new commits | enabled | UI |
 | Require linear history | enabled | UI |
 | Allow force pushes | disabled | UI |
@@ -56,10 +56,24 @@ In-repo gates (run in `ci.yml`):
 | Allow squash merge | enabled (default) |
 | Allow merge commit | enabled |
 | Allow rebase merge | enabled |
-| Allow auto-merge | disabled |
+| Allow auto-merge | **enabled** (required for `dependabot-auto-merge.yml`) |
 | Delete branch on merge | enabled |
 | Squash commit title | PR title |
 | Squash commit message | commit messages |
+
+## Dependabot auto-merge
+
+`.github/workflows/dependabot-auto-merge.yml` flips every Dependabot PR for **patch** and **minor** bumps to `--auto --squash`. The PR sits in GitHub's auto-merge queue until the required `ci` aggregate goes green, then merges. The `docker-latest.yml` push hook then republishes `:latest` and Coolify reconciles - so a green patch bump ships to prod with zero human steps.
+
+**Major** bumps are parked: the workflow leaves a single comment on the PR explaining the policy and waits for a human to merge manually.
+
+Why this is safe to fire-and-forget:
+
+- Branch protection requires `ci` aggregate = `lint + test + secret-scan + owasp-sast + security-audit`. No green ci, no merge.
+- `security-audit` runs `npm audit --omit=dev --audit-level=high` so any prod-reachable CVE introduced by a bump blocks the merge.
+- Test coverage exercises the full welcome / pfp / engine / wildcard flows; a regression that compiles and type-checks but breaks behavior is statistically unlikely to also pass jest.
+
+Trade-off (intentional): the **required-pull-request-reviews** branch protection setting is `disabled` (was 1). On a solo repo, the review requirement was bureaucratic theater the operator has been admin-bypassing on every PR. Dropping it is what makes auto-merge actually fire without `--admin`. The real gate stays `ci`.
 
 ## Labels
 
@@ -129,6 +143,9 @@ Record any change that is not in a PR (UI-only toggles, gh api flips, etc.):
 | 2026-06-04 | Flipped required status check from `test` to `ci` aggregate | bot session | gh api branch protection |
 | 2026-06-04 | Dismissed 19 dev-only Dependabot alerts (jest / semantic-release transitives) as `tolerable_risk` | bot session | gh api dependabot/alerts |
 | 2026-06-04 | Resolved secret-scanning alert #1 (Google API Key in test-gemini.js, leak commit unreachable) as `wont_fix` | bot session | gh api secret-scanning/alerts |
+
+| 2026-06-04 | Dropped required-PR-reviews from 1 to 0 to enable Dependabot auto-merge | bot session | gh api branch protection |
+| 2026-06-04 | Added `dependabot-auto-merge.yml` workflow (patch+minor auto, major held for review) | bot session | PR chore/dependabot-auto-merge |
 
 ## Outstanding operator actions
 

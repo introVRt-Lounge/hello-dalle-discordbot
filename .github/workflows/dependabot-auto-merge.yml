@@ -1,0 +1,60 @@
+name: dependabot-auto-merge
+
+# Auto-merge Dependabot PRs that pass the `ci` aggregate gate.
+#
+# Policy:
+#   - patch + minor (security or version): flip PR to --auto --squash; merges
+#     automatically once branch protection's required `ci` check is green.
+#   - major: hold for human review. Major version bumps in JS/TS-land are
+#     intentional API breaks; required-reviews is dropped on this repo so
+#     auto-merge ALSO needs no human signal, which is exactly why we leave
+#     a one-line comment explaining why this PR is parked.
+#
+# Why this is safe to fire-and-forget:
+#   - Branch protection requires the `ci` aggregate (lint + test +
+#     secret-scan + owasp-sast + security-audit). No green ci, no merge.
+#   - `security-audit` (npm audit --omit=dev --audit-level=high) is part
+#     of `ci`, so any prod-reachable CVE blocks the merge.
+#   - Squash-merging on green main triggers `docker-latest.yml` which
+#     publishes :latest to Docker Hub, and Coolify auto-reconciles. So a
+#     green Dependabot patch ships to production with zero human steps.
+#
+# Reference: docs.github.com - Automating Dependabot with GitHub Actions.
+
+on: pull_request
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    # Only act on Dependabot's own PRs.
+    if: github.actor == 'dependabot[bot]' && github.repository == 'introVRt-Lounge/hello-dalle-discordbot'
+    steps:
+      - name: Fetch Dependabot metadata
+        id: meta
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge for patch + minor bumps
+        if: |
+          steps.meta.outputs.update-type == 'version-update:semver-patch' ||
+          steps.meta.outputs.update-type == 'version-update:semver-minor'
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr merge "$PR_URL" --auto --squash
+
+      - name: Park major bumps for human review
+        if: steps.meta.outputs.update-type == 'version-update:semver-major'
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEP_NAMES: ${{ steps.meta.outputs.dependency-names }}
+          NEW_VERSION: ${{ steps.meta.outputs.new-version }}
+        run: |
+          gh pr comment "$PR_URL" --body \
+            "Major version bump for \`${DEP_NAMES}\` (-> \`${NEW_VERSION}\`). Held for human review per \`.github/workflows/dependabot-auto-merge.yml\`. Patch and minor bumps auto-merge on green ci; majors do not."
