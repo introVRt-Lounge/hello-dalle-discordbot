@@ -140,3 +140,23 @@ jobs:
             exit 1
           fi
           echo "All required jobs passed."
+
+      # Only ping on push to main (red main = production blocker; PR failures
+      # are visible in the PR UI and don't need a push notification).
+      - name: Checkout for ntfy action
+        if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/checkout@v6
+      - name: Notify ntfy on main failure
+        if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: ./.github/actions/ntfy
+        with:
+          url: ${{ secrets.NTFY_URL }}
+          token: ${{ secrets.NTFY_TOKEN }}
+          title: "ci red on main: ${{ github.repository }}"
+          message: |
+            lint=${{ needs.lint.result }} test=${{ needs.test.result }} secret-scan=${{ needs.secret-scan.result }} owasp-sast=${{ needs.owasp-sast.result }} security-audit=${{ needs.security-audit.result }}
+            commit ${{ github.sha }}
+            by ${{ github.actor }}
+          priority: high
+          tags: rotating_light,octocat
+          click: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

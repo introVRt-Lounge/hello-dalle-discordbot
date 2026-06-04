@@ -1,0 +1,80 @@
+name: ntfy
+description: Post a notification to ntfy. No-op if NTFY_URL secret is not set.
+
+inputs:
+  url:
+    description: Full ntfy topic URL (e.g. https://ntfy.example.com/my-topic). Pass via secrets.NTFY_URL.
+    required: true
+  token:
+    description: ntfy bearer token. Pass via secrets.NTFY_TOKEN.
+    required: false
+    default: ''
+  title:
+    description: Short title for the notification.
+    required: true
+  message:
+    description: Body of the notification.
+    required: true
+  priority:
+    description: ntfy priority (min/low/default/high/urgent or 1-5). Defaults to default.
+    required: false
+    default: 'default'
+  tags:
+    description: Comma-separated emoji shortcodes (e.g. warning,octocat).
+    required: false
+    default: 'warning'
+  click:
+    description: URL to open when the notification is tapped (typically the workflow run URL).
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Post to ntfy
+      shell: bash
+      env:
+        NTFY_URL: ${{ inputs.url }}
+        NTFY_TOKEN: ${{ inputs.token }}
+        NTFY_TITLE: ${{ inputs.title }}
+        NTFY_MESSAGE: ${{ inputs.message }}
+        NTFY_PRIORITY: ${{ inputs.priority }}
+        NTFY_TAGS: ${{ inputs.tags }}
+        NTFY_CLICK: ${{ inputs.click }}
+      run: |
+        set -uo pipefail
+        if [ -z "${NTFY_URL:-}" ]; then
+          echo "::warning::NTFY_URL not configured; skipping ntfy post"
+          exit 0
+        fi
+
+        AUTH_HEADER=()
+        if [ -n "${NTFY_TOKEN:-}" ]; then
+          AUTH_HEADER=(-H "Authorization: Bearer ${NTFY_TOKEN}")
+        fi
+
+        CLICK_HEADER=()
+        if [ -n "${NTFY_CLICK:-}" ]; then
+          CLICK_HEADER=(-H "Click: ${NTFY_CLICK}")
+        fi
+
+        # ntfy headers don't accept newlines; collapse to single line for the
+        # title and message and let the body carry full detail when needed.
+        TITLE_FLAT="$(printf '%s' "$NTFY_TITLE" | tr '\n\r' '  ')"
+
+        HTTP_CODE=$(curl -sS --max-time 15 -o /tmp/ntfy-response.txt -w '%{http_code}' \
+          "${AUTH_HEADER[@]}" \
+          -H "Title: ${TITLE_FLAT}" \
+          -H "Priority: ${NTFY_PRIORITY}" \
+          -H "Tags: ${NTFY_TAGS}" \
+          "${CLICK_HEADER[@]}" \
+          -d "${NTFY_MESSAGE}" \
+          "${NTFY_URL}" || echo "curl-failed")
+
+        if [ "$HTTP_CODE" = "curl-failed" ] || [ "${HTTP_CODE:0:1}" != "2" ]; then
+          echo "::warning::ntfy publish returned ${HTTP_CODE}"
+          cat /tmp/ntfy-response.txt 2>/dev/null | head -5 || true
+          # Do not fail the parent workflow just because the alert post failed.
+          exit 0
+        fi
+        echo "ntfy publish ok (${HTTP_CODE})"

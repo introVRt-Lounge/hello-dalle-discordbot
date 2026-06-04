@@ -33,6 +33,9 @@ jobs:
     # Only act on Dependabot's own PRs.
     if: github.actor == 'dependabot[bot]' && github.repository == 'introVRt-Lounge/hello-dalle-discordbot'
     steps:
+      - name: Checkout (for local composite actions)
+        uses: actions/checkout@v6
+
       - name: Fetch Dependabot metadata
         id: meta
         uses: dependabot/fetch-metadata@v2
@@ -58,3 +61,17 @@ jobs:
         run: |
           gh pr comment "$PR_URL" --body \
             "Major version bump for \`${DEP_NAMES}\` (-> \`${NEW_VERSION}\`). Held for human review per \`.github/workflows/dependabot-auto-merge.yml\`. Patch and minor bumps auto-merge on green ci; majors do not."
+
+      - name: Notify ntfy when a major is parked
+        if: steps.meta.outputs.update-type == 'version-update:semver-major'
+        uses: ./.github/actions/ntfy
+        with:
+          url: ${{ secrets.NTFY_URL }}
+          token: ${{ secrets.NTFY_TOKEN }}
+          title: "Dependabot major bump parked - review needed"
+          message: |
+            ${{ steps.meta.outputs.dependency-names }} -> ${{ steps.meta.outputs.new-version }}
+            PR ${{ github.event.pull_request.number }} on ${{ github.repository }}
+          priority: low
+          tags: package,octocat
+          click: ${{ github.event.pull_request.html_url }}

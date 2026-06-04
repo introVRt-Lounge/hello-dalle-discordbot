@@ -146,3 +146,17 @@ jobs:
             echo "- GitHub release: \`${CREATE_RELEASE}\`"
             echo "- Commit: \`${GITHUB_SHA}\`"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Notify ntfy on failure
+        if: failure()
+        uses: ./.github/actions/ntfy
+        with:
+          url: ${{ secrets.NTFY_URL }}
+          token: ${{ secrets.NTFY_TOKEN }}
+          title: "manual-publish ${{ inputs.tag }} failed"
+          message: |
+            Operator-triggered manual SemVer publish of ${{ inputs.tag }} failed on commit ${{ github.sha }}.
+            Image was NOT pushed to Docker Hub. Re-run after fixing the cause.
+          priority: high
+          tags: rotating_light,whale,bookmark
+          click: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
