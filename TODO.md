@@ -5,19 +5,20 @@
 ### Public OSS baseline - DONE 2026-06
 - [x] Tier A governance: `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, `AGENTS.md`, `.github/ISSUE_TEMPLATE/{bug_report,feature_request,config}.yml`, `.github/pull_request_template.md` (PR #88, issue #84)
 - [x] Tier B hygiene: `SUPPORT.md`, `CHANGELOG.md`, `.editorconfig`, `.github/labels.yml` + `label-sync` workflow (PR #89, issue #85)
-- [x] Tier C CI: lean `ci.yml` with `lint`, `test`, `secret-scan` (gitleaks), `owasp-sast` (Semgrep), aggregate `ci` job (PR #87, issue #83)
+- [x] Tier C CI: lean `ci.yml` with `lint`, `test`, `secret-scan` (gitleaks), `owasp-sast` (Semgrep), `security-audit` (npm audit, F-lite), aggregate `ci` job (PR #87 + chore/ci-release-rework, issues #83 + #95)
 - [x] Tier H platform: secret scanning + push protection enabled, CodeQL default setup (actions + javascript + typescript), Code Quality (preview) configured, private vulnerability reporting on, dependabot alerts + security updates on (gh api flips, see `REPO_SETTINGS.md`)
 - [x] Dockerfile modernization: `node:22-bookworm-slim` LTS pin, `npm ci`, multi-stage with `deps`/`build`/`test`/`prod-deps`/`runtime`, `USER node`, healthcheck, `.dockerignore` updated (PR for issue #86)
-- [x] Social preview image at `.github/social-preview.png` (1280x640) - committed; **operator must upload via Settings -> General -> Social preview**
+- [x] Social preview image at `.github/social-preview.png` (1280x640) - committed; **operator must upload via Settings -> General -> Social preview** (no API)
 - [x] License mismatch fixed (`package.json` "ISC" -> "MIT" to match `LICENSE` file)
 - [x] `REPO_SETTINGS.md` canonical record of all platform-side toggles
+- [x] Replaced broken `semantic-release` pipeline (#95) with `docker-latest.yml` (rolling `:latest` on green `main`) + `manual-publish.yml` (operator-triggered SemVer release)
+- [x] Branch protection required check flipped from legacy `test` to `ci` aggregate
+- [x] Dependabot batch: 8 PRs merged, 40+ open alerts cleared. Remaining alerts are all dev-only transitives (semantic-release/jest chain) and do not reach production runtime.
 
 ### Operator follow-up
-- [ ] Approve & merge PRs #82 (rejoiner bug), #87 (CI), #88 (Tier A), #89 (Tier B), and the #86 PR (Dockerfile + Tier H polish)
-- [ ] After CI green: flip branch protection required check from `test` (release.yml) to `ci` (ci.yml)
-- [ ] Upload `.github/social-preview.png` via Settings -> General -> Social preview (one-time UI action)
-- [ ] Decide on Sponsorships: GitHub Sponsors / Ko-fi / skip. If yes, follow the ritual in REPO_SETTINGS.md
-- [ ] Triage 54 Dependabot alerts on default branch (1 critical, 25 high). Many will likely auto-resolve via the security-updates PRs that Dependabot opens once the queue catches up
+- [ ] Upload `.github/social-preview.png` via Settings -> General -> Social preview (one-time UI action; no public API for the OG image)
+- [ ] (Optional) Decide on Sponsorships: GitHub Sponsors / Ko-fi / skip. If yes, follow the ritual in REPO_SETTINGS.md (`Sponsorships` section)
+- [ ] (Optional) Verify Coolify is picking up the new `:latest` image after the next `main` push (Coolify is on `coolify.introvrtlounge.com`, app `hello-dalle-discordbot`)
 
 ### Discord-bot skill
 - [x] Slash commands registered globally only - no stale-globals dual-registration footgun

@@ -13,7 +13,7 @@ Protected branch: `main`.
 
 | Setting | Value | Source |
 |---|---|---|
-| Required status check | `ci` (lint + test + secret-scan + owasp-sast aggregate) | `.github/workflows/ci.yml` |
+| Required status check | `ci` (lint + test + secret-scan + owasp-sast + security-audit aggregate) | `.github/workflows/ci.yml` |
 | Required PR reviews | 1 | UI |
 | Dismiss stale reviews on new commits | enabled | UI |
 | Require linear history | enabled | UI |
@@ -21,7 +21,7 @@ Protected branch: `main`.
 | Allow deletions | disabled | UI |
 | Enforce admins | **disabled** (admins can bypass for emergency direct-to-main) | UI |
 
-**Migration note:** Originally the required check was `test` (from the bundled `release.yml`). PR #87 introduced a dedicated `ci.yml` with an aggregate `ci` job; after that PR merged and ran green on `main`, the required check was flipped to `ci`. The redundant `test` job in `release.yml` can now be dropped (follow-up PR).
+**Migration note:** Originally the required check was `test` (from the bundled `release.yml`). PR #87 introduced a dedicated `ci.yml` with an aggregate `ci` job; after that PR merged and ran green on `main`, the required check was flipped to `ci` (PR #103, chore/ci-release-rework). The legacy `release.yml` (semantic-release driver) was removed at the same time and replaced by `docker-latest.yml` (rolling `:latest` build) plus `manual-publish.yml` (operator-triggered SemVer release).
 
 ## Code security and analysis
 
@@ -46,6 +46,7 @@ In-repo gates (run in `ci.yml`):
 | `test` | `jest` | `jest.config.ts` |
 | `secret-scan` | `gitleaks 8.30.1` (binary, no GITLEAKS_LICENSE) | `.gitleaks.toml` |
 | `owasp-sast` | `semgrep 1.122.0` (container) | `security/semgrep/hello-dalle.yml` + registry packs |
+| `security-audit` | `npm audit --omit=dev --audit-level=high` (F-lite supply chain gate) | `package-lock.json` |
 | `ci` | aggregate gate | needs all of the above |
 
 ## Repo merge / PR settings
@@ -93,11 +94,24 @@ GitHub does not automatically pick up `.github/social-preview.png` from the repo
 
 ## Release flow
 
-- `semantic-release` on push to `main` analyzes commit history and computes the next version.
-- Tag pattern: `v<major>.<minor>.<patch>`.
-- Docker Hub: `heavygee/hello-dalle-discordbot:<version>` and `:latest`.
-- GHCR: not currently used (workflow name says GHCR, target is Docker Hub - cosmetic naming bug).
-- Production: Watchtower pulls `:latest` and recreates the container.
+The legacy `semantic-release` pipeline was removed (issue #95: orphan tag history after a destructive `git filter-repo`). The replacement is two complementary workflows:
+
+| Workflow | Trigger | Purpose |
+|---|---|---|
+| `docker-latest.yml` | push to `main`, `workflow_dispatch` | Builds `heavygee/hello-dalle-discordbot:latest` (and `:main-<sha>`) on every green main. Coolify watches `:latest` -> rolling deploys. |
+| `manual-publish.yml` | `workflow_dispatch` (`-f tag=vX.Y.Z`) | Operator-triggered SemVer release. Tags the repo, builds + pushes `:vX.Y.Z` (and optionally `:latest`), creates a GitHub release with auto-generated notes. |
+
+Why no auto-bumped SemVer tags: `semantic-release` walks history; after the coverage-scrub `git filter-repo` invalidated the merge-base between old release tags and the rewritten `main`, it kept trying to publish `v1.0.0` and conflicting with the orphan tag. We chose the simpler tradeoff: `:latest` rolls forward automatically, SemVer cuts are a deliberate operator action.
+
+To cut a SemVer release:
+
+```
+gh workflow run manual-publish.yml -f tag=v1.32.0
+gh workflow run manual-publish.yml -f tag=v1.32.0 -f also_latest=false       # tag-only, no :latest update
+gh workflow run manual-publish.yml -f tag=v1.32.0 -f create_release=false    # image only, no GitHub release
+```
+
+Production: Coolify watches `heavygee/hello-dalle-discordbot:latest` and reconciles automatically on new image push.
 
 ## Manual / out-of-band changes log
 
@@ -109,3 +123,7 @@ Record any change that is not in a PR (UI-only toggles, gh api flips, etc.):
 | 2026-06-03 | Enabled private_vulnerability_reporting via gh api PUT | bot session | hello-dalle bot session |
 | 2026-06-03 | Enabled Code Quality (preview) via gh api PATCH | bot session | hello-dalle bot session |
 | 2026-06-03 | Created issues #81-#86 and PRs #82, #87, #88, #89 for full Tier A-H baseline | bot session | hello-dalle bot session |
+| 2026-06-04 | Merged dependabot PRs #91/#92/#93/#94/#79/#100/#101/#102 - cleared 40+ open alerts | bot session | hello-dalle bot session |
+| 2026-06-04 | Replaced `release.yml` (broken semantic-release) with `docker-latest.yml` + `manual-publish.yml` | bot session | PR chore/ci-release-rework |
+| 2026-06-04 | Added F-lite `security-audit` job to `ci.yml` | bot session | PR chore/ci-release-rework |
+| 2026-06-04 | Flipped required status check from `test` to `ci` aggregate | bot session | gh api branch protection |
