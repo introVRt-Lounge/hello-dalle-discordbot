@@ -16,7 +16,7 @@
   },
   "lint-staged": {
     "*.{ts,js}": [
-      "npx tsc --noEmit --skipLibCheck"
+      "bash -c 'npx tsc --noEmit -p tsconfig.check.json'"
     ]
   },
   "keywords": [],
