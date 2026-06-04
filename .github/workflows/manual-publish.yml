@@ -43,9 +43,10 @@ jobs:
           fetch-depth: 0
 
       - name: Validate inputs
+        env:
+          TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
-          TAG='${{ inputs.tag }}'
           if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.-]+)?$ ]]; then
             echo "::error::tag '$TAG' is not vMAJOR.MINOR.PATCH (e.g. v1.31.3)"
             exit 1
@@ -57,9 +58,10 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Generate version files
+        env:
+          TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
-          TAG='${{ inputs.tag }}'
           echo "${TAG#v}" > version.txt
           {
             echo "VERSION=${TAG#v}"
@@ -78,10 +80,11 @@ jobs:
 
       - name: Build tag list
         id: tags
+        env:
+          TAG: ${{ inputs.tag }}
+          ALSO_LATEST: ${{ inputs.also_latest }}
         run: |
           set -euo pipefail
-          TAG='${{ inputs.tag }}'
-          ALSO_LATEST='${{ inputs.also_latest }}'
           IMAGE='heavygee/hello-dalle-discordbot'
           {
             echo "tags<<EOF"
@@ -113,24 +116,33 @@ jobs:
         if: ${{ inputs.create_release == 'true' }}
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
-          TAG='${{ inputs.tag }}'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git tag -a "$TAG" -m "$TAG"
           git push origin "refs/tags/$TAG"
-          gh release create "$TAG" \
-            --title "$TAG" \
-            --target "${GITHUB_SHA}" \
-            --generate-notes \
-            --notes-start-tag v1.31.2
+          # GitHub creates the release tied to the existing tag; do not pass --target,
+          # it conflicts with an already-pushed tag and returns HTTP 422.
+          PREV_TAG=$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest" --jq '.tag_name' 2>/dev/null || echo '')
+          if [ -n "$PREV_TAG" ]; then
+            gh release create "$TAG" --title "$TAG" --generate-notes --notes-start-tag "$PREV_TAG"
+          else
+            gh release create "$TAG" --title "$TAG" --generate-notes
+          fi
 
       - name: Summary
+        env:
+          TAG: ${{ inputs.tag }}
+          ALSO_LATEST: ${{ inputs.also_latest }}
+          CREATE_RELEASE: ${{ inputs.create_release }}
         run: |
           {
             echo "## Manual publish complete"
             echo ""
-            echo "- Image: \`heavygee/hello-dalle-discordbot:${{ inputs.tag }}\`"
-            echo "- Also \`:latest\`: \`${{ inputs.also_latest }}\`"
-            echo "- GitHub release: \`${{ inputs.create_release }}\`"
+            echo "- Image: \`heavygee/hello-dalle-discordbot:${TAG}\`"
+            echo "- Also \`:latest\`: \`${ALSO_LATEST}\`"
+            echo "- GitHub release: \`${CREATE_RELEASE}\`"
             echo "- Commit: \`${GITHUB_SHA}\`"
           } >> "$GITHUB_STEP_SUMMARY"
