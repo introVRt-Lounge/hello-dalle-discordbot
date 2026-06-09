@@ -1,27 +1,23 @@
 {
   "compilerOptions": {
-    "rootDir": "./src",          // Root directory for your source files
-    "outDir": "./dist",          // Output directory for compiled files
-    "baseUrl": ".",              // Base URL for module resolution (relative to project root)
-    "paths": {
-      "*": ["./src/*"]           // Ensure path resolution is from the 'src' directory
-    },
-    "strict": true,              // Enable all strict type-checking options
-    "moduleResolution": "node",  // Use Node module resolution strategy
-    "target": "ES2020",          // Target JavaScript version (supports private identifiers)
-    "module": "commonjs",        // Module system
-    "resolveJsonModule": true,   // Enable .json modules
-    "esModuleInterop": true,     // Enable compatibility for ES module imports
-    "skipLibCheck": true,        // Skip type checking of declaration files
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "strict": true,
+    "moduleResolution": "node16",
+    "target": "ES2020",
+    "module": "node16",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "declaration": false,        // Don't generate .d.ts files for pre-commit checks
-    "noEmit": false              // Emit compiled JavaScript files
+    "declaration": false,
+    "noEmit": false
   },
   "include": [
-    "src/**/*.ts"                // Include all TypeScript files in the src directory
+    "src/**/*.ts"
   ],
   "exclude": [
-    "node_modules"               // Exclude node_modules directory
+    "node_modules"
   ]
 }
