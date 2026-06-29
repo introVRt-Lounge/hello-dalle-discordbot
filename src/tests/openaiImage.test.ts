@@ -1,6 +1,5 @@
 import axios from 'axios';
 import * as fs from 'fs';
-import * as path from 'path';
 import { generateImageWithOpenAI } from '../utils/imageUtils';
 
 jest.mock('axios');
