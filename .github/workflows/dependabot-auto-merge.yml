@@ -34,7 +34,7 @@ jobs:
     if: github.actor == 'dependabot[bot]' && github.repository == 'introVRt-Lounge/hello-dalle-discordbot'
     steps:
       - name: Checkout (for local composite actions)
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Fetch Dependabot metadata
         id: meta
