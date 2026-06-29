@@ -2,24 +2,15 @@ name: dependabot-auto-merge
 
 # Auto-merge Dependabot PRs that pass the `ci` aggregate gate.
 #
-# Policy:
-#   - patch + minor (security or version): flip PR to --auto --squash; merges
-#     automatically once branch protection's required `ci` check is green.
-#   - major: hold for human review. Major version bumps in JS/TS-land are
-#     intentional API breaks; required-reviews is dropped on this repo so
-#     auto-merge ALSO needs no human signal, which is exactly why we leave
-#     a one-line comment explaining why this PR is parked.
+# Policy (2026-06-29): auto-merge ALL Dependabot PRs (npm, github-actions,
+# docker). The `ci` aggregate is the sole safety gate — no human review
+# requirement on this solo-operated repo.
 #
-# Why this is safe to fire-and-forget:
-#   - Branch protection requires the `ci` aggregate (lint + test +
-#     secret-scan + owasp-sast + security-audit). No green ci, no merge.
-#   - `security-audit` (npm audit --omit=dev --audit-level=high) is part
-#     of `ci`, so any prod-reachable CVE blocks the merge.
-#   - Squash-merging on green main triggers `docker-latest.yml` which
-#     publishes :latest to Docker Hub, and Coolify auto-reconciles. So a
-#     green Dependabot patch ships to production with zero human steps.
+# npm semver-major bumps still get a low-priority ntfy ping (informational;
+# they are NOT parked — CI green means merge).
 #
-# Reference: docs.github.com - Automating Dependabot with GitHub Actions.
+# Squash-merging on green main triggers `docker-latest.yml` -> Docker Hub
+# `:latest` -> Coolify reconcile.
 
 on: pull_request
 
@@ -30,11 +21,10 @@ permissions:
 jobs:
   auto-merge:
     runs-on: ubuntu-latest
-    # Only act on Dependabot's own PRs.
     if: github.actor == 'dependabot[bot]' && github.repository == 'introVRt-Lounge/hello-dalle-discordbot'
     steps:
       - name: Checkout (for local composite actions)
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Fetch Dependabot metadata
         id: meta
@@ -42,36 +32,22 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Enable auto-merge for patch + minor bumps
-        if: |
-          steps.meta.outputs.update-type == 'version-update:semver-patch' ||
-          steps.meta.outputs.update-type == 'version-update:semver-minor'
+      - name: Enable auto-merge (CI is the gate)
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh pr merge "$PR_URL" --auto --squash
 
-      - name: Park major bumps for human review
-        if: steps.meta.outputs.update-type == 'version-update:semver-major'
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEP_NAMES: ${{ steps.meta.outputs.dependency-names }}
-          NEW_VERSION: ${{ steps.meta.outputs.new-version }}
-        run: |
-          gh pr comment "$PR_URL" --body \
-            "Major version bump for \`${DEP_NAMES}\` (-> \`${NEW_VERSION}\`). Held for human review per \`.github/workflows/dependabot-auto-merge.yml\`. Patch and minor bumps auto-merge on green ci; majors do not."
-
-      - name: Notify ntfy when a major is parked
+      - name: Notify ntfy on npm major bumps (informational)
         if: steps.meta.outputs.update-type == 'version-update:semver-major'
         uses: ./.github/actions/ntfy
         with:
           url: ${{ secrets.NTFY_URL }}
           token: ${{ secrets.NTFY_TOKEN }}
-          title: "Dependabot major bump parked - review needed"
+          title: "Dependabot major bump auto-queued"
           message: |
             ${{ steps.meta.outputs.dependency-names }} -> ${{ steps.meta.outputs.new-version }}
-            PR ${{ github.event.pull_request.number }} on ${{ github.repository }}
+            PR ${{ github.event.pull_request.number }} will merge when ci is green.
           priority: low
           tags: package,octocat
           click: ${{ github.event.pull_request.html_url }}

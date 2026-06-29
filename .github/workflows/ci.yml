@@ -24,7 +24,7 @@ jobs:
     name: Lint / type-check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version: '22'
@@ -36,7 +36,7 @@ jobs:
     name: Test (jest)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version: '22'
@@ -66,7 +66,7 @@ jobs:
     name: Secret scan (gitleaks)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Install gitleaks
@@ -91,7 +91,7 @@ jobs:
     container:
       image: semgrep/semgrep:1.122.0
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Semgrep scan
         run: |
           semgrep scan \
@@ -109,7 +109,7 @@ jobs:
     name: Security audit (npm audit, prod deps)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version: '22'
@@ -145,7 +145,7 @@ jobs:
       # are visible in the PR UI and don't need a push notification).
       - name: Checkout for ntfy action
         if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Notify ntfy on main failure
         if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: ./.github/actions/ntfy

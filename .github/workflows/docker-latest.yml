@@ -27,7 +27,7 @@ jobs:
     # Skip auto-runs from non-collaborators / forks; manual_dispatch is fine.
     if: github.event_name == 'workflow_dispatch' || github.repository == 'introVRt-Lounge/hello-dalle-discordbot'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 

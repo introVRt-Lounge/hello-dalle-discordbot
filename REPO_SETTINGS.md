@@ -63,9 +63,9 @@ In-repo gates (run in `ci.yml`):
 
 ## Dependabot auto-merge
 
-`.github/workflows/dependabot-auto-merge.yml` flips every Dependabot PR for **patch** and **minor** bumps to `--auto --squash`. The PR sits in GitHub's auto-merge queue until the required `ci` aggregate goes green, then merges. The `docker-latest.yml` push hook then republishes `:latest` and Coolify reconciles - so a green patch bump ships to prod with zero human steps.
+`.github/workflows/dependabot-auto-merge.yml` flips **every** Dependabot PR (npm, github-actions, docker) to `--auto --squash`. The PR sits in GitHub's auto-merge queue until the required `ci` aggregate goes green, then merges. The `docker-latest.yml` push hook then republishes `:latest` and Coolify reconciles — zero human steps when CI passes.
 
-**Major** bumps are parked: the workflow leaves a single comment on the PR explaining the policy, fires a low-priority ntfy notification (so the operator knows a PR is parked), and waits for a human to merge manually.
+**npm semver-major** bumps still fire a low-priority ntfy ping (informational only; they are not parked).
 
 Why this is safe to fire-and-forget:
 

@@ -3,7 +3,7 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 import { pipeline } from 'stream/promises';
-import sharp = require('sharp');
+import sharp from 'sharp';
 import { generateImageWithGemini, GeminiImageModelType } from '../services/geminiService';
 
 // Ensure the temp directory exists
