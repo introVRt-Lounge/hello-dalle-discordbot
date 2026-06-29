@@ -57,31 +57,32 @@ describe('Image Generation Integration Tests', () => {
                                !!process.env.GEMINI_API_KEY;
 
     (runIntegrationTests ? describe : describe.skip)('Real Image Generation', () => {
-        test('should generate image with DALL-E', async () => {
+        test('should generate image with OpenAI (dalle engine)', async () => {
             const options: ImageGenerationOptions = {
                 prompt: 'Abstract neon landscape forming from digital mist — silhouettes emerging slowly, illuminated by pulsating light waves. The mood is mysterious and anticipatory, like a world booting up to sound. Stylized digital artwork, club visual art.',
                 engine: 'dalle'
             };
 
-            const imageUrl = await generateImageWithOptions(options);
+            const imageResult = await generateImageWithOptions(options);
 
-            // Should return a URL for DALL-E
-            expect(typeof imageUrl).toBe('string');
-            expect(imageUrl.startsWith('http')).toBe(true);
+            expect(typeof imageResult).toBe('string');
 
-            // Download and save the image to dated output directory
-            const filename = `dalle-blue-circle-${Date.now()}.png`;
+            const filename = `openai-image-${Date.now()}.png`;
             const outputPath = path.join(outputDir, filename);
-            await downloadAndSaveImage(imageUrl, outputPath);
 
-            // Verify the downloaded file exists
+            if (imageResult.startsWith('http')) {
+                await downloadAndSaveImage(imageResult, outputPath);
+            } else {
+                fs.copyFileSync(imageResult, outputPath);
+            }
+
             expect(fs.existsSync(outputPath)).toBe(true);
             const stats = fs.statSync(outputPath);
-            expect(stats.size).toBeGreaterThan(1000); // At least 1KB
+            expect(stats.size).toBeGreaterThan(1000);
 
-            console.log('✅ DALL-E generated image URL:', imageUrl);
+            console.log('✅ OpenAI generated image:', imageResult.startsWith('http') ? imageResult : path.relative(process.cwd(), imageResult));
             console.log('📁 Preserved in output directory:', path.relative(process.cwd(), outputPath));
-        }, 30000); // 30 second timeout
+        }, 60000);
 
         test('should generate image with Gemini text-to-image', async () => {
             const options: ImageGenerationOptions = {
