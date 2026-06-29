@@ -1,4 +1,4 @@
-import { DEBUG, OPENAI_API_KEY, WATERMARK_PATH, ImageEngine, getDEFAULT_ENGINE } from '../config';
+import { DEBUG, OPENAI_API_KEY, OPENAI_IMAGE_MODEL, WATERMARK_PATH, ImageEngine, getDEFAULT_ENGINE } from '../config';
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -31,6 +31,42 @@ export interface ImageGenerationOptions {
   geminiModel?: GeminiImageModelType;
   imageInput?: string; // For image-to-image generation
   useAnalysis?: boolean; // Whether to use double-LLM analysis for better prompts (default: true)
+}
+
+/** OpenAI Images API — returns a download URL or a local temp file path (gpt-image-* uses b64_json). */
+export async function generateImageWithOpenAI(prompt: string): Promise<string> {
+    if (!OPENAI_API_KEY) {
+        throw new Error('OPENAI_API_KEY is required for OpenAI image generation. Please set the OPENAI_API_KEY environment variable.');
+    }
+
+    const response = await axios.post('https://api.openai.com/v1/images/generations', {
+        model: OPENAI_IMAGE_MODEL,
+        prompt,
+        n: 1,
+        size: '1024x1024'
+    }, {
+        headers: {
+            'Authorization': `Bearer ${OPENAI_API_KEY}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    const item = response.data?.data?.[0];
+    if (!item) {
+        throw new Error('OpenAI image API returned no data');
+    }
+
+    if (item.url) {
+        return item.url;
+    }
+
+    if (item.b64_json) {
+        const outputPath = path.join(tempDir, `openai-generated-${Date.now()}.png`);
+        fs.writeFileSync(outputPath, Buffer.from(item.b64_json, 'base64'));
+        return outputPath;
+    }
+
+    throw new Error('OpenAI image API response missing url and b64_json');
 }
 
 // Function to generate image via API (DALL-E or Gemini)
@@ -69,24 +105,7 @@ export async function generateImageWithOptions(options: ImageGenerationOptions):
         useAnalysis
       });
       } else {
-    // Default to DALL-E
-    if (!OPENAI_API_KEY) {
-        throw new Error('OPENAI_API_KEY is required for DALL-E image generation. Please set the OPENAI_API_KEY environment variable.');
-    }
-
-        const response = await axios.post('https://api.openai.com/v1/images/generations', {
-            model: 'dall-e-3',
-            prompt: sanitizedPrompt,
-            n: 1,
-            size: "1024x1024"
-        }, {
-            headers: {
-                'Authorization': `Bearer ${OPENAI_API_KEY}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        return response.data.data[0].url;
+        return await generateImageWithOpenAI(sanitizedPrompt);
       }
     } catch (primaryError: any) {
       const primaryErrorMessage = primaryError.message || 'Unknown error occurred';
@@ -108,24 +127,7 @@ export async function generateImageWithOptions(options: ImageGenerationOptions):
             useAnalysis: false // Disable analysis for fallback to avoid further issues
           });
                 } else {
-          // Fallback to DALL-E
-          if (!OPENAI_API_KEY) {
-            throw new Error('OPENAI_API_KEY is required for DALL-E fallback. Please set the OPENAI_API_KEY environment variable.');
-          }
-
-          const response = await axios.post('https://api.openai.com/v1/images/generations', {
-            model: 'dall-e-3',
-            prompt: prompt,
-            n: 1,
-            size: "1024x1024"
-          }, {
-            headers: {
-              'Authorization': `Bearer ${OPENAI_API_KEY}`,
-              'Content-Type': 'application/json'
-            }
-          });
-
-          return response.data.data[0].url;
+          return await generateImageWithOpenAI(prompt);
                 }
       } catch (fallbackError: any) {
         const fallbackErrorMessage = fallbackError.message || 'Unknown fallback error';

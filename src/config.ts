@@ -37,6 +37,13 @@ export const WILDCARD = parseInt(process.env.WILDCARD ?? '0', 10);
 export const DEBUG = process.env.DEBUG === 'true' || false; // Default DEBUG to false
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // Optional: for Gemini image generation
 export const OPENAI_API_KEY = process.env.OPENAI_API_KEY; // For DALL-E image generation (cost monitoring not available via API)
+/** OpenAI Images API model id. Prod keys often expose gpt-image-1, not dall-e-3. */
+export const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1';
+/** Retries when Gemini returns an empty image payload (intermittent SDK flake). */
+export const GEMINI_IMAGE_MAX_ATTEMPTS = Math.max(
+    1,
+    parseInt(process.env.GEMINI_IMAGE_MAX_ATTEMPTS || '3', 10)
+);
 export const GOOGLE_CLOUD_PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT_ID; // Optional: for Gemini cost monitoring
 
 // Get version from version.txt - no fallback, must exist

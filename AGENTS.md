@@ -116,3 +116,20 @@ If you discover a leaked credential in any branch:
   current PR.
 - Pin Docker / GitHub Action versions instead of using floating tags.
 - Use `gh` (not curl + manual JSON) for GitHub API operations.
+
+## Production deployment (how code reaches Coolify)
+
+**AGENTS.md does not replace the runbooks below** — read them before
+touching deploy plumbing or claiming something is live.
+
+- **Step 1:** Merge (or push) to `main` with green `ci` aggregate
+- **Step 2:** `.github/workflows/docker-latest.yml` builds and pushes `heavygee/hello-dalle-discordbot:latest` (+ `:main-<sha>`) to Docker Hub
+- **Step 3:** Coolify (Bots project, service `hello-dalle` on `coolify.introvrtlounge.com`) watches `:latest` and reconciles the container on the next pull
+
+Canonical detail: [`REPO_SETTINGS.md`](./REPO_SETTINGS.md) (branch protection, auto-merge, ntfy alerts) and [`.github/workflows/docker-latest.yml`](.github/workflows/docker-latest.yml).
+
+**Do not** build or run production containers from this checkout. [`PRODUCTION_DEPLOYMENT.md`](./PRODUCTION_DEPLOYMENT.md) explains the dev/prod boundary (some Watchtower paths there are legacy; Coolify + `docker-latest.yml` is current per `REPO_SETTINGS.md`).
+
+Operator-triggered SemVer releases (optional): `.github/workflows/manual-publish.yml`.
+
+**Env vars** (e.g. `GEMINI_API_KEY`, `OPENAI_API_KEY`, `DEFAULT_ENGINE`, `OPENAI_IMAGE_MODEL`) are set in Coolify, not in this repo. Code changes alone do not rotate secrets.

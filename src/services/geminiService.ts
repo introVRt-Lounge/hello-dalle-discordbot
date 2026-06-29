@@ -1,6 +1,6 @@
-import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
+import { GoogleGenerativeAI, GenerativeModel, GenerateContentResult } from '@google/generative-ai';
 import axios from 'axios';
-import { GEMINI_API_KEY, DEBUG } from '../config';
+import { GEMINI_API_KEY, DEBUG, GEMINI_IMAGE_MAX_ATTEMPTS } from '../config';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -142,6 +142,63 @@ function getMimeType(imagePath: string): string {
 // For now, let's use inline data approach with proper structure
 // TODO: Implement proper File API upload when needed
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function summarizeGeminiParts(parts: Array<{ inlineData?: { data?: string }; text?: string }>): string {
+  return parts
+    .map((part) => {
+      if (part.inlineData?.data) {
+        return 'IMAGE';
+      }
+      if (part.text !== undefined) {
+        return `TEXT(${part.text.length}ch)`;
+      }
+      return 'UNKNOWN';
+    })
+    .join(',');
+}
+
+/** Returns a temp file path when inline image data is present; null when the model returned no image. */
+function extractImageFromGeminiResponse(result: GenerateContentResult): string | null {
+  if (!result.response.candidates || result.response.candidates.length === 0) {
+    return null;
+  }
+
+  const candidate = result.response.candidates[0];
+  if (!candidate.content?.parts) {
+    return null;
+  }
+
+  for (const part of candidate.content.parts) {
+    if (part.inlineData?.data) {
+      const imageData = part.inlineData.data;
+      const tempDir = path.join(__dirname, '../../temp');
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true });
+      }
+
+      const tempFilePath = path.join(tempDir, `gemini-generated-${Date.now()}.png`);
+      const imageBuffer = Buffer.from(imageData, 'base64');
+      fs.writeFileSync(tempFilePath, imageBuffer);
+
+      if (DEBUG) {
+        console.log(`DEBUG: Saved Gemini generated image to: ${tempFilePath}`);
+        console.log(`DEBUG: File size: ${imageBuffer.length} bytes`);
+      }
+
+      return tempFilePath;
+    }
+
+    if (part.text && DEBUG) {
+      console.log('DEBUG: Text part in response:', part.text.substring(0, 200) + '...');
+    }
+  }
+
+  return null;
+}
+
 // Generate image using Gemini with the CORRECT image generation API
 export async function generateImageWithGemini(options: GeminiImageOptions): Promise<string> {
   return await generateImageWithGeminiInternal(options);
@@ -204,10 +261,6 @@ async function generateImageWithGeminiInternal(options: GeminiImageOptions): Pro
     const client = getGeminiClient();
     const modelInstance = client.getGenerativeModel({ model: model });
 
-    if (DEBUG) {
-      console.log('DEBUG: Calling model.generateContent() with SDK...');
-    }
-
     // Prepare content for generation
     let content: any;
     if (imageInput && fs.existsSync(imageInput)) {
@@ -231,60 +284,35 @@ async function generateImageWithGeminiInternal(options: GeminiImageOptions): Pro
       content = finalPrompt;
     }
 
-    const result = await modelInstance.generateContent(content);
+    for (let attempt = 1; attempt <= GEMINI_IMAGE_MAX_ATTEMPTS; attempt++) {
+      if (DEBUG) {
+        console.log(`DEBUG: Calling model.generateContent() with SDK (attempt ${attempt}/${GEMINI_IMAGE_MAX_ATTEMPTS})...`);
+      }
 
-    if (DEBUG) {
-      console.log('DEBUG: Gemini SDK response received');
-      console.log('DEBUG: Candidates:', result.response.candidates?.length || 0);
-    }
+      const result = await modelInstance.generateContent(content);
 
-    // Extract image data from SDK response (different structure than REST API)
-    if (result.response.candidates && result.response.candidates.length > 0) {
-      const candidate = result.response.candidates[0];
+      if (DEBUG) {
+        console.log('DEBUG: Gemini SDK response received');
+        console.log('DEBUG: Candidates:', result.response.candidates?.length || 0);
+      }
 
-      if (candidate.content && candidate.content.parts) {
-        for (const part of candidate.content.parts) {
-          // Check for inline data (image response)
-          if (part.inlineData && part.inlineData.data) {
-            const imageData = part.inlineData.data;
-            const mimeType = part.inlineData.mimeType || 'image/png';
-
-            if (DEBUG) {
-              console.log(`DEBUG: Found inline image data, mimeType: ${mimeType}`);
-              console.log(`DEBUG: Data length: ${imageData.length}`);
-            }
-
-            // Convert base64 to temporary file
-            const tempDir = path.join(__dirname, '../../temp');
-            if (!fs.existsSync(tempDir)) {
-              fs.mkdirSync(tempDir, { recursive: true });
-            }
-
-            const tempFileName = `gemini-generated-${Date.now()}.png`;
-            const tempFilePath = path.join(tempDir, tempFileName);
-
-            try {
-              // Decode base64 and save as file
-              const imageBuffer = Buffer.from(imageData, 'base64');
-              fs.writeFileSync(tempFilePath, imageBuffer);
-
-              if (DEBUG) {
-                console.log(`DEBUG: Saved Gemini generated image to: ${tempFilePath}`);
-                console.log(`DEBUG: File size: ${imageBuffer.length} bytes`);
-              }
-
-              return tempFilePath;
-            } catch (bufferError) {
-              console.error('DEBUG: Error decoding base64 image data:', bufferError);
-              throw new Error(`Failed to decode Gemini image data: ${bufferError}`);
-            }
-          }
-
-          // Also check for text responses (might indicate an error or different response type)
-          if (part.text && DEBUG) {
-            console.log('DEBUG: Text part in response:', part.text.substring(0, 200) + '...');
-          }
+      const savedPath = extractImageFromGeminiResponse(result);
+      if (savedPath) {
+        if (attempt > 1) {
+          console.log(`Gemini image generation succeeded on attempt ${attempt}/${GEMINI_IMAGE_MAX_ATTEMPTS}`);
         }
+        return savedPath;
+      }
+
+      const candidate = result.response.candidates?.[0];
+      const partsSummary = summarizeGeminiParts(candidate?.content?.parts || []);
+      console.warn(
+        `Gemini returned no image data (attempt ${attempt}/${GEMINI_IMAGE_MAX_ATTEMPTS}) ` +
+        `finishReason=${candidate?.finishReason ?? 'none'} parts=[${partsSummary}]`
+      );
+
+      if (attempt < GEMINI_IMAGE_MAX_ATTEMPTS) {
+        await sleep(400 * attempt);
       }
     }
 
