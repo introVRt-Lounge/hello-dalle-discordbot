@@ -6,6 +6,10 @@ updates:
     schedule:
       interval: "weekly"         # daily | weekly | monthly
     open-pull-requests-limit: 10
+    # Delay bumps after a package publish so brand-new releases can settle
+    # (and so supply-chain malware has a chance to be yanked).
+    cooldown:
+      default-days: 3
     commit-message:
       prefix: "deps"
     groups:
@@ -21,9 +25,13 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 3
 
   # Docker base images in ./Dockerfile
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 3
