@@ -94,8 +94,11 @@ jobs:
       - uses: actions/checkout@v7
       - name: Semgrep scan
         run: |
+          # Exclude mutable-action-tag: this repo lets Dependabot bump
+          # actions/*@vN tags; SHA-pinning is tracked separately.
           semgrep scan \
             --error \
+            --exclude-rule=yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag \
             --config p/owasp-top-ten \
             --config p/javascript \
             --config p/typescript \
