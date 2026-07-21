@@ -1,6 +1,6 @@
 import { Client, TextChannel } from 'discord.js';
 import { BOTSPAM_CHANNEL_ID, GEMINI_API_KEY, GOOGLE_CLOUD_PROJECT_ID } from '../config';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -100,10 +100,24 @@ export class CostMonitoringService {
         ORDER BY is_current_month DESC
       `;
 
-      const result = execSync(`bq --project_id=${GOOGLE_CLOUD_PROJECT_ID} query --use_legacy_sql=false "${query}" --format=csv`, {
-        encoding: 'utf8',
-        timeout: 30000
-      });
+      // Use execFileSync (argv array) — never a shell string. The SQL uses
+      // BigQuery backticks around the table name; a double-quoted shell
+      // command would expand those as command substitution and fail with
+      // `/bin/sh: ...gcp_billing_export_v1_*: not found`.
+      const result = execFileSync(
+        'bq',
+        [
+          `--project_id=${GOOGLE_CLOUD_PROJECT_ID}`,
+          'query',
+          '--use_legacy_sql=false',
+          '--format=csv',
+          query,
+        ],
+        {
+          encoding: 'utf8',
+          timeout: 30000,
+        }
+      );
 
       // Parse CSV result with improved error handling
       const lines = result.trim().split('\n');
