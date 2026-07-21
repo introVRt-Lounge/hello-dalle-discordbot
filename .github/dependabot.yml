@@ -9,7 +9,7 @@ updates:
     # Delay bumps after a package publish so brand-new releases can settle
     # (and so supply-chain malware has a chance to be yanked).
     cooldown:
-      default-days: 3
+      default-days: 7
     commit-message:
       prefix: "deps"
     groups:
@@ -26,7 +26,7 @@ updates:
     schedule:
       interval: "weekly"
     cooldown:
-      default-days: 3
+      default-days: 7
 
   # Docker base images in ./Dockerfile
   - package-ecosystem: "docker"
@@ -34,4 +34,4 @@ updates:
     schedule:
       interval: "weekly"
     cooldown:
-      default-days: 3
+      default-days: 7
