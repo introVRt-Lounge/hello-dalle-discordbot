@@ -96,6 +96,7 @@ export class CostMonitoringService {
         WHERE
           service.description LIKE '%Generative%'
           OR service.description LIKE '%Vertex AI%'
+          OR service.description LIKE '%Gemini%'
         GROUP BY is_current_month
         ORDER BY is_current_month DESC
       `;
