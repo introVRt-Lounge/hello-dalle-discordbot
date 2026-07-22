@@ -154,9 +154,17 @@ gh workflow run manual-publish.yml -f tag=v1.32.0 -f create_release=false    # i
 
 ### Production deploy truth (Coolify Compose service)
 
-`hello-dalle` on `coolify.introvrtlounge.com` is a **Docker Compose service**, not a Coolify Application with registry auto-update. Pushing `:latest` to Hub does **not** by itself restart the bot.
+`hello-dalle` on `coolify.introvrtlounge.com` is a **Docker Compose service**, not a Coolify Application with registry auto-update. Pushing `:latest` to Hub does **not** by itself restart the bot via Coolify’s UI/API.
 
-Verified 2026-07-22 (issue #132): Coolify `activity_log` had **one** image pull for this service in recorded history (2026-07-21, manual deploy while wiring BQ env). Earlier “redeploys” recreated the container **without** pulling, so prod kept running a stale local root image for weeks after `USER node` landed in the Dockerfile.
+**Autodeploy (2026-07-22):** a scoped Watchtower on the Coolify VPS
+(`watchtower-hello-dalle`, compose in `/root/watchtower-hello-dalle/`) polls Hub
+every 60s and recreates only `hello-dalle-scgg88wckwcckwgcock008gs` when the
+digest changes. This avoids Coolify API IP allowlisting (GitHub Actions cannot
+call the API; `allowed_ips` is locked to `88.98.91.0/32` + two IPv6s). See #135.
+
+Verified 2026-07-22 (issue #132): before Watchtower, Coolify `activity_log` had
+**one** image pull for this service in recorded history (2026-07-21, manual
+deploy while wiring BQ env). Earlier “redeploys” recreated without pulling.
 
 Required Coolify compose knobs:
 
@@ -167,14 +175,12 @@ services:
     pull_policy: always   # redeploy must not silently reuse a stale local tag
 ```
 
-Runtime volumes must be writable by uid 1000 (`node`). The image entrypoint chowns mount roots then drops privileges; do not rely on one-off host `chown`.
+Runtime volumes must be writable by uid 1000 (`node`). The image entrypoint
+chowns mount roots then drops privileges; do not rely on one-off host `chown`.
 
-Follow-up (optional, not required for correctness): Coolify API
-`GET /api/v1/deploy?uuid=scgg88wckwcckwgcock008gs` can redeploy the Compose
-service after Hub publish. That is **not** the same as GitHub→Coolify git
-autodeploy (already abandoned for this bot). Until that API step is wired
-into `docker-latest.yml` on purpose, treat Coolify redeploy-with-pull as an
-explicit operator action. See closed issue #133.
+Coolify API deploy (`GET /api/v1/deploy?uuid=scgg88wckwcckwgcock008gs`) remains
+available from allowlisted IPs only (homelab). Do not reintroduce
+GitHub-hosted Actions → Coolify API (failed experiment; LOGBOOK 2026-02).
 
 ## Manual / out-of-band changes log
 
