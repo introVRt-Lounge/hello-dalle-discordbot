@@ -124,7 +124,10 @@ touching deploy plumbing or claiming something is live.
 
 - **Step 1:** Merge (or push) to `main` with green `ci` aggregate
 - **Step 2:** `.github/workflows/docker-latest.yml` builds and pushes `heavygee/hello-dalle-discordbot:latest` (+ `:main-<sha>`) to Docker Hub
-- **Step 3:** Coolify (Bots project, Compose service `hello-dalle` on `coolify.introvrtlounge.com`) must **redeploy with image pull**. Hub pushes alone do not restart this service (see issue #132 / `REPO_SETTINGS.md`).
+- **Step 3:** Scoped Watchtower on the Coolify VPS (`watchtower-hello-dalle`) pulls
+  `:latest` and recreates `hello-dalle-scgg88wckwcckwgcock008gs` (see #135 /
+  `REPO_SETTINGS.md`). Coolify API deploy remains available only from allowlisted
+  homelab IPs — not from GitHub-hosted Actions.
 
 Canonical detail: [`REPO_SETTINGS.md`](./REPO_SETTINGS.md) (branch protection, auto-merge, ntfy alerts, deploy truth) and [`.github/workflows/docker-latest.yml`](.github/workflows/docker-latest.yml).
 
