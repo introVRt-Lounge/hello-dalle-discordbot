@@ -17,6 +17,10 @@ import { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID, getWILDCARD, DEBUG, WEL
 import { logMessage } from './utils/log';
 import { readWelcomeCount } from './utils/appUtils';
 import { CostMonitoringService } from './services/costMonitoringService';
+import { assertRuntimeDirsWritable } from './utils/runtimeWritability';
+
+// Fail closed before connecting if watermark/data mounts are not writable (#132).
+assertRuntimeDirsWritable();
 
 // Create a new Discord client instance
 const client = new Client({

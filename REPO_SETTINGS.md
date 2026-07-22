@@ -139,10 +139,10 @@ The legacy `semantic-release` pipeline was removed (issue #95: orphan tag histor
 
 | Workflow | Trigger | Purpose |
 |---|---|---|
-| `docker-latest.yml` | push to `main`, `workflow_dispatch` | Builds `heavygee/hello-dalle-discordbot:latest` (and `:main-<sha>`) on every green main. Coolify watches `:latest` -> rolling deploys. |
+| `docker-latest.yml` | push to `main`, `workflow_dispatch` | Builds `heavygee/hello-dalle-discordbot:latest` (and `:main-<sha>`) on every green main. |
 | `manual-publish.yml` | `workflow_dispatch` (`-f tag=vX.Y.Z`) | Operator-triggered SemVer release. Tags the repo, builds + pushes `:vX.Y.Z` (and optionally `:latest`), creates a GitHub release with auto-generated notes. |
 
-Why no auto-bumped SemVer tags: `semantic-release` walks history; after the coverage-scrub `git filter-repo` invalidated the merge-base between old release tags and the rewritten `main`, it kept trying to publish `v1.0.0` and conflicting with the orphan tag. We chose the simpler tradeoff: `:latest` rolls forward automatically, SemVer cuts are a deliberate operator action.
+Why no auto-bumped SemVer tags: `semantic-release` walks history; after the coverage-scrub `git filter-repo` invalidated the merge-base between old release tags and the rewritten `main`, it kept trying to publish `v1.0.0` and conflicting with the orphan tag. We chose the simpler tradeoff: `:latest` rolls forward on Hub, SemVer cuts are a deliberate operator action.
 
 To cut a SemVer release:
 
@@ -152,7 +152,29 @@ gh workflow run manual-publish.yml -f tag=v1.32.0 -f also_latest=false       # t
 gh workflow run manual-publish.yml -f tag=v1.32.0 -f create_release=false    # image only, no GitHub release
 ```
 
-Production: Coolify watches `heavygee/hello-dalle-discordbot:latest` and reconciles automatically on new image push.
+### Production deploy truth (Coolify Compose service)
+
+`hello-dalle` on `coolify.introvrtlounge.com` is a **Docker Compose service**, not a Coolify Application with registry auto-update. Pushing `:latest` to Hub does **not** by itself restart the bot.
+
+Verified 2026-07-22 (issue #132): Coolify `activity_log` had **one** image pull for this service in recorded history (2026-07-21, manual deploy while wiring BQ env). Earlier “redeploys” recreated the container **without** pulling, so prod kept running a stale local root image for weeks after `USER node` landed in the Dockerfile.
+
+Required Coolify compose knobs:
+
+```yaml
+services:
+  hello-dalle:
+    image: heavygee/hello-dalle-discordbot:latest
+    pull_policy: always   # redeploy must not silently reuse a stale local tag
+```
+
+Runtime volumes must be writable by uid 1000 (`node`). The image entrypoint chowns mount roots then drops privileges; do not rely on one-off host `chown`.
+
+Follow-up (optional, not required for correctness): Coolify API
+`GET /api/v1/deploy?uuid=scgg88wckwcckwgcock008gs` can redeploy the Compose
+service after Hub publish. That is **not** the same as GitHub→Coolify git
+autodeploy (already abandoned for this bot). Until that API step is wired
+into `docker-latest.yml` on purpose, treat Coolify redeploy-with-pull as an
+explicit operator action. See closed issue #133.
 
 ## Manual / out-of-band changes log
 
@@ -165,7 +187,7 @@ Record any change that is not in a PR (UI-only toggles, gh api flips, etc.):
 | 2026-06-03 | Enabled Code Quality (preview) via gh api PATCH | bot session | hello-dalle bot session |
 | 2026-06-03 | Created issues #81-#86 and PRs #82, #87, #88, #89 for full Tier A-H baseline | bot session | hello-dalle bot session |
 | 2026-06-04 | Merged dependabot PRs #91/#92/#93/#94/#79/#100/#101/#102 - cleared 40+ open alerts | bot session | hello-dalle bot session |
-| 2026-06-04 | Replaced `release.yml` (broken semantic-release) with `docker-latest.yml` + `manual-publish.yml` | bot session | PR chore/ci-release-rework |
+| 2026-07-22 | Documented Coolify Compose deploy truth (no auto-watch); pull_policy=always on service; entrypoint volume chown (#132/#133) | bot session | postmortem watermark Permission denied |
 | 2026-06-04 | Added F-lite `security-audit` job to `ci.yml` | bot session | PR chore/ci-release-rework |
 | 2026-06-04 | Flipped required status check from `test` to `ci` aggregate | bot session | gh api branch protection |
 | 2026-06-04 | Dismissed 19 dev-only Dependabot alerts (jest / semantic-release transitives) as `tolerable_risk` | bot session | gh api dependabot/alerts |

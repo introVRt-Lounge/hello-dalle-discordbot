@@ -124,9 +124,9 @@ touching deploy plumbing or claiming something is live.
 
 - **Step 1:** Merge (or push) to `main` with green `ci` aggregate
 - **Step 2:** `.github/workflows/docker-latest.yml` builds and pushes `heavygee/hello-dalle-discordbot:latest` (+ `:main-<sha>`) to Docker Hub
-- **Step 3:** Coolify (Bots project, service `hello-dalle` on `coolify.introvrtlounge.com`) watches `:latest` and reconciles the container on the next pull
+- **Step 3:** Coolify (Bots project, Compose service `hello-dalle` on `coolify.introvrtlounge.com`) must **redeploy with image pull**. Hub pushes alone do not restart this service (see issue #132 / `REPO_SETTINGS.md`).
 
-Canonical detail: [`REPO_SETTINGS.md`](./REPO_SETTINGS.md) (branch protection, auto-merge, ntfy alerts) and [`.github/workflows/docker-latest.yml`](.github/workflows/docker-latest.yml).
+Canonical detail: [`REPO_SETTINGS.md`](./REPO_SETTINGS.md) (branch protection, auto-merge, ntfy alerts, deploy truth) and [`.github/workflows/docker-latest.yml`](.github/workflows/docker-latest.yml).
 
 **Do not** build or run production containers from this checkout. [`PRODUCTION_DEPLOYMENT.md`](./PRODUCTION_DEPLOYMENT.md) explains the dev/prod boundary (some Watchtower paths there are legacy; Coolify + `docker-latest.yml` is current per `REPO_SETTINGS.md`).
 
