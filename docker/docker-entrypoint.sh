@@ -2,6 +2,10 @@
 # Ensure persistent mounts are writable by the runtime user, then drop privileges.
 # Named volumes created under an older root image keep root:root ownership forever;
 # Dockerfile RUN chown cannot fix them. See issue #132.
+#
+# Production (Coolify) must start the container as uid 0 (`user: "0:0"` in compose)
+# so this script can chown mounts, then gosu to node. The image USER is node for
+# scanners; compose overrides the start user.
 set -eu
 
 RUNTIME_USER="${RUNTIME_USER:-node}"

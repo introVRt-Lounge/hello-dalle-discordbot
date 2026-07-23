@@ -77,9 +77,10 @@ COPY --chown=node:node package.json package-lock.json version.txt ./
 COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod 755 /usr/local/bin/docker-entrypoint.sh
 
-# Start as root so the entrypoint can chown pre-existing volumes, then gosu to node.
-# The long-running process is never root.
-USER root
+# Image default user is node (OWASP / Semgrep last-user-is-root).
+# Coolify compose MUST set `user: "0:0"` so the entrypoint can chown
+# pre-existing named volumes, then gosu drops to node for the long-running process (#132).
+USER node
 
 EXPOSE 3000
 

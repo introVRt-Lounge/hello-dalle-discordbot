@@ -173,10 +173,11 @@ services:
   hello-dalle:
     image: heavygee/hello-dalle-discordbot:latest
     pull_policy: always   # redeploy must not silently reuse a stale local tag
+    user: "0:0"           # entrypoint chowns volumes then gosu → node (#132)
 ```
 
-Runtime volumes must be writable by uid 1000 (`node`). The image entrypoint
-chowns mount roots then drops privileges; do not rely on one-off host `chown`.
+Runtime volumes must be writable by uid 1000 (`node`). Start as root only so the
+entrypoint can chown mounts, then drop; do not rely on one-off host `chown`.
 
 Coolify API deploy (`GET /api/v1/deploy?uuid=scgg88wckwcckwgcock008gs`) remains
 available from allowlisted IPs only (homelab). Do not reintroduce
