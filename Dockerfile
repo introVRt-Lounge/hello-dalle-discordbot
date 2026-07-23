@@ -53,6 +53,7 @@ RUN apt-get update \
        ca-certificates \
        curl \
        gnupg \
+       gosu \
        procps \
   && mkdir -p /etc/apt/keyrings \
   && curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg \
@@ -65,13 +66,20 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 # Pre-create writable runtime directories owned by the non-root user.
-RUN mkdir -p data logs welcome_images temp \
+# NOTE: this only affects image layers. Existing named volumes keep their
+# host ownership — docker/docker-entrypoint.sh repairs that at start (#132).
+RUN mkdir -p data logs welcome_images temp profile_images \
   && chown -R node:node /usr/src/app
 
 COPY --chown=node:node --from=prod-deps /usr/src/app/node_modules ./node_modules
 COPY --chown=node:node --from=build /usr/src/app/dist ./dist
 COPY --chown=node:node package.json package-lock.json version.txt ./
+COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod 755 /usr/local/bin/docker-entrypoint.sh
 
+# Image default user is node (OWASP / Semgrep last-user-is-root).
+# Coolify compose MUST set `user: "0:0"` so the entrypoint can chown
+# pre-existing named volumes, then gosu drops to node for the long-running process (#132).
 USER node
 
 EXPOSE 3000
@@ -81,4 +89,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD pidof node >/dev/null || exit 1
 
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["node", "dist/bot.js"]

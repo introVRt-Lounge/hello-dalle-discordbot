@@ -5,8 +5,10 @@ name: docker-latest
 # (v1.x.y, v1.32.0, ...) are still cut by the manual-publish workflow when
 # the operator decides a release is ready.
 #
-# Coolify watches :latest, so this keeps production rolling forward as soon
-# as ci.yml is green on main.
+# Publishes :latest to Docker Hub. Production Coolify is a Compose *service*
+# (not an Application with registry auto-update). Redeploy/pull is still an
+# explicit Coolify action or webhook — see REPO_SETTINGS.md / issue #132.
+# Do not assume Hub pushes alone restart the bot.
 
 on:
   push:
@@ -82,7 +84,8 @@ jobs:
             echo "- SHA tag: \`heavygee/hello-dalle-discordbot:main-${GITHUB_SHA}\`"
             echo "- Commit: \`${GITHUB_SHA}\`"
             echo ""
-            echo "Coolify watches :latest and will pull on next reconcile."
+            echo "Coolify Compose service must be redeployed (with image pull) to pick this up."
+            echo "See REPO_SETTINGS.md — auto-watch is not wired for this service (#132)."
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Notify ntfy on failure
@@ -94,7 +97,7 @@ jobs:
           title: "docker-latest failed: production deploy stalled"
           message: |
             docker-latest.yml failed on commit ${{ github.sha }} (${{ github.actor }}).
-            Coolify will keep serving the previous :latest until this is fixed.
+            Coolify keeps serving whatever image was last pulled until redeployed.
           priority: urgent
           tags: rotating_light,whale,octocat
           click: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
