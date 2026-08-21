@@ -15,7 +15,13 @@ import { handleEngineSlashCommand } from './commands/engine';
 import { registerSlashCommands } from './commands/slashCommands';
 import { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID, getWILDCARD, DEBUG, WELCOME_CHANNEL_ID, PROFILE_CHANNEL_ID } from './config';
 import { logMessage } from './utils/log';
-import { readWelcomeCount } from './utils/appUtils';
+import {
+    readWelcomeCount,
+    getWelcomedUserCount,
+    seedWelcomedUsers,
+    hasCelebratedMilestone500,
+    markMilestone500Celebrated,
+} from './utils/appUtils';
 import { CostMonitoringService } from './services/costMonitoringService';
 import { assertRuntimeDirsWritable } from './utils/runtimeWritability';
 
@@ -67,8 +73,33 @@ client.once('ready', async () => {
             console.log(`Using cached count: ${humanMemberCount} human members`);
         }
 
+        // If we have welcome history but no welcomedUsers.json (lost volume / never written),
+        // seed current human IDs so rejoins don't get a full welcome again (#136).
+        if (welcomeCount > 0 && getWelcomedUserCount() === 0) {
+            const humanIds = guild.members.cache
+                .filter(m => !m.user.bot)
+                .map(m => m.user.id);
+            const seeded = seedWelcomedUsers(humanIds);
+            console.log(
+                `Seeded welcomedUsers.json with ${seeded} current human member IDs ` +
+                `(welcomeCount=${welcomeCount} but persist file was empty).`
+            );
+            await logMessage(
+                client,
+                guild,
+                `Recovered rejoin memory: seeded ${seeded} member IDs into welcomedUsers.json.`
+            );
+        }
+
+        // If we are already at/past 500 humans and never recorded the one-shot flag,
+        // mark it celebrated so a rejoin cannot re-fire the golden VIP welcome (#136).
+        if (humanMemberCount >= 500 && !hasCelebratedMilestone500()) {
+            markMilestone500Celebrated();
+            console.log('Marked milestone500 as already celebrated (server already at/past 500 humans).');
+        }
+
         // Construct the startup message
-        const startupMessage = `Bot is online! Version: ${VERSION}. Wildcard chance: ${getWILDCARD()}%. Total welcomed users so far: ${welcomeCount}. Active human members: ${humanMemberCount}`;
+        const startupMessage = `Bot is online! Version: ${VERSION}. Wildcard chance: ${getWILDCARD()}%. Total welcomed users so far: ${welcomeCount}. Active human members: ${humanMemberCount}. Remembered welcomes: ${getWelcomedUserCount()}`;
 
         // Log the startup message
         await logMessage(client, guild, startupMessage);

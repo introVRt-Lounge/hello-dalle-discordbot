@@ -6,6 +6,7 @@ const dataDir = path.join(__dirname, '../../data');
 const welcomeCountFilePath = path.join(dataDir, 'welcomeCount.json');
 const imageDescriptionCacheFilePath = path.join(dataDir, 'imageDescriptionCache.json');
 const welcomedUsersFilePath = path.join(dataDir, 'welcomedUsers.json');
+const milestone500FilePath = path.join(dataDir, 'milestone500.json');
 
 // Ensure the data directory exists
 if (!fs.existsSync(dataDir)) {
@@ -43,9 +44,20 @@ function ensureCacheLoaded(): Set<string> {
 function persistWelcomedUserIds(ids: Set<string>): void {
     // Atomic write: stage to tmp then rename so a crash mid-write cannot corrupt the file.
     const tmpPath = `${welcomedUsersFilePath}.tmp`;
-    const payload = JSON.stringify({ ids: Array.from(ids) }, null, 2);
-    fs.writeFileSync(tmpPath, payload, { encoding: 'utf-8' });
-    fs.renameSync(tmpPath, welcomedUsersFilePath);
+    try {
+        if (!fs.existsSync(dataDir)) {
+            fs.mkdirSync(dataDir, { recursive: true });
+        }
+        const payload = JSON.stringify({ ids: Array.from(ids) }, null, 2);
+        fs.writeFileSync(tmpPath, payload, { encoding: 'utf-8' });
+        fs.renameSync(tmpPath, welcomedUsersFilePath);
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(
+            `FATAL: failed to persist welcomedUsers.json (${ids.size} ids) to ${welcomedUsersFilePath}: ${message}`
+        );
+        throw error;
+    }
 }
 
 export function hasWelcomedUser(userId: string): boolean {
@@ -60,8 +72,51 @@ export function addWelcomedUser(userId: string): void {
     persistWelcomedUserIds(ids);
 }
 
+/** Bulk-add IDs (e.g. seed current roster when the persist file was lost). Returns how many were newly added. */
+export function seedWelcomedUsers(userIds: string[]): number {
+    const ids = ensureCacheLoaded();
+    let added = 0;
+    for (const raw of userIds) {
+        const id = String(raw);
+        if (ids.has(id)) continue;
+        ids.add(id);
+        added++;
+    }
+    if (added > 0) {
+        persistWelcomedUserIds(ids);
+    }
+    return added;
+}
+
 export function readWelcomedUserIds(): string[] {
     return Array.from(ensureCacheLoaded());
+}
+
+export function getWelcomedUserCount(): number {
+    return ensureCacheLoaded().size;
+}
+
+/** True when the golden 500-member VIP welcome has already been fired once. */
+export function hasCelebratedMilestone500(): boolean {
+    if (!fs.existsSync(milestone500FilePath)) {
+        return false;
+    }
+    try {
+        const parsed = JSON.parse(fs.readFileSync(milestone500FilePath, { encoding: 'utf-8' }));
+        return parsed?.celebrated === true;
+    } catch (error) {
+        console.warn('Error reading milestone500.json, treating as not celebrated:', error);
+        return false;
+    }
+}
+
+export function markMilestone500Celebrated(): void {
+    const payload = JSON.stringify(
+        { celebrated: true, celebratedAt: new Date().toISOString() },
+        null,
+        2
+    );
+    fs.writeFileSync(milestone500FilePath, payload, { encoding: 'utf-8' });
 }
 
 // Test-only: drop the in-memory cache so the next access reloads from disk.

@@ -7,7 +7,13 @@ import { analyzeImageContent } from './geminiService';
 import * as path from 'path';
 import * as fs from 'fs';
 import { logMessage } from '../utils/log';
-import { readWelcomeCount, writeWelcomeCount, addWelcomedUser } from '../utils/appUtils';
+import {
+    readWelcomeCount,
+    writeWelcomeCount,
+    addWelcomedUser,
+    hasCelebratedMilestone500,
+    markMilestone500Celebrated,
+} from '../utils/appUtils';
 
 export let welcomeCount = readWelcomeCount();
 
@@ -63,7 +69,9 @@ export async function welcomeUser(client: Client, member: GuildMember, debugMode
         humanMemberCount = guild.members.cache.filter(member => !member.user.bot).size;
         if (DEBUG) console.log(`DEBUG: Using cached count: ${humanMemberCount} human members`);
     }
-    const isMilestoneWelcome = humanMemberCount === 500;
+    // One-shot: only the first time we ever hit exactly 500 humans. Rejoins that
+    // push the live count back to 500 must not re-fire the golden VIP welcome.
+    const isMilestoneWelcome = humanMemberCount === 500 && !hasCelebratedMilestone500();
 
     try {
         // Log the avatar URL
@@ -109,6 +117,12 @@ export async function welcomeUser(client: Client, member: GuildMember, debugMode
 
                 // Notify admins about profile picture generation
                 await notifyAdmins(client, guild, `Profile picture generated for user "${displayName}".`, []);
+
+                // Still record the user so a later rejoin skips the full welcome path (#136).
+                addWelcomedUser(userId);
+                welcomeCount++;
+                writeWelcomeCount(welcomeCount);
+                await logMessage(client, guild, `Welcome count updated (pfp-only path): ${welcomeCount}`);
 
                 // Exit after generating profile picture, no welcome image is needed in this case
                 return;
@@ -222,6 +236,9 @@ Make this the most spectacular welcome image ever created - fit for royalty! ✨
         welcomeCount++;
         writeWelcomeCount(welcomeCount);
         addWelcomedUser(userId);
+        if (isMilestoneWelcome) {
+            markMilestone500Celebrated();
+        }
         await logMessage(client, guild, `Welcome count updated: ${welcomeCount}`);
 
         // Clean up temp files

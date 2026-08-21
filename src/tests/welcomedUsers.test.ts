@@ -4,29 +4,43 @@ import {
     hasWelcomedUser,
     addWelcomedUser,
     readWelcomedUserIds,
+    seedWelcomedUsers,
+    getWelcomedUserCount,
+    hasCelebratedMilestone500,
+    markMilestone500Celebrated,
     _resetWelcomedUsersCacheForTests,
 } from '../utils/appUtils';
 
 const welcomedUsersFilePath = path.join(__dirname, '../../data/welcomedUsers.json');
 const tmpFilePath = `${welcomedUsersFilePath}.tmp`;
+const milestone500FilePath = path.join(__dirname, '../../data/milestone500.json');
 
 describe('welcomedUsers persistence (appUtils)', () => {
     let backup: string | null = null;
+    let milestoneBackup: string | null = null;
 
     beforeEach(() => {
         backup = fs.existsSync(welcomedUsersFilePath)
             ? fs.readFileSync(welcomedUsersFilePath, 'utf-8')
             : null;
+        milestoneBackup = fs.existsSync(milestone500FilePath)
+            ? fs.readFileSync(milestone500FilePath, 'utf-8')
+            : null;
         if (fs.existsSync(welcomedUsersFilePath)) fs.unlinkSync(welcomedUsersFilePath);
         if (fs.existsSync(tmpFilePath)) fs.unlinkSync(tmpFilePath);
+        if (fs.existsSync(milestone500FilePath)) fs.unlinkSync(milestone500FilePath);
         _resetWelcomedUsersCacheForTests();
     });
 
     afterEach(() => {
         if (fs.existsSync(welcomedUsersFilePath)) fs.unlinkSync(welcomedUsersFilePath);
         if (fs.existsSync(tmpFilePath)) fs.unlinkSync(tmpFilePath);
+        if (fs.existsSync(milestone500FilePath)) fs.unlinkSync(milestone500FilePath);
         if (backup !== null) {
             fs.writeFileSync(welcomedUsersFilePath, backup, 'utf-8');
+        }
+        if (milestoneBackup !== null) {
+            fs.writeFileSync(milestone500FilePath, milestoneBackup, 'utf-8');
         }
         _resetWelcomedUsersCacheForTests();
     });
@@ -87,5 +101,35 @@ describe('welcomedUsers persistence (appUtils)', () => {
     it('does not leave a .tmp file behind after a successful write', () => {
         addWelcomedUser('111');
         expect(fs.existsSync(tmpFilePath)).toBe(false);
+    });
+
+    it('seedWelcomedUsers bulk-adds and skips duplicates', () => {
+        addWelcomedUser('111');
+        const added = seedWelcomedUsers(['111', '222', '333']);
+        expect(added).toBe(2);
+        expect(getWelcomedUserCount()).toBe(3);
+        expect(hasWelcomedUser('222')).toBe(true);
+        expect(hasWelcomedUser('333')).toBe(true);
+    });
+
+    it('seedWelcomedUsers persists across cache reset', () => {
+        seedWelcomedUsers(['aaa', 'bbb']);
+        _resetWelcomedUsersCacheForTests();
+        expect(readWelcomedUserIds().sort()).toEqual(['aaa', 'bbb']);
+    });
+
+    it('milestone500 starts uncelebrated and becomes one-shot after mark', () => {
+        expect(hasCelebratedMilestone500()).toBe(false);
+        markMilestone500Celebrated();
+        expect(hasCelebratedMilestone500()).toBe(true);
+        const raw = JSON.parse(fs.readFileSync(milestone500FilePath, 'utf-8'));
+        expect(raw.celebrated).toBe(true);
+        expect(typeof raw.celebratedAt).toBe('string');
+    });
+
+    it('milestone500 survives as celebrated after file re-read', () => {
+        markMilestone500Celebrated();
+        expect(hasCelebratedMilestone500()).toBe(true);
+        expect(hasCelebratedMilestone500()).toBe(true);
     });
 });
