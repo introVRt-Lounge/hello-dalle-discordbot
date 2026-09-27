@@ -115,7 +115,9 @@ jobs:
       - name: Create git tag and GitHub release
         if: ${{ inputs.create_release == 'true' }}
         env:
-          GH_TOKEN: ${{ github.token }}
+          # Prefer repo secret GH_TOKEN (fine-grained PAT) for release notes;
+          # fall back to the job token if the secret is unset.
+          GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
           TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
