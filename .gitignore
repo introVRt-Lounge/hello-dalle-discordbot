@@ -4,6 +4,7 @@ helpers/hubpush.sh
 avatar.png
 dalle_image.png
 data/welcomeCount.json
+data/milestones.json
 node_modules/
 *.log
 pids

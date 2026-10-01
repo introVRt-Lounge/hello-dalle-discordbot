@@ -6,6 +6,21 @@ const dataDir = path.join(__dirname, '../../data');
 const welcomeCountFilePath = path.join(dataDir, 'welcomeCount.json');
 const imageDescriptionCacheFilePath = path.join(dataDir, 'imageDescriptionCache.json');
 const welcomedUsersFilePath = path.join(dataDir, 'welcomedUsers.json');
+const milestonesFilePath = path.join(dataDir, 'milestones.json');
+
+/** Human-member VIP celebration target (excludes bots). */
+export const HUMAN_MEMBER_MILESTONE_500 = 500;
+
+type MilestoneRecord = {
+    celebratedAt: string;
+    userId?: string;
+    memberCount?: number;
+    reason?: string;
+};
+
+type MilestonesFile = {
+    celebrated: Record<string, MilestoneRecord>;
+};
 
 // Ensure the data directory exists
 if (!fs.existsSync(dataDir)) {
@@ -88,6 +103,89 @@ export function readWelcomeCount(): number {
 export function writeWelcomeCount(count: number): void {
     const countData = { count };
     fs.writeFileSync(welcomeCountFilePath, JSON.stringify(countData), { encoding: 'utf-8' });
+}
+
+// --- Member-count milestones (durable across container recreate / image update) ---
+
+let milestonesCache: MilestonesFile | null = null;
+
+function loadMilestonesFromDisk(): MilestonesFile {
+    if (!fs.existsSync(milestonesFilePath)) {
+        return { celebrated: {} };
+    }
+    try {
+        const data = fs.readFileSync(milestonesFilePath, { encoding: 'utf-8' });
+        const parsed = JSON.parse(data);
+        if (parsed && typeof parsed === 'object' && parsed.celebrated && typeof parsed.celebrated === 'object') {
+            return { celebrated: parsed.celebrated as Record<string, MilestoneRecord> };
+        }
+        return { celebrated: {} };
+    } catch (error) {
+        console.warn('Error reading milestones.json, treating as empty:', error);
+        return { celebrated: {} };
+    }
+}
+
+function ensureMilestonesLoaded(): MilestonesFile {
+    if (milestonesCache === null) {
+        milestonesCache = loadMilestonesFromDisk();
+    }
+    return milestonesCache;
+}
+
+function persistMilestones(state: MilestonesFile): void {
+    const tmpPath = `${milestonesFilePath}.tmp`;
+    const payload = JSON.stringify(state, null, 2);
+    fs.writeFileSync(tmpPath, payload, { encoding: 'utf-8' });
+    fs.renameSync(tmpPath, milestonesFilePath);
+}
+
+export function hasCelebratedMilestone(target: number): boolean {
+    const key = String(target);
+    return Boolean(ensureMilestonesLoaded().celebrated[key]);
+}
+
+export function markMilestoneCelebrated(
+    target: number,
+    meta: { userId?: string; memberCount?: number; reason?: string } = {}
+): void {
+    const state = ensureMilestonesLoaded();
+    const key = String(target);
+    state.celebrated[key] = {
+        celebratedAt: new Date().toISOString(),
+        userId: meta.userId,
+        memberCount: meta.memberCount,
+        reason: meta.reason ?? 'celebrated',
+    };
+    persistMilestones(state);
+}
+
+/**
+ * Announce only when current human count is exactly the target and we have not
+ * already celebrated that milestone on durable disk.
+ */
+export function shouldAnnounceMemberMilestone(humanMemberCount: number, target: number): boolean {
+    return humanMemberCount === target && !hasCelebratedMilestone(target);
+}
+
+/**
+ * If the guild is already past the target and we never recorded a celebration,
+ * mark it silently so we do not VIP-spam on later joins (missed exact crossing).
+ * Returns true when a new silent mark was written.
+ */
+export function reconcilePastMemberMilestone(humanMemberCount: number, target: number): boolean {
+    if (humanMemberCount <= target) return false;
+    if (hasCelebratedMilestone(target)) return false;
+    markMilestoneCelebrated(target, {
+        memberCount: humanMemberCount,
+        reason: 'already_past',
+    });
+    return true;
+}
+
+/** Test-only: drop in-memory milestones cache so the next access reloads from disk. */
+export function _resetMilestonesCacheForTests(): void {
+    milestonesCache = null;
 }
 
 // Function to calculate SHA-256 hash of an image file

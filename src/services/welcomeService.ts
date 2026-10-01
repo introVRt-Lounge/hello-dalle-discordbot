@@ -7,7 +7,15 @@ import { analyzeImageContent } from './geminiService';
 import * as path from 'path';
 import * as fs from 'fs';
 import { logMessage } from '../utils/log';
-import { readWelcomeCount, writeWelcomeCount, addWelcomedUser } from '../utils/appUtils';
+import {
+    readWelcomeCount,
+    writeWelcomeCount,
+    addWelcomedUser,
+    HUMAN_MEMBER_MILESTONE_500,
+    shouldAnnounceMemberMilestone,
+    markMilestoneCelebrated,
+    reconcilePastMemberMilestone,
+} from '../utils/appUtils';
 
 export let welcomeCount = readWelcomeCount();
 
@@ -48,22 +56,39 @@ export async function welcomeUser(client: Client, member: GuildMember, debugMode
     const displayName = member.displayName;
     const userId = member.user.id;
 
-    // 🎉 MILESTONE CHECK: Has the server just reached 500 human members?
-    // Count only human members (exclude bots) for the milestone celebration
-    // Must fetch all members first since cache only contains recently active members
+    // 🎉 MILESTONE CHECK: 500th human member VIP welcome - once only (#158).
+    // Count only humans (exclude bots). Persist celebration under data/milestones.json
+    // so container recreate / image update cannot re-fire the same milestone.
     let humanMemberCount = 0;
     try {
         // Fetch all guild members to ensure accurate count (cache is lazy-loaded)
         await guild.members.fetch();
-        humanMemberCount = guild.members.cache.filter(member => !member.user.bot).size;
+        humanMemberCount = guild.members.cache.filter(m => !m.user.bot).size;
         if (DEBUG) console.log(`DEBUG: Fetched ${guild.members.cache.size} total members, ${humanMemberCount} human members for milestone check`);
     } catch (error) {
         // Fallback to cached members if fetch fails
         console.warn('Failed to fetch all members for milestone check, using cached count:', error);
-        humanMemberCount = guild.members.cache.filter(member => !member.user.bot).size;
+        humanMemberCount = guild.members.cache.filter(m => !m.user.bot).size;
         if (DEBUG) console.log(`DEBUG: Using cached count: ${humanMemberCount} human members`);
     }
-    const isMilestoneWelcome = humanMemberCount === 500;
+    // Already past 500 without a durable flag? Mark silently - do not VIP-spam.
+    if (reconcilePastMemberMilestone(humanMemberCount, HUMAN_MEMBER_MILESTONE_500)) {
+        await logMessage(
+            client,
+            guild,
+            `Milestone ${HUMAN_MEMBER_MILESTONE_500} already past (humans=${humanMemberCount}); recorded as celebrated without re-announce.`
+        );
+    }
+    const isMilestoneWelcome = shouldAnnounceMemberMilestone(humanMemberCount, HUMAN_MEMBER_MILESTONE_500);
+    // Claim the milestone immediately so concurrent joins / /welcome cannot double-fire
+    // while the VIP image is still generating.
+    if (isMilestoneWelcome) {
+        markMilestoneCelebrated(HUMAN_MEMBER_MILESTONE_500, {
+            userId,
+            memberCount: humanMemberCount,
+            reason: 'celebrated',
+        });
+    }
 
     try {
         // Log the avatar URL
