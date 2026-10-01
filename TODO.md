@@ -23,6 +23,7 @@
 ### Discord-bot skill
 - [x] Slash commands registered globally only - no stale-globals dual-registration footgun
 - [x] Idempotent welcome on rejoin (PR #82, issue #81)
+- [ ] Durable once-only 500th-member milestone (`data/milestones.json`, issue #158)
 
 ## User Interaction Improvements
 - [ ] Add reaction-based interactions for profile picture acceptance/rejection

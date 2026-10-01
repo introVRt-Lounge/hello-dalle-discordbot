@@ -15,7 +15,12 @@ import { handleEngineSlashCommand } from './commands/engine';
 import { registerSlashCommands } from './commands/slashCommands';
 import { DISCORD_BOT_TOKEN, VERSION, BOTSPAM_CHANNEL_ID, getWILDCARD, DEBUG, WELCOME_CHANNEL_ID, PROFILE_CHANNEL_ID } from './config';
 import { logMessage } from './utils/log';
-import { readWelcomeCount } from './utils/appUtils';
+import {
+    readWelcomeCount,
+    HUMAN_MEMBER_MILESTONE_500,
+    reconcilePastMemberMilestone,
+    hasCelebratedMilestone,
+} from './utils/appUtils';
 import { CostMonitoringService } from './services/costMonitoringService';
 import { assertRuntimeDirsWritable } from './utils/runtimeWritability';
 
@@ -67,8 +72,24 @@ client.once('ready', async () => {
             console.log(`Using cached count: ${humanMemberCount} human members`);
         }
 
+        // If we already passed the 500-human milestone without a durable flag
+        // (e.g. after repeated VIP spam under the old ===500 gate), record it now
+        // so the next join cannot re-announce across reboots/updates (#158).
+        // Exact-500 with no flag is left open so a genuine first crossing can still VIP;
+        // production stuck at 500 after spam should seed data/milestones.json on the volume.
+        if (reconcilePastMemberMilestone(humanMemberCount, HUMAN_MEMBER_MILESTONE_500)) {
+            await logMessage(
+                client,
+                guild,
+                `Recorded milestone ${HUMAN_MEMBER_MILESTONE_500} as already_past (humans=${humanMemberCount}) at startup.`
+            );
+        }
+
         // Construct the startup message
-        const startupMessage = `Bot is online! Version: ${VERSION}. Wildcard chance: ${getWILDCARD()}%. Total welcomed users so far: ${welcomeCount}. Active human members: ${humanMemberCount}`;
+        const milestoneNote = hasCelebratedMilestone(HUMAN_MEMBER_MILESTONE_500)
+            ? ` Milestone ${HUMAN_MEMBER_MILESTONE_500}: celebrated.`
+            : ` Milestone ${HUMAN_MEMBER_MILESTONE_500}: pending.`;
+        const startupMessage = `Bot is online! Version: ${VERSION}. Wildcard chance: ${getWILDCARD()}%. Total welcomed users so far: ${welcomeCount}. Active human members: ${humanMemberCount}.${milestoneNote}`;
 
         // Log the startup message
         await logMessage(client, guild, startupMessage);
