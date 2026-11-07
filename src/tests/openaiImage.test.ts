@@ -19,7 +19,11 @@ describe('generateImageWithOpenAI', () => {
         expect(result).toBe('https://example.com/image.png');
         expect(mockAxios.post).toHaveBeenCalledWith(
             'https://api.openai.com/v1/images/generations',
-            expect.objectContaining({ model: expect.any(String), prompt: 'blue circle' }),
+            expect.objectContaining({
+                model: 'gpt-image-2.5-flare',
+                prompt: 'blue circle',
+                size: '1024x1024',
+            }),
             expect.any(Object)
         );
     });
