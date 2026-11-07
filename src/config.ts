@@ -37,8 +37,12 @@ export const WILDCARD = parseInt(process.env.WILDCARD ?? '0', 10);
 export const DEBUG = process.env.DEBUG === 'true' || false; // Default DEBUG to false
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // Optional: for Gemini image generation
 export const OPENAI_API_KEY = process.env.OPENAI_API_KEY; // For DALL-E image generation (cost monitoring not available via API)
-/** OpenAI Images API model id. Prod keys often expose gpt-image-1, not dall-e-3. */
-export const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1';
+/**
+ * OpenAI Images API model id.
+ * `gpt-image-1` was shut down 2026-10-23; default to Flare for everyday welcome/pfp gens.
+ * Override via Coolify `OPENAI_IMAGE_MODEL` (e.g. gpt-image-2.5-sunburst for edit-heavy flows).
+ */
+export const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-2.5-flare';
 /** Retries when Gemini returns an empty image payload (intermittent SDK flake). */
 export const GEMINI_IMAGE_MAX_ATTEMPTS = Math.max(
     1,
