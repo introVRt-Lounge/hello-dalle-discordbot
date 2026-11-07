@@ -24,7 +24,7 @@
 - [x] Slash commands registered globally only - no stale-globals dual-registration footgun
 - [x] Idempotent welcome on rejoin (PR #82, issue #81)
 - [x] Durable once-only 500th-member milestone (`data/milestones.json`, issue #158, PR #159)
-- [ ] OpenAI default image model → `gpt-image-2.5-flare` (`gpt-image-1` shut down 2026-10-23; issue #168)
+- [x] OpenAI default image model → `gpt-image-2.5-flare` (`gpt-image-1` shut down 2026-10-23; issue #168, PR #169)
 - [ ] Gemini AI Studio prepay credits topped up (402 Payment Required; operator billing, not code)
 
 ## User Interaction Improvements
