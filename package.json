@@ -44,7 +44,7 @@
     "jest-mock-axios": "^4.10.1",
     "jest-mock-extended": "^4.0.2",
     "lint-staged": "^17.6.1",
-    "semantic-release": "^25.0.9",
+    "semantic-release": "^26.0.1",
     "ts-jest": "^29.4.15",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3"
